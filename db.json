@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "johndoe@mail.com",
+      "password": "123asd"
+    },
+    {
+      "email": "823uijh08o@mail.com",
+      "password": "123asd",
+      "id": 2
+    },
+    {
+      "email": "w98fh0394@mail.com",
+      "password": "123asd",
+      "id": 3
+    }
+  ]
+}
