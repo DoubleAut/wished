@@ -7,10 +7,10 @@ import {
     RegisterProviders,
     RegisterQuestion,
 } from '@/features/auth/register';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { handleRegister } from '../lib';
 import { Inputs } from '@/shared/types/Auth';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import { handleRegister } from '../lib';
 
 export const Register = () => {
     const searchParams = useSearchParams();
