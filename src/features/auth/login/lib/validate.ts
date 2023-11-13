@@ -1,4 +1,4 @@
-import { Errors, Inputs } from '../types';
+import { Errors, Inputs } from '@/shared/types/Auth';
 
 const isBlank = (input: string) => input.length === 0;
 
