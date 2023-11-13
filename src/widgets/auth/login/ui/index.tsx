@@ -7,24 +7,38 @@ import {
     LoginProviders,
     LoginQuestion,
 } from '@/features/auth/login';
-import { Inputs } from '@/shared/types/Auth';
-import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export const Login = () => {
+    const [errors, setErrors] = useState('');
     const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') ?? '/';
 
-    const onSubmit = async (data: Inputs) => {
-        const result = await signIn('credentials', { ...data, callbackUrl });
+    useEffect(() => {
+        const errorMessage = searchParams.get('error') ?? '/';
 
-        console.log(result);
-    };
+        if (errorMessage) {
+            setErrors(errorMessage);
+        }
+    }, []);
 
     return (
         <AuthCard
             header={<LoginHeader />}
-            form={<LoginForm onSubmit={onSubmit} />}
+            form={
+                <LoginForm
+                    err={{
+                        email: {
+                            isError: true,
+                            messages: [errors],
+                        },
+                        password: {
+                            isError: false,
+                            messages: [],
+                        },
+                    }}
+                />
+            }
             providers={<LoginProviders />}
             question={
                 <LoginQuestion
