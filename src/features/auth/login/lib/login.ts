@@ -14,7 +14,6 @@ const errors: Errors = {
 
 const returnObject = {
     isError: true,
-    isSuccess: false,
     errors: null,
 };
 
@@ -80,7 +79,6 @@ export const login = async (credentials: Inputs & { callbackUrl?: string }) => {
 
     const result = {
         ...returnObject,
-        isSuccess: true,
     };
 
     return result;
