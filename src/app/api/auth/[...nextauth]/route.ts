@@ -35,10 +35,13 @@ const getUser = async (credentials: Credentials) => {
     return users.find((item: User) => item.email === credentials.email);
 };
 
+const isEqual = (arg1: string, arg2: string) => arg1 == arg2;
+
 export const authOptions: AuthOptions = {
     pages: {
         signIn: '/auth/login',
         signOut: '/auth/logout',
+        error: '/auth/error',
     },
     providers: [
         GoogleProvider({
@@ -61,15 +64,21 @@ export const authOptions: AuthOptions = {
             async authorize(credentials, req) {
                 const user = await getUser(credentials);
 
-                if (!user || !credentials) {
-                    return null;
+                if (!user) {
+                    throw new Error('There is no user with provided email');
                 }
 
-                if (user.password === credentials.password) {
+                if (!credentials) {
+                    throw new Error('There is no data provided');
+                }
+
+                if (!isEqual(user.password, credentials.password)) {
+                    throw new Error('Credentials are wrong!');
+                }
+
+                if (isEqual(user.password, credentials.password)) {
                     return user;
                 }
-
-                return null;
             },
         }),
     ],
