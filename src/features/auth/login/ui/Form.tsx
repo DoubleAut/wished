@@ -70,7 +70,9 @@ export const Form = ({ err }: Props) => {
                 />
                 {errors.email.isError &&
                     errors.email.messages.map(item => (
-                        <Label className="text-red-500">{item}</Label>
+                        <Label key={item} className="text-red-500">
+                            {item}
+                        </Label>
                     ))}
             </Wrapper>
             <Wrapper>
@@ -83,7 +85,9 @@ export const Form = ({ err }: Props) => {
                 />
                 {errors.password.isError &&
                     errors.password.messages.map(item => (
-                        <Label className="text-red-500">{item}</Label>
+                        <Label key={item} className="text-red-500">
+                            {item}
+                        </Label>
                     ))}
             </Wrapper>
             <Wrapper>
