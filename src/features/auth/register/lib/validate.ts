@@ -1,4 +1,7 @@
-import { validateEmail, validatePassword } from '@/shared/lib/authValidation';
+import {
+    validateEmail,
+    validatePassword,
+} from '@/shared/lib/utils/authValidation';
 import { Errors, Inputs } from '@/shared/types/Auth';
 
 export const validate = (inputs: Required<Inputs>) => {
