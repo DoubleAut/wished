@@ -7,14 +7,14 @@ import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { useState } from 'react';
 import { validate } from '../lib/validate';
+import { createUser } from '../lib/register';
+import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 type LocalErrors = Required<Errors>;
 
-interface Props {
-    onSubmit: (data: Inputs) => Promise<LocalErrors | undefined>;
-}
-
-export const Form = ({ onSubmit }: Props) => {
+export const Form = () => {
+    const params = useSearchParams();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordRepeat, setPasswordRepeat] = useState('');
@@ -46,13 +46,16 @@ export const Form = ({ onSubmit }: Props) => {
             return;
         }
 
-        const registerErrors = await onSubmit({ email, password });
+        const { isError, errors } = await createUser({ email, password });
+        const callbackUrl = params.get('callbackUrl') ?? '/';
 
-        if (registerErrors) {
-            setErrors(registerErrors);
+        if (isError && errors) {
+            setErrors(errors);
 
             return;
         }
+
+        signIn('credentials', { email, password, callbackUrl });
     };
 
     return (

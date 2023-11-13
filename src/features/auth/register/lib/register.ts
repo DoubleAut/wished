@@ -6,7 +6,7 @@ type RegisterReturn = {
     errors: Required<Errors> | null;
 };
 
-export const handleRegister = async (body: Inputs): Promise<RegisterReturn> => {
+export const createUser = async (body: Inputs): Promise<RegisterReturn> => {
     const options = {
         method: 'POST',
         body: JSON.stringify(body),
