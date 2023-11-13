@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/shared/lib/classNames/cn';
 import { ReactNode } from 'react';
 
 export const Wrapper = ({
