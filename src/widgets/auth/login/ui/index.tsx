@@ -7,38 +7,12 @@ import {
     LoginProviders,
     LoginQuestion,
 } from '@/features/auth/login';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 export const Login = () => {
-    const [errors, setErrors] = useState('');
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        const errorMessage = searchParams.get('error') ?? '/';
-
-        if (errorMessage) {
-            setErrors(errorMessage);
-        }
-    }, []);
-
     return (
         <AuthCard
             header={<LoginHeader />}
-            form={
-                <LoginForm
-                    err={{
-                        email: {
-                            isError: true,
-                            messages: [errors],
-                        },
-                        password: {
-                            isError: false,
-                            messages: [],
-                        },
-                    }}
-                />
-            }
+            form={<LoginForm />}
             providers={<LoginProviders />}
             question={
                 <LoginQuestion
