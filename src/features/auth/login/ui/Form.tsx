@@ -22,8 +22,8 @@ export const Form = ({ err }: Props) => {
     const [errors, setErrors] = useState<Errors>(
         err || {
             email: {
-                isError: false,
-                messages: [],
+                isError: !!params.get('error'),
+                messages: [params.get('error') || ''],
             },
             password: {
                 isError: false,
