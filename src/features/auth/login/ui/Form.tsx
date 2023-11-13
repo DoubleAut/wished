@@ -1,19 +1,21 @@
 'use client';
 
-import { Errors, Inputs } from '@/shared/types/Auth';
+import { Errors } from '@/shared/types/Auth';
 import { Wrapper } from '@/shared/ui/Wrapper';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { login } from '../lib/login';
 import { validate } from '../lib/validate';
 
 interface Props {
-    onSubmit: (data: Inputs) => void;
     err?: Errors | null;
 }
 
-export const Form = ({ onSubmit, err }: Props) => {
+export const Form = ({ err }: Props) => {
+    const params = useSearchParams();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -30,7 +32,7 @@ export const Form = ({ onSubmit, err }: Props) => {
         },
     );
 
-    const _onSubmit = async () => {
+    const onSubmit = async () => {
         const validation = validate({ email, password });
         const isEmailError = validation.email.isError;
         const isPassError = validation.password.isError;
@@ -41,16 +43,19 @@ export const Form = ({ onSubmit, err }: Props) => {
             return;
         }
 
-        // const registerErrors = await onRegister({
-        //     email,
-        //     password,
-        // });
+        const callbackUrl = params.get('callbackUrl') ?? '/';
 
-        onSubmit({ email, password });
+        const { isError, errors } = await login({
+            email,
+            password,
+            callbackUrl,
+        });
 
-        // registerErrors ? setErrors(registerErrors) : onSubmit();
+        if (isError && errors) {
+            setErrors(errors);
 
-        return;
+            return;
+        }
     };
 
     return (
@@ -82,7 +87,7 @@ export const Form = ({ onSubmit, err }: Props) => {
                     ))}
             </Wrapper>
             <Wrapper>
-                <Button className="w-full" onClick={_onSubmit}>
+                <Button className="w-full" onClick={onSubmit}>
                     Login
                 </Button>
             </Wrapper>
