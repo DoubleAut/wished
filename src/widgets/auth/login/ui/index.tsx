@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthCard } from '@/entities/auth';
+import { AuthCard } from '@/features/auth';
 import {
     LoginForm,
     LoginHeader,
