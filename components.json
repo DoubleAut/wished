@@ -11,6 +11,6 @@
     },
     "aliases": {
         "components": "@/shared/",
-        "utils": "@/shared/lib/cn"
+        "utils": "@/shared/lib/classNames/cn"
     }
 }
