@@ -10,6 +10,7 @@ import { validate } from '../lib/validate';
 import { createUser } from '../lib/register';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { useSubmitListener } from '@/shared/lib/hooks/useSubmitListener';
 
 type LocalErrors = Required<Errors>;
 
@@ -34,7 +35,7 @@ export const Form = () => {
         },
     });
 
-    const _onSubmit = async () => {
+    const onSubmit = async () => {
         const validation = validate({ email, password, passwordRepeat });
         const isEmailError = validation.email.isError;
         const isPassError = validation.password.isError;
@@ -57,6 +58,8 @@ export const Form = () => {
 
         signIn('credentials', { email, password, callbackUrl });
     };
+
+    useSubmitListener(onSubmit);
 
     return (
         <Wrapper className="gap-4">
@@ -105,7 +108,7 @@ export const Form = () => {
                         </Label>
                     ))}
             </Wrapper>
-            <Button className="w-full" onClick={_onSubmit}>
+            <Button className="w-full" onClick={onSubmit}>
                 Register
             </Button>
         </Wrapper>

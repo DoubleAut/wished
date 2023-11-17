@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { login } from '../lib/login';
 import { validate } from '../lib/validate';
+import { useSubmitListener } from '@/shared/lib/hooks/useSubmitListener';
 
 interface Props {
     err?: Errors | null;
@@ -57,6 +58,8 @@ export const Form = ({ err }: Props) => {
             return;
         }
     };
+
+    useSubmitListener(onSubmit);
 
     return (
         <Wrapper className="gap-4">
