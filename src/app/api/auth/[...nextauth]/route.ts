@@ -1,6 +1,14 @@
+import { StrippedUser, User } from '@/shared/types/User';
 import NextAuth, { AuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import {
+    generateTokens,
+    getUserTokens,
+    refreshAccessToken,
+    saveTokens,
+} from './services/tokens';
+import { getUser, isPasswordsEqual } from './services/user';
 
 const GOOGLE_ID = process.env.GOOGLE_ID;
 const GOOGLE_SECRET = process.env.GOOGLE_SECRET;
@@ -9,39 +17,14 @@ if (!GOOGLE_ID || !GOOGLE_SECRET) {
     throw new Error('There is no credentials for google provider!');
 }
 
-type Credentials = Record<'email' | 'password', string> | undefined;
-type User = Credentials & { id: number };
-
-const fetchUsers = async (url: string) => {
-    const response = await fetch(url, { method: 'GET' });
-
-    if (!response.ok) {
-        throw new Error('Error during getting users');
-    }
-
-    const result = await response.json();
-
-    return result;
-};
-
-const getUser = async (credentials: Credentials) => {
-    if (!credentials) {
-        return;
-    }
-
-    const url = `http://localhost:5000/users`;
-    const users = await fetchUsers(url);
-
-    return users.find((item: User) => item.email === credentials.email);
-};
-
-const isEqual = (arg1: string, arg2: string) => arg1 == arg2;
-
 export const authOptions: AuthOptions = {
     pages: {
         signIn: '/auth/login',
         signOut: '/auth/logout',
         error: '/auth/error',
+    },
+    session: {
+        strategy: 'jwt',
     },
     providers: [
         GoogleProvider({
@@ -61,27 +44,97 @@ export const authOptions: AuthOptions = {
                 email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
             },
-            async authorize(credentials, req) {
+            async authorize(credentials) {
+                if (!credentials) {
+                    throw new Error('There is no data provided');
+                }
+
                 const user = await getUser(credentials);
 
                 if (!user) {
                     throw new Error('There is no user with provided email');
                 }
 
-                if (!credentials) {
-                    throw new Error('There is no data provided');
-                }
+                const isEqual = await isPasswordsEqual(
+                    credentials.password,
+                    user.password,
+                );
 
-                if (!isEqual(user.password, credentials.password)) {
+                if (!isEqual) {
                     throw new Error('Credentials are wrong!');
                 }
 
-                if (isEqual(user.password, credentials.password)) {
-                    return user;
+                const tokens = await getUserTokens(user.id);
+
+                if (!tokens) {
+                    const tokens = generateTokens(user);
+
+                    const newTokens = await saveTokens(user, tokens);
+
+                    return {
+                        ...user,
+                        ...tokens,
+                        tokenId: newTokens.id,
+                    };
                 }
+
+                return {
+                    ...user,
+                    ...tokens,
+                    tokenId: tokens.id,
+                };
             },
         }),
     ],
+    callbacks: {
+        jwt: async ({ token, user }: { token: any; user: any }) => {
+            if (user) {
+                console.log('User and token exist, return merged object');
+
+                return {
+                    ...token,
+                    ...user,
+                };
+            }
+
+            if (Date.now() < token.accessTokenExpiresIn) {
+                console.log(
+                    'Token is not expired yet, returning existing token',
+                );
+
+                return token;
+            }
+
+            const credentials = {
+                email: token.email,
+                id: token.id,
+                image: token.image,
+                name: token.name,
+                surname: token.surname,
+            };
+
+            return await refreshAccessToken(credentials, token);
+        },
+        session: async ({ session, token }: { session: any; token: any }) => {
+            try {
+                if (token) {
+                    return {
+                        ...session,
+                        ...token,
+                        error: token.error,
+                    };
+                }
+
+                return {
+                    ...session,
+                    error: token.error,
+                };
+            } catch (error) {
+                console.log('session error =', error);
+                return null;
+            }
+        },
+    },
 };
 
 export const handler = NextAuth(authOptions);
