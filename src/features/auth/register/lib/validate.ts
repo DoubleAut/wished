@@ -11,7 +11,7 @@ export const validate = (inputs: Required<Inputs>) => {
         messages: [],
     };
 
-    if (passwordRepeat.length === 0 || passwordRepeat !== password) {
+    if (passwordRepeat !== password) {
         errors.isError = true;
         errors.messages.push('Password is not the same');
     }
