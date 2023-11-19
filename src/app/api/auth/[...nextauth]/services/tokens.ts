@@ -1,6 +1,7 @@
 import { StrippedUser } from '@/shared/types/User';
 import jwt from 'jsonwebtoken';
 import { fetcher } from './fetcher';
+import { REFRESH_ACCESS_TOKEN_ERROR } from '@/shared/lib/constants/Auth';
 
 const accessSecret = process.env.JWT_ACCESS_SECRET;
 const refreshSecret = process.env.JWT_REFRESH_SECRET;
@@ -82,7 +83,7 @@ export const refreshAccessToken = async (user: StrippedUser, token: any) => {
 
         return {
             ...token,
-            error: 'RefreshAccessTokenError',
+            error: REFRESH_ACCESS_TOKEN_ERROR,
         };
     }
 
@@ -109,7 +110,7 @@ export const refreshAccessToken = async (user: StrippedUser, token: any) => {
 
         return {
             ...token,
-            error: 'RefreshAccessTokenError',
+            error: REFRESH_ACCESS_TOKEN_ERROR,
         };
     }
 };

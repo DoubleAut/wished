@@ -1,5 +1,6 @@
 'use client';
 
+import { REFRESH_ACCESS_TOKEN_ERROR } from '@/shared/lib/constants/Auth';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,7 +12,7 @@ export default function Home() {
 
     useLayoutEffect(() => {
         // If session return refresh token error, then user will need to relogin!
-        if (session?.error === 'RefreshAccessTokenError') {
+        if (session?.error === REFRESH_ACCESS_TOKEN_ERROR) {
             navigation.push(`/auth/error?error=Session expired`);
         }
     }, [session]);
