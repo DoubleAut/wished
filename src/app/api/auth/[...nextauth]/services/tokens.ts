@@ -75,10 +75,6 @@ export const refreshAccessToken = async (user: StrippedUser, token: any) => {
 
     // Refresh token expired. Return error message to redirect to login page;
     if (!isRefreshValid) {
-        console.log(
-            'Refresh token expired, removing the old tokens with error',
-        );
-
         await removeTokens(token.tokenId);
 
         return {
@@ -104,10 +100,6 @@ export const refreshAccessToken = async (user: StrippedUser, token: any) => {
             ...newTokens,
         };
     } catch (e) {
-        console.log(
-            'Error occured while updating the access token, returning old tokens with error',
-        );
-
         return {
             ...token,
             error: REFRESH_ACCESS_TOKEN_ERROR,

@@ -89,8 +89,6 @@ export const authOptions: AuthOptions = {
     callbacks: {
         jwt: async ({ token, user }: { token: any; user: any }) => {
             if (user) {
-                console.log('User and token exist, return merged object');
-
                 return {
                     ...token,
                     ...user,
@@ -98,10 +96,6 @@ export const authOptions: AuthOptions = {
             }
 
             if (Date.now() < token.accessTokenExpiresIn) {
-                console.log(
-                    'Token is not expired yet, returning existing token',
-                );
-
                 return token;
             }
 
