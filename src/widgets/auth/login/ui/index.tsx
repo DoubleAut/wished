@@ -1,5 +1,3 @@
-'use client';
-
 import { AuthCard } from '@/features/auth';
 import {
     LoginForm,
@@ -7,13 +5,16 @@ import {
     LoginProviders,
     LoginQuestion,
 } from '@/features/auth/login';
+import { getProviders } from 'next-auth/react';
 
-export const Login = () => {
+export const Login = async () => {
+    const providers = await getProviders();
+
     return (
         <AuthCard
             header={<LoginHeader />}
             form={<LoginForm />}
-            providers={<LoginProviders />}
+            providers={<LoginProviders providers={providers} />}
             question={
                 <LoginQuestion
                     text="Don’t have an account?"

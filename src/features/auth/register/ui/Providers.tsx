@@ -3,32 +3,14 @@
 import { Wrapper } from '@/shared/ui/Wrapper';
 import { Button } from '@/shared/ui/button';
 import { BuiltInProviderType } from 'next-auth/providers/index';
-import {
-    ClientSafeProvider,
-    LiteralUnion,
-    getProviders,
-    signIn,
-} from 'next-auth/react';
-import { useState, useLayoutEffect } from 'react';
+import { ClientSafeProvider, LiteralUnion, signIn } from 'next-auth/react';
 
 type Provider = Record<
     LiteralUnion<BuiltInProviderType>,
     ClientSafeProvider
 > | null;
 
-export const Providers = () => {
-    const [providers, setProviders] = useState<Provider>(null);
-
-    useLayoutEffect(() => {
-        const handleProviders = async () => {
-            const providers = await getProviders();
-
-            setProviders(providers);
-        };
-
-        handleProviders();
-    }, []);
-
+export const Providers = ({ providers }: { providers: Provider }) => {
     return (
         <Wrapper>
             {providers &&

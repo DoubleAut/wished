@@ -1,5 +1,3 @@
-'use client';
-
 import { AuthCard } from '@/features/auth';
 import {
     RegisterForm,
@@ -7,13 +5,15 @@ import {
     RegisterProviders,
     RegisterQuestion,
 } from '@/features/auth/register';
+import { getProviders } from 'next-auth/react';
 
-export const Register = () => {
+export const Register = async () => {
+    const providers = await getProviders();
     return (
         <AuthCard
             header={<RegisterHeader />}
             form={<RegisterForm />}
-            providers={<RegisterProviders />}
+            providers={<RegisterProviders providers={providers} />}
             question={
                 <RegisterQuestion
                     text="Already have an account?"
