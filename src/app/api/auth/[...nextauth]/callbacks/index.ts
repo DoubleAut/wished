@@ -4,7 +4,9 @@ export const callbacks = {
     jwt: async ({ token, user }: { token: any; user: any }) => {
         if (user) {
             return {
-                ...token,
+                tokens: {
+                    ...token.tokens,
+                },
                 ...user,
             };
         }
