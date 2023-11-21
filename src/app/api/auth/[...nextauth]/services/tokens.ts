@@ -1,5 +1,5 @@
 import { REFRESH_ACCESS_TOKEN_ERROR } from '@/shared/lib/constants/Auth';
-import { StrippedUser, User } from '@/shared/types/User';
+import { StrippedUser } from '@/shared/types/User';
 import jwt from 'jsonwebtoken';
 import { fetcher } from './fetcher';
 import { ExtendedToken, Token } from './types';
