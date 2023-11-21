@@ -68,7 +68,7 @@ export const refreshAccessToken = async (
 
     // Refresh token expired. Return error message to redirect to login page;
     if (!isRefreshValid) {
-        await removeTokens(token.id);
+        await removeTokens(token.tokens.id);
 
         return {
             ...token,
@@ -112,7 +112,10 @@ export const removeTokens = async (tokenId: number) => {
 };
 
 // Utility function to create tokens to DB
-export const saveTokens = async (user: StrippedUser, tokens: any) => {
+export const saveTokens = async (
+    user: StrippedUser,
+    tokens: { accessToken: string; refreshToken: string },
+) => {
     const tokenCreation = await fetcher.post('/tokens', {
         ...tokens,
         userId: user.id,
