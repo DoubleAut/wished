@@ -9,7 +9,7 @@ export const callbacks = {
             };
         }
 
-        if (Date.now() < token.accessTokenExpiresIn) {
+        if (Date.now() < token.exp) {
             return token;
         }
 
