@@ -6,7 +6,7 @@ declare module 'next-auth' {
         error: string;
     }
 
-    interface User extends Omit<CustomUser, 'password'> {
+    interface User extends Omit<CustomUser, 'password' | 'wishes' | 'friends'> {
         id: number;
     }
 }
