@@ -6,13 +6,13 @@ export const useSubmitListener = (callback: (...args: any) => void) => {
             const isEnter = event.code === 'Enter';
             const isNumpadEnter = event.code === 'NumpadEnter';
 
-            if (!isEnter && !isNumpadEnter) {
+            if (isEnter || isNumpadEnter) {
+                callback();
+
                 return;
             }
 
-            if (isEnter || isNumpadEnter) {
-                callback();
-            }
+            return;
         };
 
         document.addEventListener('keydown', handleKeyDown);
