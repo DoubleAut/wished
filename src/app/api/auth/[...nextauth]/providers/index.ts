@@ -52,20 +52,26 @@ export const providers = [
 
             if (!tokens) {
                 const tokens = generateTokens(user);
-
+                const { password, wishes, friends, ...rest } = user;
                 const newTokens = await saveTokens(user, tokens);
 
                 return {
-                    ...user,
-                    ...tokens,
-                    tokenId: newTokens.id,
+                    ...rest,
+                    tokens: {
+                        ...tokens,
+                        tokenId: newTokens.id,
+                    },
                 };
             }
 
+            const { password, wishes, friends, ...rest } = user;
+
             return {
-                ...user,
-                ...tokens,
-                tokenId: tokens.id,
+                ...rest,
+                tokens: {
+                    ...tokens,
+                    tokenId: tokens.id,
+                },
             };
         },
     }),
