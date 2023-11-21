@@ -65,11 +65,13 @@ export const refreshAccessToken = async (
     user: StrippedUser,
     token: ExtendedToken,
 ) => {
-    const isRefreshValid = validateRefreshToken(token.refreshToken);
+    const isRefreshValid = validateRefreshToken(token.tokens.refreshToken);
+
+    console.log(user, token, isRefreshValid);
 
     // Refresh token expired. Return error message to redirect to login page;
     if (!isRefreshValid) {
-        await removeTokens(token.tokenId);
+        await removeTokens(token.id);
 
         return {
             ...token,
@@ -80,7 +82,7 @@ export const refreshAccessToken = async (
     // Try to update existing tokens with new ones... Otherwise return same error as above!
     try {
         const newTokens = generateTokens(user);
-        const response = await fetcher.put(`/tokens/${token.tokenId}`, {
+        const response = await fetcher.put(`/tokens/${token.tokens.id}`, {
             userId: token.id,
             ...newTokens,
         });
