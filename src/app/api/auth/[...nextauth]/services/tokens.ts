@@ -67,8 +67,6 @@ export const refreshAccessToken = async (
 ) => {
     const isRefreshValid = validateRefreshToken(token.tokens.refreshToken);
 
-    console.log(user, token, isRefreshValid);
-
     // Refresh token expired. Return error message to redirect to login page;
     if (!isRefreshValid) {
         await removeTokens(token.id);
