@@ -11,8 +11,8 @@ export const authOptions: AuthOptions = {
     session: {
         strategy: 'jwt',
     },
-    providers,
-    callbacks,
+    providers: providers,
+    callbacks: callbacks,
 };
 
 export const handler = NextAuth(authOptions);
