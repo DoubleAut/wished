@@ -58,7 +58,7 @@ export const providers = [
                 return {
                     ...rest,
                     tokens: {
-                        ...tokens,
+                        ...newTokens,
                         tokenId: newTokens.id,
                     },
                 };
