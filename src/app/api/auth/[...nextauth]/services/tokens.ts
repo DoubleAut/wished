@@ -1,18 +1,11 @@
-import { StrippedUser } from '@/shared/types/User';
+import { REFRESH_ACCESS_TOKEN_ERROR } from '@/shared/lib/constants/Auth';
+import { StrippedUser, User } from '@/shared/types/User';
 import jwt from 'jsonwebtoken';
 import { fetcher } from './fetcher';
-import { REFRESH_ACCESS_TOKEN_ERROR } from '@/shared/lib/constants/Auth';
+import { ExtendedToken, Token } from './types';
 
 const accessSecret = process.env.JWT_ACCESS_SECRET;
 const refreshSecret = process.env.JWT_REFRESH_SECRET;
-
-interface Tokens {
-    id: number;
-    userId: number;
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpiresIn: number;
-}
 
 if (!accessSecret || !refreshSecret) {
     throw new Error('There is no jwt access or secret key');
@@ -57,8 +50,6 @@ export const validateRefreshToken = (token: string) => {
     }
 };
 
-type UserTokensResponse = Tokens | null;
-
 // Get current tokens if exist from DB, else null;
 export const getUserTokens = async (userId: number) => {
     const response = await fetcher.get(`/tokens?userId=${userId}`);
@@ -67,10 +58,13 @@ export const getUserTokens = async (userId: number) => {
         return null;
     }
 
-    return response.data[0] as UserTokensResponse;
+    return response.data[0] as Token | undefined;
 };
 
-export const refreshAccessToken = async (user: StrippedUser, token: any) => {
+export const refreshAccessToken = async (
+    user: StrippedUser,
+    token: ExtendedToken,
+) => {
     const isRefreshValid = validateRefreshToken(token.refreshToken);
 
     // Refresh token expired. Return error message to redirect to login page;
