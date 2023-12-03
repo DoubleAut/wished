@@ -10,13 +10,17 @@ export const getUser = async (credentials: Credentials) => {
         return null;
     }
 
-    const user = await fetcher.get(`/users?email=${credentials.email}`);
+    try {
+        const user = await fetcher.get(`/users?email=${credentials.email}`);
 
-    if (!user) {
-        return null;
+        if (!user) {
+            return null;
+        }
+
+        return user.data[0] as User;
+    } catch (e) {
+        throw new Error('Error during calling a backend part');
     }
-
-    return user.data[0] as User;
 };
 
 export const getUserByEmail = async (email: string) => {
