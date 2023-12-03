@@ -8,12 +8,12 @@ interface Wish {
 }
 
 export interface User {
-    id: number;
+    id: string;
     email: string;
     password: string;
     name: string;
     surname: string;
-    image: string;
+    picture: string;
     friends: number[];
     wishes: Wish[];
 }
