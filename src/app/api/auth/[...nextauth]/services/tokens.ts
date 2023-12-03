@@ -3,6 +3,7 @@ import { StrippedUser } from '@/shared/types/User';
 import jwt from 'jsonwebtoken';
 import { fetcher } from './fetcher';
 import { ExtendedToken, Token } from './types';
+import { JWT } from 'next-auth/jwt';
 
 const accessSecret = process.env.JWT_ACCESS_SECRET;
 const refreshSecret = process.env.JWT_REFRESH_SECRET;
@@ -15,10 +16,10 @@ export const generateTokens = (credentials: StrippedUser) => {
     const { email, name, surname } = credentials;
     const dto = { email, name, surname };
     const accessToken = jwt.sign(dto, accessSecret, {
-        expiresIn: '15m',
+        expiresIn: 15,
     });
     const refreshToken = jwt.sign(dto, refreshSecret, {
-        expiresIn: '30d',
+        expiresIn: 40,
     });
 
     return {
@@ -62,7 +63,7 @@ export const getUserTokens = async (userId: number) => {
 
 export const refreshAccessToken = async (
     user: StrippedUser,
-    token: ExtendedToken,
+    token: Required<JWT>,
 ) => {
     const isRefreshValid = validateRefreshToken(token.tokens.refreshToken);
 
@@ -88,10 +89,16 @@ export const refreshAccessToken = async (
             throw new Error('Error occured while refreshing JWT access token');
         }
 
-        return {
+        const result = {
             ...token,
-            ...newTokens,
+            tokens: {
+                ...token.tokens,
+                ...newTokens,
+            },
+            error: '',
         };
+
+        return result;
     } catch (e) {
         return {
             ...token,
