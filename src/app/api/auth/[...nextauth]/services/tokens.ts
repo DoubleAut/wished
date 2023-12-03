@@ -49,7 +49,7 @@ export const validateRefreshToken = (token: string) => {
     }
 };
 
-// Get current tokens if exist from DB, else null;
+// Get current tokens if exist from DB, else null
 export const getUserTokens = async (userId: number) => {
     const response = await fetcher.get(`/tokens?userId=${userId}`);
 

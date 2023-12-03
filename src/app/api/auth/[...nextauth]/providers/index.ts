@@ -57,6 +57,7 @@ export const providers = [
 
                 return {
                     ...rest,
+                    id: String(user.id),
                     tokens: {
                         ...newTokens,
                         tokenId: newTokens.id,
@@ -68,6 +69,7 @@ export const providers = [
 
             return {
                 ...rest,
+                id: String(user.id),
                 tokens: {
                     ...tokens,
                     tokenId: tokens.id,
