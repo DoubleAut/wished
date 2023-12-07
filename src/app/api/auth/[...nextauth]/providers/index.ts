@@ -48,7 +48,7 @@ export const providers = [
                 throw new Error('Credentials are wrong!');
             }
 
-            const tokens = await getUserTokens(user.id);
+            const tokens = await getUserTokens(Number(user.id));
 
             if (!tokens) {
                 const tokens = generateTokens(user);

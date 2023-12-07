@@ -31,23 +31,18 @@ export const callbacks: AuthOptions['callbacks'] = {
 
         return await refreshAccessToken(credentials, token as Required<JWT>);
     },
-    session: async ({ session, token }: { session: any; token: any }) => {
-        try {
-            if (token) {
-                return {
-                    ...session,
-                    ...token,
-                    error: token.error,
-                };
-            }
-
+    session: async ({ session, token }: { session: Session; token: JWT }) => {
+        if (token) {
             return {
                 ...session,
-                error: '',
+                ...token,
+                error: token.error,
             };
-        } catch (error) {
-            console.log('session error =', error);
-            return null;
         }
+
+        return {
+            ...session,
+            error: '',
+        };
     },
 };
