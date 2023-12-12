@@ -1,6 +1,8 @@
 import { Providers } from '@/core/providers';
 import '@/core/styles/globals.css';
+import { UserInterceptor } from '@/shared/lib/interceptors/User';
 import type { Metadata } from 'next';
+import { getServerSession } from 'next-auth';
 import { Inter } from 'next/font/google';
 import { ReactNode } from 'react';
 
@@ -11,12 +13,15 @@ export const metadata: Metadata = {
     description: 'Add and reserve wishes!',
 };
 
-function RootLayout({ children }: { children: ReactNode }) {
+async function RootLayout({ children }: { children: ReactNode }) {
+    const session = await getServerSession();
     return (
         <html lang="en">
             <body className={inter.className}>
                 <main className="mx-auto flex max-w-7xl flex-col items-center justify-center">
-                    <Providers>{children}</Providers>
+                    <Providers session={session}>
+                        <UserInterceptor>{children}</UserInterceptor>
+                    </Providers>
                 </main>
             </body>
         </html>

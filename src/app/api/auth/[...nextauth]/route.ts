@@ -8,11 +8,8 @@ const authOptions: AuthOptions = {
         signOut: '/auth/logout',
         error: '/auth/error',
     },
-    session: {
-        strategy: 'jwt',
-    },
-    providers: providers,
-    callbacks: callbacks,
+    providers,
+    callbacks,
 };
 
 const handler = NextAuth(authOptions);

@@ -1,10 +1,12 @@
-interface Wish {
+export interface Wish {
+    id: number;
     title: string;
     description: string;
     price: string;
-    canBeAnon: true;
-    isHidden: true;
-    isReserved: true;
+    canBeAnon: boolean;
+    isHidden: boolean;
+    isReserved: boolean;
+    picture?: string;
 }
 
 export interface User {

@@ -1,16 +1,21 @@
+'use client';
+
+import { Session } from 'next-auth';
 import { ReactNode } from 'react';
 import SessionProvider from './Auth';
-import { getServerSession } from 'next-auth';
+import { StoreProvider } from './StoreProvider';
 
 interface Props {
     children: ReactNode;
+    session: Session | null;
 }
 
-export const Providers = async ({ children }: Props) => {
-    const session = await getServerSession();
+export const Providers = ({ children, session }: Props) => {
     return (
         <>
-            <SessionProvider session={session}>{children}</SessionProvider>
+            <SessionProvider session={session}>
+                <StoreProvider>{children}</StoreProvider>
+            </SessionProvider>
         </>
     );
 };
