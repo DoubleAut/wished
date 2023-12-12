@@ -1,6 +1,6 @@
+import { AuthOptions, User } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import { refreshAccessToken } from '../services/tokens';
-import { AuthOptions, Session, User } from 'next-auth';
 
 export const callbacks: AuthOptions['callbacks'] = {
     jwt: async ({ token, user }: { token: JWT; user: User }) => {
@@ -31,18 +31,24 @@ export const callbacks: AuthOptions['callbacks'] = {
 
         return await refreshAccessToken(credentials, token as Required<JWT>);
     },
-    session: async ({ session, token }: { session: Session; token: JWT }) => {
+    session: async ({ session, token }) => {
         if (token) {
+            const { id, email, name } = token;
+
             return {
                 ...session,
-                ...token,
+                user: {
+                    id: Number(id),
+                    email,
+                    name,
+                },
                 error: token.error,
             };
         }
 
         return {
             ...session,
-            error: '',
+            error: session.error,
         };
     },
 };
