@@ -1,5 +1,6 @@
 import { fetcher } from '@/shared/lib/axios';
 import { User } from '@/shared/types/User';
+import '@total-typescript/ts-reset';
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
     const user = await fetcher.get(`/users?email=${email}`);
