@@ -1,5 +1,6 @@
 'use client';
 
+import { useSubmitListener } from '@/shared/lib/hooks/useSubmitListener';
 import { Errors } from '@/shared/types/Auth';
 import { Wrapper } from '@/shared/ui/Wrapper';
 import { Button } from '@/shared/ui/button';
@@ -9,7 +10,6 @@ import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { login } from '../lib/login';
 import { validate } from '../lib/validate';
-import { useSubmitListener } from '@/shared/lib/hooks/useSubmitListener';
 
 interface Props {
     err?: Errors | null;
