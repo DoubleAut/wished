@@ -29,10 +29,17 @@ export const MakeWish = ({ href }: { href: string }) => (
 
 export const Wish = ({ wish }: { wish: WishType }) => (
     <div className="aspect-square rounded-md bg-slate-500 p-1">
-        <div className="relative h-1/2">
+        <div className="relative">
             {wish.picture && (
                 <>
-                    <Image src={wish.picture} alt="Wish picture" />
+                    <div className="relative aspect-square w-full">
+                        <Image
+                            className="object-contain"
+                            src={wish.picture}
+                            alt="Wish picture"
+                            fill
+                        />
+                    </div>
                     <div className="absolute right-0 top-0">
                         <MoreHorizontal />
                     </div>

@@ -1,11 +1,16 @@
 import { Header } from '@/shared/ui/Text/header';
-import { Subheader } from '@/shared/ui/Text/subheader';
 import { Avatar, AvatarImage } from '@/shared/ui/avatar';
+import { Button } from '@/shared/ui/button';
+import Link from 'next/link';
 import { ReactNode } from 'react';
 
 interface Props {
     header: string;
-    subheader: string;
+    subheader: {
+        friends: number;
+        wishes: number;
+        reserved: number;
+    };
     picture?: string;
     action?: ReactNode;
 }
@@ -20,7 +25,15 @@ export const User = ({ header, subheader, picture, action }: Props) => {
             </Avatar>
             <div className="flex flex-col gap-2">
                 <Header>{header}</Header>
-                <Subheader>{subheader}</Subheader>
+                <div className="flex space-x-2">
+                    <Button variant="link" asChild>
+                        <Link href="/friends">{subheader.wishes} friends</Link>
+                    </Button>
+                    <Button variant="link" asChild>
+                        <Link href="/wishes">{subheader.wishes} wishes</Link>
+                    </Button>
+                    {subheader.reserved} reserved
+                </div>
                 {action}
             </div>
         </div>
