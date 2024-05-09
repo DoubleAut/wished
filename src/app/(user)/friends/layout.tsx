@@ -3,12 +3,12 @@ import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-    title: 'Profile | Wished',
-    description: 'Your profile page',
+    title: 'Friends | Wished',
+    description: 'Your friends',
 };
 
 async function RootLayout({ children }: { children: ReactNode }) {
-    return <>{children}</>;
+    return children;
 }
 
 export default RootLayout;
