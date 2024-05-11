@@ -1,5 +1,7 @@
-import { getUserByEmail } from '@/entities/user/lib/user';
+import axiosRequestWithoutBearer from '@/shared/lib/axios/axiosRequestWithoutBearer';
 import { User } from '@/shared/types/User';
+import { LoginSchema } from '@/widgets/auth/login/lib';
+import { RegisterSchema } from '@/widgets/auth/register/lib';
 import { create } from 'zustand';
 
 interface UserStore {
@@ -18,10 +20,14 @@ export const getUser = (req: Request) => {
     return store.user;
 };
 
-export const setUser = async (email: string) => {
-    userStore.setState({ isLoading: true });
+export const register = async ({ confirmPassword, ...data }: RegisterSchema) =>
+    await axiosRequestWithoutBearer.post('/users', data);
 
-    const user = await getUserByEmail(email);
+export const login = async (data: LoginSchema) => {
+    const response = await axiosRequestWithoutBearer.post('/auth/login', data);
+    const { accessToken, ...user } = response.data;
+
+    localStorage.setItem('accessToken', accessToken);
 
     userStore.setState({ user });
 };
