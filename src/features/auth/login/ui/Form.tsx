@@ -1,103 +1,140 @@
 'use client';
 
-import { useSubmitListener } from '@/shared/lib/hooks/useSubmitListener';
-import { Errors } from '@/shared/types/Auth';
-import { Wrapper } from '@/shared/ui/Wrapper';
+import { login } from '@/entities/user/model/userStore';
 import { Button } from '@/shared/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/shared/ui/card';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/shared/ui/form';
 import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
-import { useSearchParams } from 'next/navigation';
+import { LoginSchema, loginSchema } from '@/widgets/auth/login/lib';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { login } from '../lib/login';
-import { validate } from '../lib/validate';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { getError } from '../../lib';
 
-interface Props {
-    err?: Errors | null;
-}
+export const LoginForm = () => {
+    const [isLoading, setLoading] = useState(false);
+    const router = useRouter();
 
-export const Form = ({ err }: Props) => {
-    const params = useSearchParams();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-    const [errors, setErrors] = useState<Errors>(
-        err || {
-            email: {
-                isError: !!params.get('error'),
-                messages: [params.get('error') || ''],
-            },
-            password: {
-                isError: false,
-                messages: [],
-            },
+    const form = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: 'mail@mail.com',
+            password: '123Qweasd',
         },
-    );
+    });
 
-    const onSubmit = async () => {
-        const validation = validate({ email, password });
-        const isEmailError = validation.email.isError;
-        const isPassError = validation.password.isError;
+    const onSubmit = (result: LoginSchema) => {
+        setLoading(true);
 
-        if (isEmailError || isPassError) {
-            setErrors(validation);
+        login(result)
+            .then(() => {
+                router.push('/profile');
+            })
+            .catch(err => {
+                const { response } = err;
 
-            return;
-        }
+                if (Array.isArray(response.data.message)) {
+                    for (let message of response.data.message) {
+                        const err = getError(message) as
+                            | 'email'
+                            | 'password'
+                            | null;
 
-        const callbackUrl = params.get('callbackUrl') ?? '/';
+                        if (err) {
+                            form.setError(err, { message });
+                        }
+                    }
+                } else {
+                    const message = response.data.message;
+                    const err = getError(message) as
+                        | 'email'
+                        | 'password'
+                        | null;
 
-        const { isError, errors } = await login({
-            email,
-            password,
-            callbackUrl,
-        });
-
-        if (isError && errors) {
-            setErrors(errors);
-
-            return;
-        }
+                    if (err) {
+                        form.setError(err, { message });
+                    }
+                }
+            })
+            .finally(() => setLoading(false));
     };
 
-    useSubmitListener(onSubmit);
-
     return (
-        <Wrapper className="gap-4">
-            <Wrapper>
-                <Label htmlFor="email">Email address</Label>
-                <Input
-                    id="email"
-                    placeholder="johndoe@mail.com"
-                    value={email}
-                    onChange={event => setEmail(event.target.value)}
-                />
-                {errors.email.isError &&
-                    errors.email.messages.map(item => (
-                        <Label key={item} className="text-red-500">
-                            {item}
-                        </Label>
-                    ))}
-            </Wrapper>
-            <Wrapper>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={event => setPassword(event.target.value)}
-                />
-                {errors.password.isError &&
-                    errors.password.messages.map(item => (
-                        <Label key={item} className="text-red-500">
-                            {item}
-                        </Label>
-                    ))}
-            </Wrapper>
-            <Wrapper>
-                <Button className="w-full" onClick={onSubmit}>
-                    Login
-                </Button>
-            </Wrapper>
-        </Wrapper>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Register</CardTitle>
+                        <CardDescription>
+                            Please enter your details.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="mail@mail.com"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage className="capitalize" />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage className="capitalize" />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <Button
+                            disabled={isLoading}
+                            type="submit"
+                            className="w-full"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Please wait
+                                </>
+                            ) : (
+                                'Login'
+                            )}
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </Form>
     );
 };
