@@ -24,13 +24,13 @@ export const getUser = async (credentials: Credentials) => {
 };
 
 export const getUserByEmail = async (email: string) => {
-    const user = await fetcher.get(`/users?email=${email}`);
+    try {
+        const user = await fetcher.get(`/users?email=${email}`);
 
-    if (!user) {
-        return null;
+        return user.data[0];
+    } catch (err) {
+        throw new Error('Unknown user.');
     }
-
-    return user.data[0] as User;
 };
 
 export const isPasswordsEqual = async (password: string, hash: string) =>

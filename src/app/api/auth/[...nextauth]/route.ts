@@ -2,7 +2,7 @@ import NextAuth, { AuthOptions } from 'next-auth';
 import { callbacks } from './callbacks';
 import { providers } from './providers';
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
     pages: {
         signIn: '/auth/login',
         signOut: '/auth/logout',

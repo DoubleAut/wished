@@ -16,10 +16,10 @@ export const generateTokens = (credentials: StrippedUser) => {
     const { email, name, surname } = credentials;
     const dto = { email, name, surname };
     const accessToken = jwt.sign(dto, accessSecret, {
-        expiresIn: '15m',
+        expiresIn: 30,
     });
     const refreshToken = jwt.sign(dto, refreshSecret, {
-        expiresIn: '30d',
+        expiresIn: 1800,
     });
 
     return {
