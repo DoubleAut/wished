@@ -6,11 +6,11 @@ import { useStore, type StoreApi } from 'zustand';
 
 export const UserStoreContext = createContext<StoreApi<UserStore> | null>(null);
 
-export interface UserStoreProviderProps {
+export interface Props {
     children: ReactNode;
 }
 
-export const UserStoreProvider = ({ children }: UserStoreProviderProps) => {
+export const UserStoreProvider = ({ children }: Props) => {
     const storeRef = useRef<StoreApi<UserStore>>();
 
     if (!storeRef.current) {
