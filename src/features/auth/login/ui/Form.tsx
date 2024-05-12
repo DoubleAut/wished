@@ -1,5 +1,6 @@
 'use client';
 
+import { useUserStore } from '@/core/providers/UserProvider';
 import { Button } from '@/shared/ui/button';
 import {
     Card,
@@ -18,7 +19,7 @@ import {
     FormMessage,
 } from '@/shared/ui/form';
 import { Input } from '@/shared/ui/input';
-import { LoginSchema, loginSchema } from '@/widgets/auth/login/lib';
+import { loginSchema } from '@/widgets/auth/login/lib';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -29,6 +30,7 @@ import { getError } from '../../lib';
 import { login } from '../lib/login';
 
 export const LoginForm = () => {
+    const store = useUserStore(state => state);
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -40,11 +42,13 @@ export const LoginForm = () => {
         },
     });
 
-    const onSubmit = (result: LoginSchema) => {
+    const onSubmit = (result: z.infer<typeof loginSchema>) => {
         setLoading(true);
 
         login(result)
-            .then(() => {
+            .then(user => {
+                store.setUser(user);
+
                 router.push('/profile');
             })
             .catch(err => {
@@ -81,7 +85,7 @@ export const LoginForm = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Register</CardTitle>
+                        <CardTitle>Login</CardTitle>
                         <CardDescription>
                             Please enter your details.
                         </CardDescription>
@@ -129,7 +133,7 @@ export const LoginForm = () => {
                                     Please wait
                                 </>
                             ) : (
-                                'Login'
+                                'Sign in'
                             )}
                         </Button>
                     </CardFooter>
