@@ -1,6 +1,5 @@
 'use client';
 
-import { register } from '@/entities/user/model/userStore';
 import { Button } from '@/shared/ui/button';
 import {
     Card,
@@ -27,6 +26,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { getError } from '../../lib';
+import { register } from '../lib/register';
 
 export const RegistrationForm = () => {
     const [isLoading, setLoading] = useState(false);
@@ -165,7 +165,7 @@ export const RegistrationForm = () => {
                                     Please wait
                                 </>
                             ) : (
-                                'Register'
+                                'Sign up'
                             )}
                         </Button>
                     </CardFooter>

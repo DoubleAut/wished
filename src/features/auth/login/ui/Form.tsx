@@ -1,6 +1,5 @@
 'use client';
 
-import { login } from '@/entities/user/model/userStore';
 import { Button } from '@/shared/ui/button';
 import {
     Card,
@@ -27,6 +26,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { getError } from '../../lib';
+import { login } from '../lib/login';
 
 export const LoginForm = () => {
     const [isLoading, setLoading] = useState(false);
