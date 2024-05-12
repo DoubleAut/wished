@@ -1,23 +1,26 @@
 'use client';
 
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { useUserStore } from '@/core/providers/UserProvider';
+import { Button } from '@/shared/ui/button';
 import Link from 'next/link';
 
 export default function Home() {
-    const { data: session } = useSession();
+    const user = useUserStore(state => state.user);
 
     return (
         <>
-            {session && (
+            {user && (
                 <>
-                    Signed in as {session.user?.email} <br />
-                    <button onClick={() => signOut()}>Sign out</button>
+                    Signed in as {user.email} <br />
+                    <button>Sign out</button>
                 </>
             )}
-            {!session && (
+            {!user && (
                 <>
                     Not signed in <br />
-                    <button onClick={() => signIn()}>Sign in</button>
+                    <Button variant="link">
+                        <Link href="/auth/login">Sign in</Link>
+                    </Button>
                 </>
             )}
 
