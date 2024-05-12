@@ -7,7 +7,7 @@ import { ReactNode } from 'react';
 interface Props {
     header: string;
     subheader: {
-        friends: number;
+        followings: number;
         wishes: number;
         reserved: number;
     };
@@ -27,12 +27,16 @@ export const User = ({ header, subheader, picture, action }: Props) => {
                 <Header>{header}</Header>
                 <div className="flex space-x-2">
                     <Button variant="link" asChild>
-                        <Link href="/friends">{subheader.wishes} friends</Link>
+                        <Link href="/friends">
+                            {subheader.followings} friends
+                        </Link>
                     </Button>
                     <Button variant="link" asChild>
                         <Link href="/wishes">{subheader.wishes} wishes</Link>
                     </Button>
-                    {subheader.reserved} reserved
+                    <Button variant="link" asChild>
+                        {subheader.reserved} reserved
+                    </Button>
                 </div>
                 {action}
             </div>

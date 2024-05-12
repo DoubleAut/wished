@@ -10,14 +10,16 @@ export interface Wish {
 }
 
 export interface User {
-    id: string;
+    id: number | null;
     email: string;
-    password: string;
     name: string;
     surname: string;
     picture: string;
-    friends: number[];
+    isActive: boolean;
+    followings: User[];
+    followers: User[];
     wishes: Wish[];
+    reservations: Wish[];
 }
 
 export type StrippedUser = Omit<User, 'password' | 'friends' | 'wishes'>;
