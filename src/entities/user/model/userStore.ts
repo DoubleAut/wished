@@ -1,8 +1,9 @@
 import { User, Wish } from '@/shared/types/User';
-import { Nullable } from '@/shared/types/Utility/Nullable';
 import { createStore } from 'zustand';
 
-type UserState = Nullable<User>;
+type UserState = {
+    user: User | null;
+};
 
 export interface UserActions {
     setUser: (user: User) => void;
@@ -14,28 +15,36 @@ export interface UserActions {
 export type UserStore = UserState & UserActions;
 
 export const defaultInitState = {
-    id: null,
-    email: '',
-    name: '',
-    surname: '',
-    picture: '',
-    isActive: false,
-    followings: [],
-    followers: [],
-    wishes: [],
-    reservations: [],
+    user: null,
 };
 
 export const createUserStore = (initState: UserState = defaultInitState) => {
     return createStore<UserStore>()(set => ({
         ...initState,
-        setUser: (user: User) => set(() => ({ ...user })),
-        setFollowers: followers => set(() => ({ followers })),
-        setFollowings: followings => set(() => ({ followings })),
-        setWishes: wishes => set(() => ({ wishes })),
+        setUser: (user: User) => set(() => ({ user })),
+        setFollowers: followers =>
+            set(state => {
+                if (state.user) {
+                    return { user: { ...state.user, followers } };
+                }
+
+                return state;
+            }),
+        setFollowings: followings =>
+            set(state => {
+                if (state.user) {
+                    return { user: { ...state.user, followings } };
+                }
+
+                return state;
+            }),
+        setWishes: wishes =>
+            set(state => {
+                if (state.user) {
+                    return { user: { ...state.user, wishes } };
+                }
+
+                return state;
+            }),
     }));
 };
-// TODO: Add store handler
-// export const createUserStore = createStore<UserStore>()(() => ({
-//     user: null,
-// }));
