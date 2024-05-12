@@ -1,45 +1,63 @@
+import { User } from '@/shared/types/User';
+import { Wish } from '@/shared/types/Wish';
 import { Header } from '@/shared/ui/Text/header';
-import { Avatar, AvatarImage } from '@/shared/ui/avatar';
+import { AvatarImage } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
 import Link from 'next/link';
-import { ReactNode } from 'react';
 
-interface Props {
-    header: string;
-    subheader: {
-        followings: number;
-        wishes: number;
-        reserved: number;
-    };
-    picture?: string;
-    action?: ReactNode;
+interface UserAvatarProps {
+    href: string | undefined;
 }
 
-export const User = ({ header, subheader, picture, action }: Props) => {
+export const UserAvatar = ({ href }: UserAvatarProps) => {
     return (
-        <div className="flex gap-5">
-            <Avatar className="aspect-square w-28">
-                {picture && (
-                    <AvatarImage src={picture} className="h-full w-full" />
-                )}
-            </Avatar>
-            <div className="flex flex-col gap-2">
-                <Header>{header}</Header>
-                <div className="flex space-x-2">
-                    <Button variant="link" asChild>
-                        <Link href="/friends">
-                            {subheader.followings} friends
-                        </Link>
-                    </Button>
-                    <Button variant="link" asChild>
-                        <Link href="/wishes">{subheader.wishes} wishes</Link>
-                    </Button>
-                    <Button variant="link" asChild>
-                        {subheader.reserved} reserved
-                    </Button>
-                </div>
-                {action}
-            </div>
+        <AvatarImage
+            src={href || '/avatar_not_found.png'}
+            className="h-full w-full"
+        />
+    );
+};
+
+interface UserInitialsProps {
+    name: string;
+    surname: string;
+}
+
+export const UserInitials = ({ name, surname }: UserInitialsProps) => {
+    return (
+        <Header className="self-center">
+            {name} {surname}
+        </Header>
+    );
+};
+
+interface UserLinksProps {
+    followings: User[];
+    followers: User[];
+    wishes: Wish[];
+    reservations: Wish[];
+}
+
+export const UserLinks = ({
+    followings,
+    followers,
+    reservations,
+    wishes,
+}: UserLinksProps) => {
+    return (
+        <div className="flex space-x-2">
+            <Button variant="ghost">
+                <Link href="/followings">{followings.length} followings</Link>
+            </Button>
+            <Button variant="ghost">
+                <Link href="/followers">{followers.length} followers</Link>
+            </Button>
+            <Button variant="ghost">
+                <Link href="/wishes">{wishes.length} wishes</Link>
+            </Button>
+            <Button variant="ghost">
+                <Link href="/reservations">{reservations.length} reserved</Link>
+            </Button>
         </div>
     );
 };
