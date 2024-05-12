@@ -1,5 +1,5 @@
-import { RegisterForm } from '@/features/auth/register';
+import { RegistrationForm } from '@/features/auth/register';
 
 export const Register = () => {
-    return <RegisterForm />;
+    return <RegistrationForm />;
 };
