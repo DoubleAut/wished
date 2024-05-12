@@ -1,53 +1,60 @@
 'use client';
 
-import { userStore } from '@/entities/user/model/userStore';
-import { User } from '@/entities/user/ui/User';
-import { MakeWish, Wishes } from '@/entities/user/ui/Wishes';
+import { useUserStore } from '@/core/providers/UserProvider';
+import { UserAvatar, UserInitials, UserLinks } from '@/entities/user/ui/User';
+import { WishDialog } from '@/features/wish/ui/WishDialog';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { UserWidget } from '@/widgets/user/ui';
 import { useRouter } from 'next/navigation';
 import { useLayoutEffect } from 'react';
-import { useStore } from 'zustand';
 
 export default function Home() {
-    const user = useStore(userStore, state => state.user);
-    const isLoading = useStore(userStore, state => state.isLoading);
-    const status = useStore(userStore, state => state.status);
+    const store = useUserStore(state => state);
     const router = useRouter();
 
     useLayoutEffect(() => {
-        if (!user && status === 'INITIALIZED') {
-            const callbackUrl = encodeURI('/profile');
-            const error = encodeURI('You must login to enter that page');
+        if (!store.user) {
+            const error =
+                'Profile page is not accessible, without authorization';
 
-            router.push(
-                `/auth/error?error=${error}&callbackUrl=${callbackUrl}`,
-            );
+            router.push(`/auth/login?error=${error}&callbackUrl=/profile`);
         }
-    }, [user, isLoading, router]);
+    }, [router]);
 
-    if (!user || isLoading) {
-        return <div>Loading...</div>;
+    if (!store.user) {
+        return (
+            <UserWidget
+                avatar={<Skeleton />}
+                header={<Skeleton />}
+                links={<Skeleton />}
+                action={<Skeleton />}
+            />
+        );
     }
 
-    const amounts = {
-        wishes: user.wishes.length,
-        friends: user.friends.length,
-        reserved: user.wishes.reduce(
-            (acc, item) => (item.isReserved ? acc + 1 : acc),
-            0,
-        ),
-    };
-
     return (
-        <div className="flex w-full flex-col items-center gap-3 bg-slate-300 p-3">
+        <div className="flex w-full flex-col items-center gap-3">
             <button onClick={() => router.push('/')}>Go home</button>
-            <User
-                header={`${user.name} ${user.surname}`}
-                subheader={amounts}
-                picture={user.picture}
-                action={<MakeWish href="/profile" />}
-            />
-            <Wishes subheader="Wishes" wishes={user.wishes} />
-            <Wishes subheader="Wish ideas" wishes={user.wishes} />
+            <div className="flex flex-col space-y-2">
+                <UserWidget
+                    avatar={<UserAvatar href={store.user.picture} />}
+                    header={
+                        <UserInitials
+                            name={store.user.name}
+                            surname={store.user.surname}
+                        />
+                    }
+                    links={
+                        <UserLinks
+                            followings={store.user?.followings}
+                            followers={store.user?.followers}
+                            reservations={store.user?.reservations}
+                            wishes={store.user?.wishes}
+                        />
+                    }
+                    action={<WishDialog />}
+                />
+            </div>
         </div>
     );
 }
