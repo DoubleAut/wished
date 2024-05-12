@@ -5,7 +5,7 @@ import { axiosBearerInterceptor } from './axiosInterceptors';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
-const axiosRequestWithBearer = axios.create({
+export const axiosRequestWithBearer = axios.create({
     baseURL: API_URL,
 });
 
