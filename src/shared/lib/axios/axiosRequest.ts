@@ -31,6 +31,7 @@ axiosRequestWithBearer.interceptors.response.use(
                 const accessToken = localStorage.getItem('accessToken');
 
                 const newResponse = await fetch(`${API_URL}/auth/refresh`, {
+                    method: 'POST',
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },

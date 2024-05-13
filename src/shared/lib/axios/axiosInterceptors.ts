@@ -1,16 +1,7 @@
-'use client';
-
 import { InternalAxiosRequestConfig } from 'axios';
-import { cookies, headers } from 'next/headers';
-
-export const getRefreshToken = () => {
-    const refreshToken = cookies().get('refreshToken');
-
-    return refreshToken;
-};
 
 export const getAccessToken = () => {
-    const accessToken = headers().get('Authorization');
+    const accessToken = localStorage.getItem('accessToken');
 
     return accessToken;
 };
