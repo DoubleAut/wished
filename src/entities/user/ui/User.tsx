@@ -4,6 +4,7 @@ import { Header } from '@/shared/ui/Text/header';
 import { AvatarImage } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
 import Link from 'next/link';
+import { ReactNode } from 'react';
 
 interface UserAvatarProps {
     href: string | undefined;
@@ -38,6 +39,17 @@ interface UserLinksProps {
     reservations: Wish[];
 }
 
+interface CustomLinkProps {
+    children: ReactNode;
+    href: string;
+}
+
+const CustomLink = ({ children, href }: CustomLinkProps) => (
+    <Button variant="link">
+        <Link href={href}>{children}</Link>
+    </Button>
+);
+
 export const UserLinks = ({
     followings,
     followers,
@@ -46,18 +58,22 @@ export const UserLinks = ({
 }: UserLinksProps) => {
     return (
         <div className="flex space-x-2">
-            <Button variant="ghost">
-                <Link href="/followings">{followings.length} followings</Link>
-            </Button>
-            <Button variant="ghost">
-                <Link href="/followers">{followers.length} followers</Link>
-            </Button>
-            <Button variant="ghost">
-                <Link href="/wishes">{wishes.length} wishes</Link>
-            </Button>
-            <Button variant="ghost">
-                <Link href="/reservations">{reservations.length} reserved</Link>
-            </Button>
+            <CustomLink href="/followings">
+                <p>{followings.length}</p>
+                <p>followings</p>
+            </CustomLink>
+            <CustomLink href="/followers">
+                <p>{followers.length}</p>
+                <p>followers</p>
+            </CustomLink>
+            <CustomLink href="/wishes">
+                <p>{wishes.length}</p>
+                <p>wishes</p>
+            </CustomLink>
+            <CustomLink href="/reservations">
+                <p>{reservations.length}</p>
+                <p className="cursor-pointer">reserved</p>
+            </CustomLink>
         </div>
     );
 };
