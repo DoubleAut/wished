@@ -1,7 +1,8 @@
 import { InternalAxiosRequestConfig } from 'axios';
+import { ACCESS_TOKEN_KEY } from '../constants/localStorage';
 
 export const getAccessToken = () => {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
     return accessToken;
 };
