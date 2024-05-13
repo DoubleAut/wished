@@ -2,8 +2,8 @@ export interface Wish {
     id: number;
     title: string;
     description: string;
-    price: string;
-    canBeAnon: string;
+    price: number;
+    canBeAnon: boolean;
     isHidden: boolean;
     isReserved: boolean;
     picture?: string;
