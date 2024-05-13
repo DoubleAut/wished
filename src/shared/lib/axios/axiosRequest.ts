@@ -1,6 +1,7 @@
 'use client';
 
 import axios from 'axios';
+import { ACCESS_TOKEN_KEY } from '../constants/localStorage';
 import { axiosBearerInterceptor } from './axiosInterceptors';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -45,7 +46,7 @@ axiosRequestWithBearer.interceptors.response.use(
                     accessToken: string;
                 };
 
-                localStorage.setItem('accessToken', body.accessToken);
+                localStorage.setItem(ACCESS_TOKEN_KEY, body.accessToken);
 
                 return await axios(error.config);
             }
