@@ -14,7 +14,7 @@ export const UserWidget = ({ avatar, header, links, action }: Props) => {
             <Avatar className="aspect-square w-28">{avatar}</Avatar>
             <div className="flex flex-col space-y-2">
                 {header}
-                <div className="flex space-x-2">{links}</div>
+                {links}
                 {action}
             </div>
         </div>
