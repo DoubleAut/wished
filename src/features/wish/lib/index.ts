@@ -26,8 +26,12 @@ export const getError = (message: string) => {
     return null;
 };
 
-export const createWish = async (wish: WishData) => {
-    const response = await axiosRequestWithBearer.post('/wishes', wish);
+export const createWish = async (wish: WishData, userId: number) => {
+    const response = await axiosRequestWithBearer.post('/wishes', {
+        ...wish,
+        isReserved: false,
+        userId,
+    });
 
     return response.data as Wish;
 };
