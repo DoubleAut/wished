@@ -1,5 +1,3 @@
-'use client';
-
 import axios from 'axios';
 import { ACCESS_TOKEN_KEY } from '../constants/localStorage';
 import { axiosBearerInterceptor } from './axiosInterceptors';
@@ -8,6 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
 export const axiosRequestWithBearer = axios.create({
     baseURL: API_URL,
+    withCredentials: true,
 });
 
 axiosRequestWithBearer.interceptors.request.use(
@@ -29,24 +28,25 @@ axiosRequestWithBearer.interceptors.response.use(
             error.config.retries = error.config.retries || 0;
 
             if (error.response.status === 401) {
-                const accessToken = localStorage.getItem('accessToken');
+                const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
-                const newResponse = await fetch(`${API_URL}/auth/refresh`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
+                const newResponse = await axiosRequestWithBearer.get(
+                    `${API_URL}/auth/refresh`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
                     },
-                });
+                );
 
-                if (!newResponse.ok) {
+                if (newResponse.status > 400 && error.config.retries > 3) {
                     throw new Error(`HTTP error! status: ${error.status}`);
                 }
 
-                const body = (await newResponse.json()) as {
-                    accessToken: string;
-                };
-
-                localStorage.setItem(ACCESS_TOKEN_KEY, body.accessToken);
+                localStorage.setItem(
+                    ACCESS_TOKEN_KEY,
+                    newResponse.data.accessToken,
+                );
 
                 return await axios(error.config);
             }
