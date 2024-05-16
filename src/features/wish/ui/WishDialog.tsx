@@ -13,14 +13,14 @@ export const WishDialog = () => {
         <Dialog>
             <DialogTrigger>
                 <Button className="w-full" variant="outline">
-                    Make a wish +
+                    + Make a wish
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Make new wish</DialogTitle>
                 </DialogHeader>
-                <WishForm />
+                <WishForm onCancel={() => {}} />
             </DialogContent>
         </Dialog>
     );

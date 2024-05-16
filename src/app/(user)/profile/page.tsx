@@ -2,6 +2,7 @@
 
 import { useUserStore } from '@/core/providers/UserProvider';
 import { UserAvatar, UserInitials, UserLinks } from '@/entities/user/ui/User';
+import { Wishes } from '@/entities/user/ui/Wishes';
 import { WishDialog } from '@/features/wish/ui/WishDialog';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -36,7 +37,7 @@ export default function Home() {
     return (
         <div className="flex w-full flex-col items-center gap-3">
             <Button onClick={() => router.push('/')}>Go home</Button>
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-4">
                 <UserWidget
                     avatar={<UserAvatar href={store.user.picture} />}
                     header={
@@ -55,6 +56,7 @@ export default function Home() {
                     }
                     action={<WishDialog />}
                 />
+                <Wishes subheader="Wishes" />
             </div>
         </div>
     );

@@ -1,5 +1,7 @@
 'use client';
 
+import { useUserStore } from '@/core/providers/UserProvider';
+import { UserStore } from '@/entities/user/model/userStore';
 import { Button } from '@/shared/ui/button';
 import {
     Form,
@@ -19,7 +21,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { createWish, getError, wishSchema } from '../lib';
 
-export const WishForm = () => {
+interface Props {
+    onCancel: () => void;
+}
+
+export const WishForm = ({ onCancel }: Props) => {
+    const store = useUserStore<UserStore>(state => state);
     const [isLoading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof wishSchema>>({
@@ -29,9 +36,21 @@ export const WishForm = () => {
     const onSubmit = (result: z.infer<typeof wishSchema>) => {
         setLoading(true);
 
-        createWish(result)
-            .then(() => {
-                console.log('Result came');
+        if (!store.user) {
+            setLoading(false);
+
+            return;
+        }
+
+        createWish(result, store.user.id)
+            .then(newWish => {
+                onCancel();
+
+                if (!store.user) {
+                    return;
+                }
+
+                store.setWishes([...store.user.wishes, newWish]);
             })
             .catch(err => {
                 const { response } = err;

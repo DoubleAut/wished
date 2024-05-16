@@ -1,4 +1,5 @@
-import { User, Wish } from '@/shared/types/User';
+import { User } from '@/shared/types/User';
+import { Wish } from '@/shared/types/Wish';
 import { createStore } from 'zustand';
 
 type UserState = {
