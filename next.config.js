@@ -4,12 +4,12 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'www.startpage.com',
+                hostname: 'utfs.io',
                 port: '',
-                pathname: '/av/**',
+                pathname: '/f/**',
             },
         ],
     },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
