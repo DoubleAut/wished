@@ -48,10 +48,10 @@ export default function Home() {
                     }
                     links={
                         <UserLinks
-                            followings={store.user?.followings}
-                            followers={store.user?.followers}
-                            reservations={store.user?.reservations}
-                            wishes={store.user?.wishes}
+                            followings={store.user.followings}
+                            followers={store.user.followers}
+                            reservations={store.user.reservations}
+                            wishes={store.user.wishes}
                         />
                     }
                     action={<WishDialog />}

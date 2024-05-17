@@ -1,4 +1,4 @@
-import { Wish } from '@/shared/types/User';
+import { Wish } from '@/shared/types/Wish';
 import { create } from 'zustand';
 import { getUserWishes } from '../lib/wishes';
 
