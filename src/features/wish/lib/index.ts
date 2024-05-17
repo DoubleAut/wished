@@ -2,15 +2,20 @@ import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
 import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
 
-interface WishData extends Partial<Wish> {}
+const MAX_IMAGE_UPLOAD_SIZE = 1024 * 1024 * 2; // 2MB
 
-export interface WishSchema {
-    title: string;
-    description: string;
-    price: number;
-    isHidden: boolean;
-    canBeAnon: boolean;
-}
+export const wishSchema = z.object({
+    title: z.string().min(2, {
+        message: 'Title must contain atleast 2 characters',
+    }),
+    description: z.string().min(2, {
+        message: 'Description must contain atleast 2 characters',
+    }),
+    price: z.coerce.number(),
+    isHidden: z.boolean(),
+    canBeAnon: z.boolean(),
+    picture: z.string().nullable(),
+});
 
 export const getError = (message: string) => {
     if (message.split(' ').includes('title')) {
@@ -26,7 +31,10 @@ export const getError = (message: string) => {
     return null;
 };
 
-export const createWish = async (wish: WishData, userId: number) => {
+export const createWish = async (
+    wish: z.infer<typeof wishSchema>,
+    userId: number,
+) => {
     const response = await axiosRequestWithBearer.post('/wishes', {
         ...wish,
         isReserved: false,
@@ -35,15 +43,3 @@ export const createWish = async (wish: WishData, userId: number) => {
 
     return response.data as Wish;
 };
-
-export const wishSchema = z.object({
-    title: z.string().min(2, {
-        message: 'Title must contain atleast 2 characters',
-    }),
-    description: z.string().min(2, {
-        message: 'Description must contain atleast 2 characters',
-    }),
-    price: z.coerce.number(),
-    isHidden: z.boolean(),
-    canBeAnon: z.boolean(),
-});

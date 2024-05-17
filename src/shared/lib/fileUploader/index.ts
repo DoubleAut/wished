@@ -1,9 +1,9 @@
-import {
-    generateUploadButton,
-    generateUploadDropzone,
-} from '@uploadthing/react';
+'use client';
 
-import type { OurFileRouter } from '@/app/api/uploadthing/core';
+import { generateUploadButton } from '@uploadthing/react';
 
-export const UploadButton = generateUploadButton<OurFileRouter>();
-export const UploadDropzone = generateUploadDropzone<OurFileRouter>();
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+
+export const UploadButton = generateUploadButton({
+    url: `${API_URL}/uploadthing`,
+});

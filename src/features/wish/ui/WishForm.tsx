@@ -14,10 +14,12 @@ import {
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { Switch } from '@/shared/ui/switch';
+import { UploadSwitch } from '@/shared/ui/uploadSwitch';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { createWish, getError, wishSchema } from '../lib';
 
@@ -51,6 +53,10 @@ export const WishForm = ({ onCancel }: Props) => {
                 }
 
                 store.setWishes([...store.user.wishes, newWish]);
+
+                const message = `${newWish.title} has been created.`;
+
+                toast(message);
             })
             .catch(err => {
                 const { response } = err;
@@ -163,11 +169,24 @@ export const WishForm = ({ onCancel }: Props) => {
                             />
                         </div>
                     </div>
+                    <UploadSwitch
+                        onDelete={() => form.setValue('picture', null)}
+                        onError={message =>
+                            form.setError('picture', { message })
+                        }
+                        onUploadComplete={url => {
+                            form.setValue('picture', url);
+
+                            setLoading(false);
+                        }}
+                        onUploading={() => setLoading(true)}
+                    />
                     <Button
                         disabled={isLoading}
                         variant="outline"
                         type="submit"
                         className="w-full"
+                        aria-label="close"
                     >
                         {isLoading ? (
                             <>
