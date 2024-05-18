@@ -6,21 +6,22 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/shared/ui/dialog';
+import { useState } from 'react';
 import { WishForm } from './WishForm';
 
 export const WishDialog = () => {
+    const [open, setOpen] = useState(false);
+
     return (
-        <Dialog>
-            <DialogTrigger>
-                <Button className="w-full" variant="outline">
-                    + Make a wish
-                </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline">Make a wish</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Make new wish</DialogTitle>
                 </DialogHeader>
-                <WishForm onCancel={() => {}} />
+                <WishForm onCancel={() => setOpen(false)} />
             </DialogContent>
         </Dialog>
     );

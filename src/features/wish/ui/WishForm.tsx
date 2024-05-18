@@ -33,6 +33,11 @@ export const WishForm = ({ onCancel }: Props) => {
 
     const form = useForm<z.infer<typeof wishSchema>>({
         resolver: zodResolver(wishSchema),
+        defaultValues: {
+            picture: null,
+            isHidden: false,
+            canBeAnon: false,
+        },
     });
 
     const onSubmit = (result: z.infer<typeof wishSchema>) => {
@@ -169,17 +174,30 @@ export const WishForm = ({ onCancel }: Props) => {
                             />
                         </div>
                     </div>
-                    <UploadSwitch
-                        onDelete={() => form.setValue('picture', null)}
-                        onError={message =>
-                            form.setError('picture', { message })
-                        }
-                        onUploadComplete={url => {
-                            form.setValue('picture', url);
+                    <FormField
+                        control={form.control}
+                        name="picture"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <UploadSwitch
+                                        onDelete={() => field.onChange(null)}
+                                        onError={message =>
+                                            form.setError('picture', {
+                                                message,
+                                            })
+                                        }
+                                        onUploadComplete={url => {
+                                            field.onChange(url);
 
-                            setLoading(false);
-                        }}
-                        onUploading={() => setLoading(true)}
+                                            setLoading(false);
+                                        }}
+                                        onUploading={() => setLoading(true)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
                     <Button
                         disabled={isLoading}
