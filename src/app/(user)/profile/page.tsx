@@ -1,6 +1,6 @@
 'use client';
 
-import { useUserStore } from '@/core/providers/UserProvider';
+import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { UserAvatar, UserInitials, UserLinks } from '@/entities/user/ui/User';
 import { Wishes } from '@/entities/user/ui/Wishes';
 import { WishDialog } from '@/features/wish/ui/WishDialog';
@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useLayoutEffect } from 'react';
 
 export default function Home() {
-    const store = useUserStore(state => state);
+    const store = useViewerStore(state => state);
     const router = useRouter();
 
     useLayoutEffect(() => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useUserStore } from '@/core/providers/UserProvider';
+import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { Button } from '@/shared/ui/button';
 import {
     Card,
@@ -30,7 +30,7 @@ import { getError } from '../../lib';
 import { login } from '../lib/login';
 
 export const LoginForm = () => {
-    const store = useUserStore(state => state);
+    const store = useViewerStore(state => state);
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -47,7 +47,7 @@ export const LoginForm = () => {
 
         login(result)
             .then(user => {
-                store.setUser(user);
+                store.setViewer(user);
 
                 router.push('/profile');
             })

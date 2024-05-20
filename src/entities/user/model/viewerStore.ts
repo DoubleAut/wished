@@ -1,28 +1,30 @@
-import { User } from '@/shared/types/User';
+import { User as Viewer } from '@/shared/types/User';
 import { Wish } from '@/shared/types/Wish';
 import { createStore } from 'zustand';
 
-type UserState = {
-    user: User | null;
+type ViewerState = {
+    user: Viewer | null;
 };
 
-export interface UserActions {
-    setUser: (user: User) => void;
-    setFollowers: (followers: User[]) => void;
-    setFollowings: (followings: User[]) => void;
+export interface ViewerActions {
+    setViewer: (user: Viewer) => void;
+    setFollowers: (followers: Viewer[]) => void;
+    setFollowings: (followings: Viewer[]) => void;
     setWishes: (wishes: Wish[]) => void;
 }
 
-export type UserStore = UserState & UserActions;
+export type ViewerStore = ViewerState & ViewerActions;
 
 export const defaultInitState = {
     user: null,
 };
 
-export const createUserStore = (initState: UserState = defaultInitState) => {
-    return createStore<UserStore>()(set => ({
+export const createViewerStore = (
+    initState: ViewerState = defaultInitState,
+) => {
+    return createStore<ViewerStore>()(set => ({
         ...initState,
-        setUser: (user: User) => set(() => ({ user })),
+        setViewer: (user: Viewer) => set(() => ({ user })),
         setFollowers: followers =>
             set(state => {
                 if (state.user) {
