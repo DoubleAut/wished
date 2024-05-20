@@ -3,7 +3,7 @@
 import {
     ViewerStore,
     createViewerStore,
-} from '@/entities/user/model/viewerStore';
+} from '@/entities/viewer/model/viewerStore';
 import { createContext, useContext, useRef, type ReactNode } from 'react';
 import { useStore, type StoreApi } from 'zustand';
 
