@@ -1,3 +1,4 @@
+import { cn } from '@/shared/lib/classNames/cn';
 import { User } from '@/shared/types/User';
 import { Wish } from '@/shared/types/Wish';
 import { Header } from '@/shared/ui/Text/header';
@@ -8,13 +9,14 @@ import { ReactNode } from 'react';
 
 interface UserAvatarProps {
     href: string | undefined;
+    className?: string;
 }
 
-export const UserAvatar = ({ href }: UserAvatarProps) => {
+export const UserAvatar = ({ href, className }: UserAvatarProps) => {
     return (
         <AvatarImage
             src={href || '/avatar_not_found.png'}
-            className="h-full w-full"
+            className={cn('h-full w-full', className)}
         />
     );
 };
@@ -26,7 +28,7 @@ interface UserInitialsProps {
 
 export const UserInitials = ({ name, surname }: UserInitialsProps) => {
     return (
-        <Header className="self-center">
+        <Header>
             {name} {surname}
         </Header>
     );
@@ -50,7 +52,7 @@ const CustomLink = ({ children, href }: CustomLinkProps) => (
     </Button>
 );
 
-export const UserLinks = ({
+export const UserLinksVertical = ({
     followings,
     followers,
     reservations,
@@ -74,6 +76,38 @@ export const UserLinks = ({
                 <p>{reservations.length}</p>
                 <p className="cursor-pointer">reserved</p>
             </CustomLink>
+        </div>
+    );
+};
+
+export const UserLinksHorizontal = ({
+    followings,
+    followers,
+    reservations,
+    wishes,
+}: UserLinksProps) => {
+    return (
+        <div className="flex space-x-2">
+            <Button variant="link" asChild>
+                <Link href="/followings">
+                    <p>{followings.length} followings</p>
+                </Link>
+            </Button>
+            <Button>
+                <Link href="/followers">
+                    <p>{followers.length} followers</p>
+                </Link>
+            </Button>
+            <Button>
+                <Link href="/wishes">
+                    <p>{wishes.length} wishes</p>
+                </Link>
+            </Button>
+            <Button>
+                <Link href="/reservations">
+                    <p>{reservations.length} reserved</p>
+                </Link>
+            </Button>
         </div>
     );
 };

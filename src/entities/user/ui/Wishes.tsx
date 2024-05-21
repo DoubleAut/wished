@@ -1,4 +1,4 @@
-import { useUserStore } from '@/core/providers/UserProvider';
+import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { Wish as WishType } from '@/shared/types/Wish';
 import { Subheader } from '@/shared/ui/Text/subheader';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -6,7 +6,7 @@ import { MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 
 export const Wishes = ({ subheader }: { subheader: string }) => {
-    const user = useUserStore(state => state.user);
+    const user = useViewerStore(state => state.user);
 
     if (!user) {
         return (
