@@ -38,8 +38,13 @@ export const friendsStore = create<FriendsStore>((set, get) => ({
     },
 }));
 
-export const setCurrentPath = (path: 'followers' | 'followings') => {
-    friendsStore.setState({ currentPath: path });
+export const handleStore = (user: User) => {
+    friendsStore.setState({
+        followers: user.followers,
+        followings: user.followings,
+        currentPath: 'followers',
+        currentList: user.followers,
+    });
 };
 
 export const setFollowers = (list: User[]) => {
