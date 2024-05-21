@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { UploadButton } from '../lib/fileUploader';
+import { UploadZone } from '../lib/fileUploader';
 import { Button } from './button';
 
 interface Props {
@@ -54,8 +54,9 @@ export const UploadSwitch = ({
     }
 
     return (
-        <UploadButton
+        <UploadZone
             endpoint="wishedUploader"
+            className="ut-button:bg-accent ut-label:text-primary ut-allowed-content:text-foreground"
             onClientUploadComplete={(res: Picture[]) => {
                 const file = res[0] as Picture;
 
@@ -63,7 +64,7 @@ export const UploadSwitch = ({
 
                 onUploadComplete(file.url);
             }}
-            onBeforeUploadBegin={(files) => {
+            onBeforeUploadBegin={files => {
                 onUploading();
 
                 return files;
