@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import * as React from 'react';
 
 import { cn } from '@/shared/lib/classNames/cn';
 import {
@@ -9,49 +8,68 @@ import {
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
-    navigationMenuTriggerStyle,
 } from '@/shared/ui/navigation-menu';
+import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import React, { useState } from 'react';
 
-export const Navigation = () => {
+type Link = {
+    id: string;
+    label: string;
+    path: string;
+};
+
+interface Props {
+    links: Link[];
+}
+
+export const Navigation = ({ links }: Props) => {
+    const pathname = usePathname();
+    const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+
     return (
         <NavigationMenu>
-            <NavigationMenuList>
-                <NavigationMenuItem>
-                    <Link href="/wishes" legacyBehavior passHref>
-                        <NavigationMenuLink
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            My wishes
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/ideas" legacyBehavior passHref>
-                        <NavigationMenuLink
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            Ideas
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/friends" legacyBehavior passHref>
-                        <NavigationMenuLink
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            Friends
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/recommendations" legacyBehavior passHref>
-                        <NavigationMenuLink
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            Recommendations
-                        </NavigationMenuLink>
-                    </Link>
-                </NavigationMenuItem>
+            <NavigationMenuList className="space-x-0">
+                {links.map(link => (
+                    <NavigationMenuItem
+                        key={link.path}
+                        className="relative h-10 px-4 py-2"
+                        onMouseOver={() => setHoveredNav(link.id)}
+                        onMouseLeave={() => setHoveredNav(null)}
+                    >
+                        <Link href={link.path} legacyBehavior passHref>
+                            <NavigationMenuLink className="z-20">
+                                {link.label}
+                            </NavigationMenuLink>
+                        </Link>
+
+                        {hoveredNav === link.id && (
+                            <motion.span
+                                layoutId="hover"
+                                className="absolute inset-0 -z-10 rounded bg-accent"
+                                transition={{
+                                    stiffness: 200,
+                                    damping: 15,
+                                    mass: 0.2,
+                                    duration: 0.2,
+                                }}
+                            />
+                        )}
+
+                        {pathname === link.path && (
+                            <motion.span
+                                layoutId="active"
+                                className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-white"
+                                transition={{
+                                    stiffness: 200,
+                                    damping: 15,
+                                    mass: 0.1,
+                                    duration: 0.2,
+                                }}
+                            />
+                        )}
+                    </NavigationMenuItem>
+                ))}
             </NavigationMenuList>
         </NavigationMenu>
     );
