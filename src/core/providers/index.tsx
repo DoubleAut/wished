@@ -1,16 +1,22 @@
+'use client';
+
 import { ReactNode } from 'react';
-import SessionProvider from './Auth';
-import { getServerSession } from 'next-auth';
+import { ThemeProvider } from './ThemeProvider';
+import { ViewerStoreProvider } from './ViewerProvider';
 
 interface Props {
     children: ReactNode;
 }
 
-export const Providers = async ({ children }: Props) => {
-    const session = await getServerSession();
+export const Providers = ({ children }: Props) => {
     return (
-        <>
-            <SessionProvider session={session}>{children}</SessionProvider>
-        </>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <ViewerStoreProvider>{children}</ViewerStoreProvider>
+        </ThemeProvider>
     );
 };

@@ -1,38 +1,44 @@
 'use client';
 
-import { REFRESH_ACCESS_TOKEN_ERROR } from '@/shared/lib/constants/Auth';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useUserStore } from '@/core/providers/UserProvider';
+import { Navigation } from '@/shared/ui/Navigation';
+import { Avatar, AvatarImage } from '@/shared/ui/avatar';
+import { Button } from '@/shared/ui/button';
+import { HeaderWidget } from '@/widgets/header';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useLayoutEffect } from 'react';
 
 export default function Home() {
-    const { data: session } = useSession();
-    const navigation = useRouter();
-
-    useLayoutEffect(() => {
-        // If session return refresh token error, then user will need to relogin!
-        if (session?.error === REFRESH_ACCESS_TOKEN_ERROR) {
-            navigation.push(`/auth/error?error=Session expired`);
-        }
-    }, [session]);
+    const user = useUserStore(state => state.user);
 
     return (
         <>
-            {session && (
-                <>
-                    Signed in as {session.user?.email} <br />
-                    <button onClick={() => signOut()}>Sign out</button>
-                </>
-            )}
-            {!session && (
-                <>
-                    Not signed in <br />
-                    <button onClick={() => signIn()}>Sign in</button>
-                </>
-            )}
+            <HeaderWidget
+                logo={'WISHER'}
+                links={<Navigation />}
+                profile={
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage src="avatar_not_found.png" />
+                    </Avatar>
+                }
+            />
+            <div className="container flex flex-col items-center">
+                {user && (
+                    <>
+                        Signed in as {user.email} <br />
+                        <button>Sign out</button>
+                    </>
+                )}
+                {!user && (
+                    <>
+                        Not signed in <br />
+                        <Button variant="link">
+                            <Link href="/auth/login">Sign in</Link>
+                        </Button>
+                    </>
+                )}
 
-            <Link href="/profile">Profile!</Link>
+                <Link href="/profile">Profile!</Link>
+            </div>
         </>
     );
 }

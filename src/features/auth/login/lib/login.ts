@@ -1,17 +1,17 @@
-import { Inputs } from '@/shared/types/Auth';
-import { signIn } from 'next-auth/react';
+import axiosRequestWithoutBearer from '@/shared/lib/axios/axiosRequestWithoutBearer';
+import { User } from '@/shared/types/User';
+import { LoginSchema } from '@/widgets/auth/login/lib';
 
-export const login = async (credentials: Inputs & { callbackUrl?: string }) => {
-    const { email, password, callbackUrl } = credentials;
+export const login = async (credentials: LoginSchema) => {
+    const response = await axiosRequestWithoutBearer.post(
+        '/auth/login',
+        credentials,
+    );
+    const body = response.data;
 
-    await signIn('credentials', {
-        email,
-        password,
-        callbackUrl,
-    });
+    localStorage.setItem('accessToken', body.accessToken);
 
-    return {
-        isError: false,
-        errors: null,
-    };
+    const user = await axiosRequestWithoutBearer.get(`/users/${body.id}`);
+
+    return user.data as User;
 };

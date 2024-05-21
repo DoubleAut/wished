@@ -1,21 +1,16 @@
-interface Wish {
-    title: string;
-    description: string;
-    price: string;
-    canBeAnon: true;
-    isHidden: true;
-    isReserved: true;
-}
+import { Wish } from '../Wish';
 
 export interface User {
-    id: string;
+    id: number;
     email: string;
-    password: string;
     name: string;
     surname: string;
     picture: string;
-    friends: number[];
+    isActive: boolean;
+    followings: User[];
+    followers: User[];
     wishes: Wish[];
+    reservations: Wish[];
 }
 
 export type StrippedUser = Omit<User, 'password' | 'friends' | 'wishes'>;

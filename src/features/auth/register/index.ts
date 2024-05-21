@@ -1,9 +1,3 @@
-import { Header as RegisterHeader } from './ui/Header';
-import { Form as RegisterForm } from './ui/Form';
-import { Providers as RegisterProviders } from './ui/Providers';
-import { Question as RegisterQuestion } from './ui/Question';
+import { RegistrationForm } from './ui/Form';
 
-export { RegisterHeader };
-export { RegisterForm };
-export { RegisterProviders };
-export { RegisterQuestion };
+export { RegistrationForm };
