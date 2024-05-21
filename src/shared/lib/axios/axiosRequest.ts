@@ -30,23 +30,25 @@ axiosRequestWithBearer.interceptors.response.use(
             if (error.response.status === 401) {
                 const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
-                const newResponse = await axiosRequestWithBearer.get(
-                    `${API_URL}/auth/refresh`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
+                const rawResponse = await fetch(`${API_URL}/auth/refresh`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
                     },
-                );
+                    credentials: 'include',
+                });
 
-                if (newResponse.status > 400 && error.config.retries > 3) {
+                console.log(rawResponse);
+
+                if (!rawResponse.ok) {
                     throw new Error(`HTTP error! status: ${error.status}`);
                 }
 
-                localStorage.setItem(
-                    ACCESS_TOKEN_KEY,
-                    newResponse.data.accessToken,
-                );
+                const response = (await rawResponse.json()) as {
+                    accessToken: string;
+                };
+
+                localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
 
                 return await axios(error.config);
             }

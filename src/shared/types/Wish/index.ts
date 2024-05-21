@@ -8,4 +8,6 @@ export interface Wish {
     isReserved: boolean;
     picture?: string;
     owner: string;
+    created_at: string;
+    updated_at: string;
 }

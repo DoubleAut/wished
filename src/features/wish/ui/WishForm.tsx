@@ -1,7 +1,7 @@
 'use client';
 
-import { useUserStore } from '@/core/providers/UserProvider';
-import { UserStore } from '@/entities/user/model/userStore';
+import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { ViewerStore } from '@/entities/viewer/model/viewerStore';
 import { Button } from '@/shared/ui/button';
 import {
     Form,
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const WishForm = ({ onCancel }: Props) => {
-    const store = useUserStore<UserStore>(state => state);
+    const store = useViewerStore<ViewerStore>(state => state);
     const [isLoading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof wishSchema>>({
@@ -61,10 +61,10 @@ export const WishForm = ({ onCancel }: Props) => {
 
                 const message = `${newWish.title} has been created.`;
 
-                toast(message);
+                toast.success(message);
             })
-            .catch(err => {
-                const { response } = err;
+            .catch(error => {
+                const { response } = error;
 
                 if (Array.isArray(response.data.message)) {
                     for (let message of response.data.message) {
@@ -88,6 +88,10 @@ export const WishForm = ({ onCancel }: Props) => {
 
                     if (err) {
                         form.setError(err, { message });
+                    }
+
+                    if (!err) {
+                        toast.error(error.message);
                     }
                 }
             })
