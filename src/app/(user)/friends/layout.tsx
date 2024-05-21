@@ -18,7 +18,9 @@ async function RootLayout({ children }: { children: ReactNode }) {
     setFollowings((await getUsers()).reverse());
     updateCurrentList('followers');
 
-    return children;
+    console.log('HELLO!');
+
+    return <>{children}</>;
 }
 
 export default RootLayout;

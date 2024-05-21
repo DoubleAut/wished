@@ -1,10 +1,13 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { UserAvatar, UserInitials, UserLinks } from '@/entities/user/ui/User';
+import {
+    UserAvatar,
+    UserInitials,
+    UserLinksVertical,
+} from '@/entities/user/ui/User';
 import { Wishes } from '@/entities/user/ui/Wishes';
 import { WishDialog } from '@/features/wish/ui/WishDialog';
-import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { UserWidget } from '@/widgets/user/ui';
 import { useRouter } from 'next/navigation';
@@ -27,7 +30,7 @@ export default function Home() {
         return (
             <UserWidget
                 avatar={<Skeleton />}
-                header={<Skeleton />}
+                initials={<Skeleton />}
                 links={<Skeleton />}
                 action={<Skeleton />}
             />
@@ -36,28 +39,25 @@ export default function Home() {
 
     return (
         <div className="flex w-full flex-col items-center gap-3">
-            <Button onClick={() => router.push('/')}>Go home</Button>
-            <div className="flex flex-col space-y-4">
-                <UserWidget
-                    avatar={<UserAvatar href={store.user.picture} />}
-                    header={
-                        <UserInitials
-                            name={store.user.name}
-                            surname={store.user.surname}
-                        />
-                    }
-                    links={
-                        <UserLinks
-                            followings={store.user.followings}
-                            followers={store.user.followers}
-                            reservations={store.user.reservations}
-                            wishes={store.user.wishes}
-                        />
-                    }
-                    action={<WishDialog />}
-                />
-                <Wishes subheader="Wishes" />
-            </div>
+            <UserWidget
+                avatar={<UserAvatar href={store.user.picture} />}
+                initials={
+                    <UserInitials
+                        name={store.user.name}
+                        surname={store.user.surname}
+                    />
+                }
+                links={
+                    <UserLinksVertical
+                        followings={store.user.followings}
+                        followers={store.user.followers}
+                        reservations={store.user.reservations}
+                        wishes={store.user.wishes}
+                    />
+                }
+                action={<WishDialog />}
+            />
+            <Wishes subheader="Wishes" />
         </div>
     );
 }
