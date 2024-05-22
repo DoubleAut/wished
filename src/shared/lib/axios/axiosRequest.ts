@@ -48,7 +48,14 @@ axiosRequestWithBearer.interceptors.response.use(
 
                 localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
 
-                return await axios(error.config);
+                const newConfig = {
+                    ...error.config,
+                };
+
+                newConfig.headers['Authorization'] =
+                    `Bearer ${response.accessToken}`;
+
+                return await axios(newConfig);
             }
         } catch (err) {
             console.error('Error refreshing token:', err);
