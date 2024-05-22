@@ -1,9 +1,9 @@
-import axiosRequestWithoutBearer from '@/shared/lib/axios/axiosRequestWithoutBearer';
+import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
 import { User } from '@/shared/types/User';
 import { LoginSchema } from '@/widgets/auth/login/lib';
 
 export const login = async (credentials: LoginSchema) => {
-    const response = await axiosRequestWithoutBearer.post(
+    const response = await axiosRequestWithBearer.post(
         '/auth/login',
         credentials,
     );
@@ -11,7 +11,7 @@ export const login = async (credentials: LoginSchema) => {
 
     localStorage.setItem('accessToken', body.accessToken);
 
-    const user = await axiosRequestWithoutBearer.get(`/users/${body.id}`);
+    const user = await axiosRequestWithBearer.get(`/users/${body.id}`);
 
     return user.data as User;
 };

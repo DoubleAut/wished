@@ -38,8 +38,6 @@ axiosRequestWithBearer.interceptors.response.use(
                     credentials: 'include',
                 });
 
-                console.log(rawResponse);
-
                 if (!rawResponse.ok) {
                     throw new Error(`HTTP error! status: ${error.status}`);
                 }

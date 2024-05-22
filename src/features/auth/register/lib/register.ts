@@ -1,5 +1,5 @@
-import axiosRequestWithoutBearer from '@/shared/lib/axios/axiosRequestWithoutBearer';
+import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
 import { RegisterSchema } from '@/widgets/auth/register/lib';
 
 export const register = async ({ confirmPassword, ...data }: RegisterSchema) =>
-    await axiosRequestWithoutBearer.post('/users', data);
+    await axiosRequestWithBearer.post('/users', data);
