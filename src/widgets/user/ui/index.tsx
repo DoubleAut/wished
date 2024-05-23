@@ -8,6 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { RiMoreLine, RiNotificationLine } from '@remixicon/react';
 import { MoreHorizontal } from 'lucide-react';
 import { ReactNode, useState } from 'react';
@@ -74,7 +75,6 @@ export const UserWidget = ({
             <div className="flex w-full space-x-2">
                 <Avatar className="aspect-square w-28">{avatar}</Avatar>
                 <div className="flex w-full justify-end space-x-2">
-                    <ProfileMore />
                     <Button
                         variant="outline"
                         className="rounded-full"
@@ -116,6 +116,27 @@ export const UserSmallWidget = ({
                 {links}
             </div>
             <div>{more}</div>
+        </div>
+    );
+};
+
+export const UserSmallWidgetSkeleton = () => {
+    return (
+        <div className="flex items-center gap-5">
+            <Avatar className="aspect-square w-28">
+                <Skeleton />
+            </Avatar>
+            <div className="flex w-full flex-col space-y-2">
+                <Skeleton />
+                <div>
+                    <Skeleton />
+                    <Skeleton />
+                    <Skeleton />
+                </div>
+            </div>
+            <div>
+                <Skeleton />
+            </div>
         </div>
     );
 };
