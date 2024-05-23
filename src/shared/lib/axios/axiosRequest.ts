@@ -9,6 +9,27 @@ export const axiosRequestWithBearer = axios.create({
     withCredentials: true,
 });
 
+export const rotateTokens = async () => {
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+    const rawResponse = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+        credentials: 'include',
+    });
+
+    const response = (await rawResponse.json()) as {
+        id: number;
+        accessToken: string;
+    };
+
+    localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+
+    return response;
+};
+
 axiosRequestWithBearer.interceptors.request.use(
     config => {
         return axiosBearerInterceptor(config);
@@ -28,34 +49,12 @@ axiosRequestWithBearer.interceptors.response.use(
             error.config.retries = error.config.retries || 0;
 
             if (error.response.status === 401) {
-                const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+                const token = await rotateTokens();
 
-                const rawResponse = await fetch(`${API_URL}/auth/refresh`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    credentials: 'include',
-                });
+                error.config.headers['Authorization'] =
+                    `Bearer ${token.accessToken}`;
 
-                if (!rawResponse.ok) {
-                    throw new Error(`HTTP error! status: ${error.status}`);
-                }
-
-                const response = (await rawResponse.json()) as {
-                    accessToken: string;
-                };
-
-                localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
-
-                const newConfig = {
-                    ...error.config,
-                };
-
-                newConfig.headers['Authorization'] =
-                    `Bearer ${response.accessToken}`;
-
-                return await axios(newConfig);
+                return await axios(error.config);
             }
         } catch (err) {
             console.error('Error refreshing token:', err);
