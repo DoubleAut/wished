@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react';
 import { ThemeProvider } from './ThemeProvider';
+import { UserProvider } from './UserProvider';
 import { ViewerStoreProvider } from './ViewerProvider';
 
 interface Props {
@@ -16,7 +17,9 @@ export const Providers = ({ children }: Props) => {
             enableSystem
             disableTransitionOnChange
         >
-            <ViewerStoreProvider>{children}</ViewerStoreProvider>
+            <ViewerStoreProvider>
+                <UserProvider>{children}</UserProvider>
+            </ViewerStoreProvider>
         </ThemeProvider>
     );
 };
