@@ -1,15 +1,28 @@
-import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
 import { User } from '@/shared/types/User';
 import '@total-typescript/ts-reset';
 
-export const getUsers = async () => {
-    const response = await axiosRequestWithBearer.get('/users');
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    return response.data as User[];
+export const getUsers = async () => {
+    const response = await fetch(`${API_URL}/users`);
+
+    if (!response.ok) {
+        throw new Error('Error occured while retrieving user');
+    }
+
+    const result = await response.json();
+
+    return result as User[];
 };
 
 export const getUser = async (id: number) => {
-    const response = await axiosRequestWithBearer.get(`/users/${id}`);
+    const response = await fetch(`${API_URL}/users/${id}`);
 
-    return response.data as User;
+    if (!response.ok) {
+        throw new Error('Error occured while retrieving user');
+    }
+
+    const result = await response.json();
+
+    return result as User;
 };
