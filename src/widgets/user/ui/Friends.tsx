@@ -7,12 +7,14 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ChangeEvent, ReactNode, useState } from 'react';
 import { useStore } from 'zustand';
-import { More, UserSmallWidget } from '.';
+import { UserSmallWidget, UserSmallWidgetSkeleton } from '.';
 import {
     friendsStore,
     updateCurrentList,
 } from '../../../entities/viewer/model/viewerFriendsStore';
 
+import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { FriendButton } from '@/features/user/ui/FriendButton';
 import { RiEmotionUnhappyLine } from '@remixicon/react';
 
 export const FriendsNavigation = () => {
@@ -81,15 +83,31 @@ export const FriendsSearch = () => {
     );
 };
 
-export const FriendsList = () => {
+export const FriendsList = ({
+    onFollowAction,
+}: {
+    onFollowAction: () => void;
+}) => {
+    const viewer = useViewerStore(state => state.user);
     const store = useStore(friendsStore);
+
+    if (!store.user) {
+        return (
+            <div className="w-full space-y-4">
+                <UserSmallWidgetSkeleton />
+                <UserSmallWidgetSkeleton />
+                <UserSmallWidgetSkeleton />
+                <UserSmallWidgetSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full space-y-4">
             {store.currentList.length === 0 && (
-                <div className="flex w-full justify-center space-x-4 rounded border px-4 py-8">
+                <div className="flex w-full justify-center space-x-4 px-4 py-8">
                     <RiEmotionUnhappyLine />
-                    <p>Looks like you don't have any {store.currentPath}</p>
+                    <p>Nothing</p>
                 </div>
             )}
 
@@ -115,7 +133,14 @@ export const FriendsList = () => {
                             </Link>
                         </Button>
                     }
-                    more={<More currentPath="followers" />}
+                    more={
+                        viewer?.id !== user.id ? (
+                            <FriendButton
+                                friendId={user.id}
+                                onAction={onFollowAction}
+                            />
+                        ) : null
+                    }
                 />
             ))}
         </div>
