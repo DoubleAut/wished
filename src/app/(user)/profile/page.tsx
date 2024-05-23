@@ -38,7 +38,7 @@ export default function Home() {
     }
 
     return (
-        <div className="flex w-full flex-col items-center gap-3">
+        <div className="container flex flex-col space-y-4">
             <UserWidget
                 avatar={<UserAvatar href={store.user.picture} />}
                 initials={
