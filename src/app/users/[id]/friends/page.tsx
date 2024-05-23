@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { setInitialUser, userStore } from '@/entities/user/model/user';
 import { handleFriendsStore } from '@/entities/viewer/model/viewerFriendsStore';
 import {
     FriendsList,
@@ -9,11 +9,20 @@ import {
     FriendsWidget,
 } from '@/widgets/user/ui/Friends';
 import { useLayoutEffect } from 'react';
+import { useStore } from 'zustand';
 
-const Home = () => {
-    const store = useViewerStore(state => state);
+interface Props {
+    params: {
+        id: number;
+    };
+}
+
+const Home = ({ params: { id } }: Props) => {
+    const store = useStore(userStore);
 
     useLayoutEffect(() => {
+        setInitialUser(id);
+
         if (store.user) {
             handleFriendsStore(store.user);
         }
@@ -24,7 +33,7 @@ const Home = () => {
             <FriendsWidget
                 navigation={<FriendsNavigation />}
                 search={<FriendsSearch />}
-                users={<FriendsList onFollowAction={() => {}} />}
+                users={<FriendsList />}
             />
         </div>
     );

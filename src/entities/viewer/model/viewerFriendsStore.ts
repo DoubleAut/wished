@@ -2,61 +2,60 @@ import { User } from '@/shared/types/User';
 import { create } from 'zustand';
 
 interface FriendsStore {
-    followers: User[];
-    followings: User[];
+    user: User | null;
     currentPath: 'followers' | 'followings';
     currentList: User[];
     filterList: (query: string) => void;
 }
 
 export const friendsStore = create<FriendsStore>((set, get) => ({
+    user: null,
     currentPath: 'followers',
-    followers: [],
-    followings: [],
     currentList: [],
     filterList: (query: string) => {
-        const currentPath = get().currentPath;
-        const currentList =
-            currentPath === 'followers' ? get().followers : get().followings;
+        const state = get();
+        const user = state.user;
 
-        if (query.length > 0) {
-            set({
-                currentList: currentList.filter(user =>
-                    [
-                        user.name.toLocaleLowerCase(),
-                        user.surname.toLocaleLowerCase(),
-                    ]
-                        .join(' ')
-                        .includes(query),
-                ),
-            });
-        }
+        if (user) {
+            const currentPath = state.currentPath;
+            const currentList =
+                currentPath === 'followers' ? user.followers : user.followings;
 
-        if (query.length === 0) {
-            set({ currentList });
+            if (query.length > 0) {
+                set({
+                    currentList: currentList.filter(user =>
+                        [
+                            user.name.toLocaleLowerCase(),
+                            user.surname.toLocaleLowerCase(),
+                        ]
+                            .join(' ')
+                            .includes(query),
+                    ),
+                });
+            }
+
+            if (query.length === 0) {
+                set({ currentList });
+            }
         }
     },
 }));
 
-export const handleStore = (user: User) => {
+export const handleFriendsStore = (user: User) => {
     friendsStore.setState({
-        followers: user.followers,
-        followings: user.followings,
         currentPath: 'followers',
         currentList: user.followers,
+        user,
     });
-};
-
-export const setFollowers = (list: User[]) => {
-    friendsStore.setState({ followers: list });
-};
-
-export const setFollowings = (list: User[]) => {
-    friendsStore.setState({ followings: list });
 };
 
 export const updateCurrentList = (name: 'followers' | 'followings') => {
     const state = friendsStore.getState();
 
-    friendsStore.setState({ currentList: state[name], currentPath: name });
+    if (state.user) {
+        friendsStore.setState({
+            currentList: state.user[name],
+            currentPath: name,
+        });
+    }
 };

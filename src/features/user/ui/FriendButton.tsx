@@ -5,7 +5,12 @@ import { Button } from '@/shared/ui/button';
 import { toast } from 'sonner';
 import { addFriend, removeFriend } from '../api/friendActions';
 
-export const FriendButton = ({ friendId }: { friendId: number }) => {
+interface Props {
+    friendId: number;
+    onAction: () => void;
+}
+
+export const FriendButton = ({ friendId, onAction }: Props) => {
     const { user, ...store } = useViewerStore(state => state);
     const isIncluded = user?.followings.find(user => user.id === friendId);
 
@@ -21,6 +26,8 @@ export const FriendButton = ({ friendId }: { friendId: number }) => {
                     removeFriend(user.id, friendId)
                         .then(viewer => {
                             store.setFollowings(viewer.followings);
+
+                            onAction();
 
                             toast.success('Successfully unfollowed user');
                         })
@@ -43,6 +50,10 @@ export const FriendButton = ({ friendId }: { friendId: number }) => {
                 addFriend(user.id, friendId)
                     .then(viewer => {
                         store.setFollowings(viewer.followings);
+
+                        onAction();
+
+                        toast.success('Successfully followed user');
                     })
                     .catch(() => {
                         toast.error('Error occured while following the user');

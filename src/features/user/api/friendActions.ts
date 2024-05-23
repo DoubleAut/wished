@@ -1,18 +1,18 @@
+import { getUser } from '@/entities/user/lib/user';
 import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
-import { User } from '@/shared/types/User';
 
 export const removeFriend = async (userId: number, friendId: number) => {
-    const response = await axiosRequestWithBearer.delete(
-        `/users/${userId}/friends/${friendId}`,
-    );
+    await axiosRequestWithBearer.delete(`/users/${userId}/friends/${friendId}`);
 
-    return response.data as User;
+    const user = await getUser(userId);
+
+    return user;
 };
 
 export const addFriend = async (userId: number, friendId: number) => {
-    const response = await axiosRequestWithBearer.post(
-        `/users/${userId}/friends/${friendId}`,
-    );
+    await axiosRequestWithBearer.post(`/users/${userId}/friends/${friendId}`);
 
-    return response.data as User;
+    const user = await getUser(userId);
+
+    return user;
 };
