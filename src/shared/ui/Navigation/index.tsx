@@ -59,7 +59,7 @@ export const Navigation = ({ links }: Props) => {
                         {pathname === link.path && (
                             <motion.span
                                 layoutId="active"
-                                className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-white"
+                                className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-accent-foreground"
                                 transition={{
                                     stiffness: 200,
                                     damping: 15,
