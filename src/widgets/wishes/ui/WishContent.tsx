@@ -28,7 +28,7 @@ export const WishContent = ({ actions }: Props) => {
 
     if (!wish) {
         return (
-            <div className="flex h-full flex-col items-start gap-6 rounded-lg p-6 shadow-lg md:flex-row">
+            <div className="flex h-full flex-col items-start gap-6 rounded-lg p-6 md:flex-row">
                 <div className="relative h-full w-full flex-shrink-0 overflow-hidden rounded-lg md:w-1/2">
                     <Skeleton className="inset-0" />
                 </div>
@@ -59,7 +59,7 @@ export const WishContent = ({ actions }: Props) => {
     }
 
     return (
-        <div className="flex h-full flex-col items-start gap-6 rounded-lg p-6 shadow-lg md:flex-row">
+        <div className="flex h-full flex-col gap-8 rounded-lg p-6 md:flex-row">
             <div className="relative h-full w-full flex-shrink-0 overflow-hidden rounded-lg md:w-1/2">
                 {wish.picture ? (
                     <Image
