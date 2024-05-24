@@ -1,14 +1,76 @@
-import { Wish as IWish } from '@/shared/types/Wish';
+import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { Wish as IWish, Wish } from '@/shared/types/Wish';
 import { Subheader } from '@/shared/ui/Text/subheader';
+
+import { DeleteWish } from '@/features/wish/ui/DeleteWish';
+import { EditWish } from '@/features/wish/ui/EditWish';
+import { HideWish } from '@/features/wish/ui/HideWish';
+import { ReserveWish } from '@/features/wish/ui/ReserveWish';
+import { User } from '@/shared/types/User';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
-import Image from 'next/image';
+import { WishContent } from '@/widgets/wishes/ui/WishContent';
+import { useStore } from 'zustand';
+import { viewWishStore } from '../model/wishStore';
+import { WishCard } from './WishCard';
+import { WishDialog } from './WishDialog';
+import { WishForm } from './WishForm';
 
 interface WishesProps {
     wishes?: IWish[];
 }
 
+export const PersonalWishActions = () => {
+    const wishStore = useStore(viewWishStore);
+
+    if (!wishStore.wish) {
+        return (
+            <div className="flex flex-col gap-2 sm:flex-row">
+                <Button className="w-full" asChild>
+                    <Skeleton />
+                </Button>
+                <Button className="w-full" asChild>
+                    <Skeleton />
+                </Button>
+                <Button className="w-full" asChild>
+                    <Skeleton />
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col justify-end gap-2 sm:flex-row">
+            <EditWish />
+            <HideWish />
+            <DeleteWish />
+        </div>
+    );
+};
+
+export const UserWishActions = () => {
+    return (
+        <div className="flex flex-col gap-2 sm:flex-row">
+            <ReserveWish />
+        </div>
+    );
+};
+
+const getVisibleWishOrNull = (wish: Wish, viewer: User) => {
+    const isOwnWish = wish.owner.id === viewer?.id;
+
+    // Wish is hidden and current user is not wish owner
+    if (wish.isHidden && !isOwnWish) {
+        return null;
+    }
+
+    return wish;
+};
+
 export const Wishes = ({ wishes }: WishesProps) => {
+    const viewer = useViewerStore(state => state.user);
+    const store = useStore(viewWishStore);
+
     if (!wishes) {
         return (
             <div className="flex flex-col gap-3">
@@ -26,41 +88,53 @@ export const Wishes = ({ wishes }: WishesProps) => {
     }
 
     return (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            {wishes.map(item => (
-                <Wish key={item.id} wish={item} />
-            ))}
-        </div>
-    );
-};
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {wishes.map(wish => {
+                if (viewer) {
+                    const validatedWish = getVisibleWishOrNull(wish, viewer);
 
-export const Wish = ({ wish }: { wish: IWish }) => {
-    const date = new Date(wish.created_at);
-    const splitted = [date.getDay(), date.getMonth(), date.getFullYear()];
+                    if (!validatedWish) {
+                        return null;
+                    }
 
-    return (
-        <div className="flex w-full flex-col">
-            <div className="relative aspect-square overflow-hidden rounded">
-                <Image
-                    className="object-cover"
-                    src={wish.picture ?? '/avatar_not_found.png'}
-                    alt="Wish picture"
-                    sizes="(max-width: 640px) 320px, (max-width: 768px) 200px, (max-width: 1024px) 200px"
-                    fill
-                />
-                <Button
-                    className="absolute right-0 top-0 rounded-full"
-                    variant="ghost"
-                    size="icon"
-                ></Button>
-            </div>
-            <div className="flex flex-col space-y-2 px-3 py-3">
-                <div>{wish.title}</div>
-                <div className="flex justify-between">
-                    <p>{wish.price}</p>
-                    <p>{splitted.join('.')}</p>
-                </div>
-            </div>
+                    const actions =
+                        wish.owner.id === viewer.id ? (
+                            <PersonalWishActions key={wish.id} />
+                        ) : (
+                            <UserWishActions key={wish.id} />
+                        );
+
+                    const content =
+                        store.type === 'view' ? (
+                            <WishContent actions={actions} wish={wish} />
+                        ) : (
+                            <WishForm
+                                onCancel={() => {
+                                    store.setType('view');
+                                    store.setWish(null);
+                                }}
+                            />
+                        );
+
+                    return (
+                        <WishDialog
+                            key={wish.id + wish.title}
+                            wish={validatedWish}
+                            trigger={<WishCard key={wish.id} wish={wish} />}
+                            content={content}
+                        />
+                    );
+                }
+
+                return (
+                    <WishDialog
+                        key={wish.id + wish.title}
+                        wish={wish}
+                        trigger={<WishCard key={wish.id} wish={wish} />}
+                        content={<WishContent actions={<></>} wish={wish} />}
+                    />
+                );
+            })}
         </div>
     );
 };
