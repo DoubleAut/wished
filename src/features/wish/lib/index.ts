@@ -2,8 +2,6 @@ import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
 import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
 
-const MAX_IMAGE_UPLOAD_SIZE = 1024 * 1024 * 2; // 2MB
-
 export const wishSchema = z.object({
     title: z.string().min(2, {
         message: 'Title must contain atleast 2 characters',
@@ -40,6 +38,54 @@ export const createWish = async (
         isReserved: false,
         userId,
     });
+
+    return response.data as Wish;
+};
+
+export const updateWish = async (
+    wish: Partial<z.infer<typeof wishSchema>>,
+    id: number,
+) => {
+    const response = await axiosRequestWithBearer.patch(`/wishes/${id}`, {
+        ...wish,
+        userId: id,
+    });
+
+    if (response.status > 400) {
+        throw new Error('error while updating the wish');
+    }
+
+    return response.data as Wish;
+};
+
+export const deleteWish = async (id: number) => {
+    const response = await axiosRequestWithBearer.delete(`/wishes/${id}`);
+
+    if (response.status > 400) {
+        throw new Error('error while updating the wish');
+    }
+
+    return response.data as Wish;
+};
+
+export const reserveWish = async (id: number) => {
+    const response = await axiosRequestWithBearer.post(`/wishes/reserve/${id}`);
+
+    if (response.status > 400) {
+        throw new Error('error while updating the wish');
+    }
+
+    return response.data as Wish;
+};
+
+export const cancelReservedWish = async (id: number) => {
+    const response = await axiosRequestWithBearer.delete(
+        `/wishes/cancel/${id}`,
+    );
+
+    if (response.status > 400) {
+        throw new Error('error while updating the wish');
+    }
 
     return response.data as Wish;
 };
