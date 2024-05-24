@@ -1,3 +1,5 @@
+import { User } from '../User';
+
 export interface Wish {
     id: number;
     title: string;
@@ -6,8 +8,9 @@ export interface Wish {
     canBeAnon: boolean;
     isHidden: boolean;
     isReserved: boolean;
-    picture?: string;
-    owner: string;
+    picture: string | null;
+    reservedBy: User | null;
+    owner: User;
     created_at: string;
     updated_at: string;
 }
