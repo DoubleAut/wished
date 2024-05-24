@@ -33,7 +33,7 @@ export const UploadSwitch = ({
 
     if (picture) {
         return (
-            <div className="relative aspect-square w-full">
+            <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded">
                 <div className="absolute right-0 top-0 z-10">
                     <Button
                         variant="ghost"
@@ -60,7 +60,7 @@ export const UploadSwitch = ({
     return (
         <UploadZone
             endpoint="wishedUploader"
-            className="ut-button:bg-accent ut-allowed-content:text-foreground ut-label:text-primary"
+            className="max-w-xs ut-button:bg-accent ut-allowed-content:text-foreground ut-label:text-primary"
             onClientUploadComplete={(res: Picture[]) => {
                 const file = res[0] as Picture;
 
