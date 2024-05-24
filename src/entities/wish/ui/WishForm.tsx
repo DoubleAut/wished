@@ -1,6 +1,7 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import {
@@ -33,6 +34,16 @@ import { viewWishStore } from '../model/wishStore';
 interface Props {
     onCancel: () => void;
 }
+
+const deleteImage = async (key: string) => {
+    const response = await axiosRequestWithBearer.delete(`/media/${key}`);
+
+    if (response.status > 400) {
+        throw new Error('Error while trying to delete an image');
+    }
+
+    return { success: true };
+};
 
 export const WishForm = (props: Props) => {
     const viewerStore = useViewerStore(state => state);
@@ -83,10 +94,8 @@ export const WishForm = (props: Props) => {
 
             toast.success(message);
 
-            if (wishStore.type === 'edit') {
-                wishStore.setWish(newWish);
-                wishStore.setType('view');
-            }
+            wishStore.setWish(newWish);
+            wishStore.setType('view');
         };
 
         const onError = (error: any) => {
@@ -228,7 +237,33 @@ export const WishForm = (props: Props) => {
                             <FormItem>
                                 <FormControl>
                                     <UploadSwitch
-                                        onDelete={() => field.onChange(null)}
+                                        savedPicture={
+                                            wishStore.wish
+                                                ? {
+                                                      key: wishStore.wish.picture
+                                                          ?.split('/')
+                                                          .at(-1) as string,
+                                                      url: wishStore.wish
+                                                          .picture as string,
+                                                  }
+                                                : undefined
+                                        }
+                                        onDelete={(key: string) => {
+                                            setLoading(true);
+
+                                            deleteImage(key)
+                                                .then(() => {
+                                                    field.onChange(null);
+                                                })
+                                                .catch(message =>
+                                                    form.setError('picture', {
+                                                        message,
+                                                    }),
+                                                )
+                                                .finally(() =>
+                                                    setLoading(false),
+                                                );
+                                        }}
                                         onError={message =>
                                             form.setError('picture', {
                                                 message,
