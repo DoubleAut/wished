@@ -64,6 +64,10 @@ const getVisibleWishOrNull = (wish: Wish, viewer: User) => {
         return null;
     }
 
+    if (wish.isReserved && wish.reservedBy?.id !== viewer.id) {
+        return null;
+    }
+
     return wish;
 };
 
