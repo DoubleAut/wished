@@ -1,3 +1,3 @@
 # WISHED
 
-Frontend part of wished application
+Frontend part of wished application.
