@@ -1,62 +1,23 @@
-import { User as Viewer } from '@/shared/types/User';
-import { Wish } from '@/shared/types/Wish';
+import {
+    WishesSlice,
+    createWishesSlice,
+} from '@/entities/wish/model/wishesStore';
 import { createStore } from 'zustand';
+import {
+    FriendsSlice,
+    createFriendsSlice,
+} from '../../user/model/friendsStore';
+import {
+    UserInformationSlice,
+    createUserInformationSlice,
+} from '../../user/model/user';
 
-type ViewerState = {
-    user: Viewer | null;
-};
-
-export interface ViewerActions {
-    setViewer: (user: Viewer) => void;
-    setFollowers: (followers: Viewer[]) => void;
-    setFollowings: (followings: Viewer[]) => void;
-    setWishes: (wishes: Wish[]) => void;
-    setReservations: (reservation: Wish[]) => void;
-}
-
-export type ViewerStore = ViewerState & ViewerActions;
-
-export const defaultInitState = {
-    user: null,
-};
-
-export const createViewerStore = (
-    initState: ViewerState = defaultInitState,
-) => {
-    return createStore<ViewerStore>()(set => ({
-        ...initState,
-        setViewer: (user: Viewer) => set(() => ({ user })),
-        setFollowers: followers =>
-            set(state => {
-                if (state.user) {
-                    return { user: { ...state.user, followers } };
-                }
-
-                return state;
-            }),
-        setFollowings: followings =>
-            set(state => {
-                if (state.user) {
-                    return { user: { ...state.user, followings } };
-                }
-
-                return state;
-            }),
-        setWishes: wishes =>
-            set(state => {
-                if (state.user) {
-                    return { user: { ...state.user, wishes } };
-                }
-
-                return state;
-            }),
-        setReservations: reservations =>
-            set(state => {
-                if (state.user) {
-                    return { user: { ...state.user, reservations } };
-                }
-
-                return state;
-            }),
-    }));
+export const useBoundGlobalUserStore = () => {
+    return createStore<UserInformationSlice & WishesSlice & FriendsSlice>()(
+        (...a) => ({
+            ...createUserInformationSlice(...a),
+            ...createWishesSlice(...a),
+            ...createFriendsSlice(...a),
+        }),
+    );
 };
