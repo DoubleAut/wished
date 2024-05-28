@@ -1,10 +1,13 @@
 'use client';
 
-import { getUser } from '@/entities/user/lib/user';
-import { rotateTokens } from '@/shared/lib/axios/axiosRequest';
-import { ACCESS_TOKEN_KEY } from '@/shared/lib/constants/localStorage';
-import { useRouter } from 'next/navigation';
-import { ReactNode, useLayoutEffect } from 'react';
+import { getFullUser } from '@/entities/user/lib/user';
+import { rotateTokens } from '@/shared/api/Fetch';
+import { isSessionExist } from '@/shared/api/Fetch/tokens';
+import { FullUser } from '@/shared/types/User';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { HeaderWidget } from '@/widgets/header';
+import { redirect, useRouter } from 'next/navigation';
+import { ReactNode, useCallback, useLayoutEffect, useState } from 'react';
 import { useViewerStore } from './ViewerProvider';
 
 interface Props {
@@ -12,28 +15,71 @@ interface Props {
 }
 
 const revokeSession = async () => {
+    const isSession = isSessionExist();
+
+    if (!isSession) {
+        console.log('Saves session is not found. Redirecting to login page!!!');
+
+        redirect('/auth/login');
+    }
+
     const response = await rotateTokens();
 
-    const user = await getUser(response.id);
-
-    return user;
+    return await getFullUser(response.id);
 };
 
 export function UserProvider({ children }: Props) {
-    const store = useViewerStore(state => state);
+    const [isLoading, setLoading] = useState(true);
+    const setUser = useViewerStore(state => state.setUser);
+    const setWishes = useViewerStore(state => state.setWishes);
+    const setReservations = useViewerStore(state => state.setReservations);
+    const setFollowers = useViewerStore(state => state.setFollowers);
+    const setFollowings = useViewerStore(state => state.setFollowings);
     const router = useRouter();
 
-    useLayoutEffect(() => {
-        const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+    const setInitialUser = useCallback(
+        (user: FullUser) => {
+            setUser(user);
+            setFollowers(user.followers);
+            setFollowings(user.followings);
+            setWishes(user.wishes);
+            setReservations(user.reservations);
+        },
+        [setFollowers, setFollowings, setReservations, setUser, setWishes],
+    );
 
-        if (accessToken) {
-            revokeSession()
-                .then(user => {
-                    store.setViewer(user);
-                })
-                .catch(() => router.push(`/auth/login?callbackUrl=/`));
-        }
-    }, []);
+    useLayoutEffect(() => {
+        revokeSession()
+            .then(user => setInitialUser(user))
+            .catch(() => router.push(`/auth/login?callbackUrl=/`))
+            .finally(() => setLoading(false));
+    }, [router, setInitialUser]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col">
+                <HeaderWidget
+                    logo={<Skeleton className="h-6 w-20" />}
+                    links={
+                        <div className="flex gap-4">
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-6 w-20" />
+                        </div>
+                    }
+                    profile={<Skeleton className="h-10 w-10 rounded-full" />}
+                />
+                <div className="container flex flex-col gap-4">
+                    <Skeleton className="h-full w-fit" />
+                    <div className="grid grid-cols-3">
+                        <Skeleton className="col-span-1 h-full w-full" />
+                        <Skeleton className="col-span-1 h-full w-full" />
+                        <Skeleton className="col-span-1 h-full w-full" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return children;
 }
