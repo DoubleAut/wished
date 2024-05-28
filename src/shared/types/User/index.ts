@@ -1,16 +1,26 @@
 import { Wish } from '../Wish';
-
-export interface User {
+export interface PlainUser {
     id: number;
     email: string;
     name: string;
     surname: string;
     picture: string;
     isActive: boolean;
-    followings: User[];
-    followers: User[];
+}
+
+export interface UserWithFriends extends PlainUser {
+    followings: PlainUser[];
+    followers: PlainUser[];
+}
+
+export interface UserWithWishes extends PlainUser {
     wishes: Wish[];
     reservations: Wish[];
 }
 
-export type StrippedUser = Omit<User, 'password' | 'friends' | 'wishes'>;
+export interface FullUser extends PlainUser {
+    followings: PlainUser[];
+    followers: PlainUser[];
+    wishes: Wish[];
+    reservations: Wish[];
+}
