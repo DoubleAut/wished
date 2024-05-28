@@ -62,6 +62,21 @@ export const ProfileMore = () => {
     );
 };
 
+export const UserWidgetSkeleton = () => (
+    <UserWidget
+        avatar={<Skeleton className="h-full w-full" />}
+        initials={<Skeleton className="h-full w-full" />}
+        links={
+            <div className="flex space-x-2">
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+            </div>
+        }
+    />
+);
+
 export const UserWidget = ({
     avatar,
     initials,
