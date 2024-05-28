@@ -1,15 +1,5 @@
-'use client';
-
-import { setInitialUser, userStore } from '@/entities/user/model/user';
-import { handleFriendsStore } from '@/entities/viewer/model/viewerFriendsStore';
-import {
-    FriendsList,
-    FriendsNavigation,
-    FriendsSearch,
-    FriendsWidget,
-} from '@/widgets/user/ui/Friends';
-import { useLayoutEffect } from 'react';
-import { useStore } from 'zustand';
+import { getUserWithFriends } from '@/entities/user/lib/friends';
+import { FriendsWidget } from '@/widgets/user/ui/Friends';
 
 interface Props {
     params: {
@@ -17,24 +7,12 @@ interface Props {
     };
 }
 
-const Home = ({ params: { id } }: Props) => {
-    const store = useStore(userStore);
-
-    useLayoutEffect(() => {
-        setInitialUser(id);
-
-        if (store.user) {
-            handleFriendsStore(store.user);
-        }
-    }, []);
+const Home = async ({ params: { id } }: Props) => {
+    const user = await getUserWithFriends(id);
 
     return (
         <div className="container flex flex-col items-center">
-            <FriendsWidget
-                navigation={<FriendsNavigation />}
-                search={<FriendsSearch />}
-                users={<FriendsList />}
-            />
+            <FriendsWidget user={user} />
         </div>
     );
 };
