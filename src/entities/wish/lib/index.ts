@@ -11,3 +11,9 @@ export const getWishesAndReservations = async (userId: number) => {
 
     return response;
 };
+
+export const getUserWishes = async (userId: number) => {
+    const response = await get<Wish[]>(`/wishes/${userId}`);
+
+    return response;
+};
