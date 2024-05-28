@@ -1,17 +1,20 @@
-import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
-import { User } from '@/shared/types/User';
-import { LoginSchema } from '@/widgets/auth/login/lib';
+import { getFullUser } from '@/entities/user/lib/user';
+import { post } from '@/shared/api/Fetch';
+import { PlainUser } from '@/shared/types/User';
 
-export const login = async (credentials: LoginSchema) => {
-    const response = await axiosRequestWithBearer.post(
+export interface LoginSchema {
+    email: string;
+    password: string;
+}
+
+export const login = async (data: LoginSchema) => {
+    const response = await post<LoginSchema, PlainUser>(
         '/auth/login',
-        credentials,
+        data,
+        true,
     );
-    const body = response.data;
 
-    localStorage.setItem('accessToken', body.accessToken);
+    const user = await getFullUser(response.id);
 
-    const user = await axiosRequestWithBearer.get(`/users/${body.id}`);
-
-    return user.data as User;
+    return user;
 };
