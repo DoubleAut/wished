@@ -1,4 +1,4 @@
-import { User } from '../User';
+import { PlainUser } from '../User';
 
 export interface Wish {
     id: number;
@@ -9,8 +9,8 @@ export interface Wish {
     isHidden: boolean;
     isReserved: boolean;
     picture: string | null;
-    reservedBy: User | null;
-    owner: User;
+    reservedBy: PlainUser | null;
+    owner: PlainUser;
     created_at: string;
     updated_at: string;
 }

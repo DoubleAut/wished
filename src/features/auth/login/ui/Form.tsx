@@ -30,7 +30,11 @@ import { getError } from '../../lib';
 import { login } from '../lib/login';
 
 export const LoginForm = () => {
-    const store = useViewerStore(state => state);
+    const setUser = useViewerStore(state => state.setUser);
+    const setFollowers = useViewerStore(state => state.setFollowers);
+    const setFollowings = useViewerStore(state => state.setFollowings);
+    const setWishes = useViewerStore(state => state.setWishes);
+    const setReservations = useViewerStore(state => state.setReservations);
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -47,11 +51,16 @@ export const LoginForm = () => {
 
         login(result)
             .then(user => {
-                store.setViewer(user);
+                setUser(user);
+                setFollowers(user.followers);
+                setFollowings(user.followings);
+                setWishes(user.wishes);
+                setReservations(user.reservations);
 
                 router.push('/profile');
             })
             .catch(err => {
+                console.log(err);
                 const { response } = err;
 
                 if (Array.isArray(response.data.message)) {
