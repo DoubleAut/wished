@@ -1,28 +1,27 @@
-import { User } from '@/shared/types/User';
+import { getWishesAndReservations } from '@/entities/wish/lib';
+import { get } from '@/shared/api/Fetch';
+import { FullUser, UserWithFriends } from '@/shared/types/User';
 import '@total-typescript/ts-reset';
-
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+import { getUserWithFriends } from './friends';
 
 export const getUsers = async () => {
-    const response = await fetch(`${API_URL}/users`);
+    const response = await get<FullUser[]>('/users');
 
-    if (!response.ok) {
-        throw new Error('Error occured while retrieving user');
-    }
-
-    const result = await response.json();
-
-    return result as User[];
+    return response;
 };
 
 export const getUser = async (id: number) => {
-    const response = await fetch(`${API_URL}/users/${id}`);
+    const response = await get<UserWithFriends>(`/users/${id}`);
 
-    if (!response.ok) {
-        throw new Error('Error occured while retrieving user');
-    }
+    return response;
+};
 
-    const result = await response.json();
+export const getFullUser = async (id: number) => {
+    const user = await getUserWithFriends(id);
+    const result = await getWishesAndReservations(id);
 
-    return result as User;
+    return {
+        ...user,
+        ...result,
+    };
 };
