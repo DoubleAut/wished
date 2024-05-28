@@ -3,12 +3,14 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import { cancelReservedWish, reserveWish } from '../lib';
 import { dialogStore } from '../model/dialogView';
 
 export const ReserveWish = () => {
+    const router = useRouter();
     const dialogWishStore = useStore(dialogStore);
     const dialogWish = dialogWishStore.dialogWish;
     const setDialogWish = dialogWishStore.setDialogWish;
@@ -40,6 +42,8 @@ export const ReserveWish = () => {
 
                         moveWishToViewerReservations(reservedWish);
 
+                        router.refresh();
+
                         toast.success('Wish successfully reserved');
                     })
                     .catch(err => {
@@ -56,6 +60,8 @@ export const ReserveWish = () => {
                         setDialogWish(reservedWish, 'view');
 
                         removeWishFromViewerReservations(reservedWish);
+
+                        router.refresh();
 
                         toast.success('Successfully canceled the reservation');
                     })
