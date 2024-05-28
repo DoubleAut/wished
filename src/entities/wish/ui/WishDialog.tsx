@@ -1,19 +1,19 @@
+import { dialogStore } from '@/features/wish/model/dialogView';
 import { Wish } from '@/shared/types/Wish';
 import { Dialog, DialogContent, DialogTrigger } from '@/shared/ui/dialog';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useStore } from 'zustand';
-import { viewWishStore } from '../model/wishStore';
 
 interface Props {
     content: ReactNode;
     trigger: ReactNode;
-    wish?: Wish;
+    wish: Partial<Wish> | null;
 }
 
 /**
- * WishDialog is dialog component that is opens on trigger click. Utilizes onDemand store "ViewWishStore" to handle logic between view and edit mode.
+ * WishDialog is dialog component that is opens on trigger click. Utilizes onDemand store "dialogStore" to handle logic between view and edit mode.
  *
- * The first component that sets current wish in ViewWishStore.
+ * The first component that sets current wish in dialogStore.
  *
  * @param trigger - Clickable area that triggers dialogue to open
  * @param content - Inner content of the dialogue, that has been open on trigger
@@ -23,30 +23,20 @@ interface Props {
  */
 
 export const WishDialog = ({ trigger, content, wish }: Props) => {
-    const wishStore = useStore(viewWishStore);
+    const store = useStore(dialogStore);
+    const setDialogWish = store.setDialogWish;
     const [isOpen, setOpen] = useState(false);
 
-    const onOpenChange = () => {
-        if (!isOpen) {
-            setOpen(true);
-
-            wish ? wishStore.setWish(wish) : wishStore.setWish(null);
-        }
-
+    useEffect(() => {
         if (isOpen) {
-            setOpen(false);
-
-            if (wish) {
-                wishStore.setWish(null);
-                wishStore.setType('view');
-            }
+            setDialogWish(wish, 'view');
         }
-    };
+    }, [isOpen, setDialogWish, wish]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={setOpen}>
             <DialogTrigger>{trigger}</DialogTrigger>
-            <DialogContent className="max-h-screen w-full max-w-4xl overflow-auto">
+            <DialogContent className="h-fit max-h-screen max-w-4xl overflow-auto p-6">
                 {content}
             </DialogContent>
         </Dialog>
