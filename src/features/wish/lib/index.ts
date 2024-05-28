@@ -1,4 +1,4 @@
-import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
+import { patch, post, remove } from '@/shared/api/Fetch';
 import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
 
@@ -29,63 +29,51 @@ export const getError = (message: string) => {
     return null;
 };
 
+type CreateProps = z.infer<typeof wishSchema> & {
+    userId: number;
+    isReserved: boolean;
+};
+
 export const createWish = async (
     wish: z.infer<typeof wishSchema>,
     userId: number,
 ) => {
-    const response = await axiosRequestWithBearer.post('/wishes', {
-        ...wish,
-        isReserved: false,
-        userId,
-    });
+    const response = await post<CreateProps, Wish>(
+        `/wishes`,
+        { ...wish, userId, isReserved: false },
+        true,
+    );
 
-    return response.data as Wish;
+    return response as Wish;
 };
 
 export const updateWish = async (
     wish: Partial<z.infer<typeof wishSchema>>,
     id: number,
 ) => {
-    const response = await axiosRequestWithBearer.patch(`/wishes/${id}`, {
-        ...wish,
-        userId: id,
-    });
+    const response = await patch<typeof wish, Wish>(
+        `/wishes/${id}`,
+        wish,
+        true,
+    );
 
-    if (response.status > 400) {
-        throw new Error('error while updating the wish');
-    }
-
-    return response.data as Wish;
+    return response;
 };
 
 export const deleteWish = async (id: number) => {
-    const response = await axiosRequestWithBearer.delete(`/wishes/${id}`);
+    const response = await remove<Wish>(`/wishes/${id}`, true);
 
-    if (response.status > 400) {
-        throw new Error('error while updating the wish');
-    }
-
-    return response.data as Wish;
+    return response;
 };
 
 export const reserveWish = async (id: number) => {
-    const response = await axiosRequestWithBearer.post(`/wishes/reserve/${id}`);
+    const response = await patch<{}, Wish>(`/wishes/reserve/${id}`, {}, true);
 
-    if (response.status > 400) {
-        throw new Error('error while updating the wish');
-    }
-
-    return response.data as Wish;
+    return response;
 };
 
 export const cancelReservedWish = async (id: number) => {
-    const response = await axiosRequestWithBearer.delete(
-        `/wishes/cancel/${id}`,
-    );
+    const response = await remove<Wish>(`/wishes/cancel/${id}`, true);
 
-    if (response.status > 400) {
-        throw new Error('error while updating the wish');
-    }
-
-    return response.data as Wish;
+    return response;
 };
