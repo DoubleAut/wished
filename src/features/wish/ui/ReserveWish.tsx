@@ -1,27 +1,44 @@
+'use client';
+
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { viewWishStore } from '@/entities/wish/model/wishStore';
+import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import { cancelReservedWish, reserveWish } from '../lib';
+import { dialogStore } from '../model/dialogView';
 
 export const ReserveWish = () => {
-    const { user, ...viewerStore } = useViewerStore(state => state);
-    const { wish, ...wishStore } = useStore(viewWishStore);
+    const dialogWishStore = useStore(dialogStore);
+    const dialogWish = dialogWishStore.dialogWish;
+    const setDialogWish = dialogWishStore.setDialogWish;
+
+    const viewer = useViewerStore(state => state.user);
+
+    const moveWishToViewerReservations = useViewerStore(
+        state => state.reserveWish,
+    );
+    const removeWishFromViewerReservations = useViewerStore(
+        state => state.cancelReservation,
+    );
+
+    if (!dialogWish) {
+        return null;
+    }
 
     const onClick = () => {
-        const isReserved = wish?.isReserved;
+        if (dialogWish && viewer) {
+            const isReserved = dialogWish.isReserved;
+            const wish = dialogWish as Wish;
 
-        if (wish && user) {
             if (!isReserved) {
                 const id = wish.id;
 
                 reserveWish(id)
                     .then(reservedWish => {
-                        const result = [...user.reservations, reservedWish];
+                        setDialogWish(reservedWish, 'view');
 
-                        viewerStore.setReservations(result);
-                        wishStore.setWish(reservedWish);
+                        moveWishToViewerReservations(reservedWish);
 
                         toast.success('Wish successfully reserved');
                     })
@@ -30,18 +47,15 @@ export const ReserveWish = () => {
                     });
             }
 
-            if (isReserved && wish.reservedBy?.id === user.id) {
+            if (isReserved && dialogWish.reservedBy?.id === viewer.id) {
+                const wish = dialogWish as Wish;
                 const id = wish.id;
 
                 cancelReservedWish(id)
                     .then(reservedWish => {
-                        const result = user.reservations.filter(
-                            item => item.id !== id,
-                        );
+                        setDialogWish(reservedWish, 'view');
 
-                        viewerStore.setReservations(result);
-
-                        wishStore.setWish(reservedWish);
+                        removeWishFromViewerReservations(reservedWish);
 
                         toast.success('Successfully canceled the reservation');
                     })
@@ -54,7 +68,7 @@ export const ReserveWish = () => {
 
     return (
         <Button variant="outline" onClick={onClick}>
-            {wish?.isReserved ? 'Cancel reservation' : 'Reserve'}
+            {dialogWish?.isReserved ? 'Cancel reservation' : 'Reserve'}
         </Button>
     );
 };

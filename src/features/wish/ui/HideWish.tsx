@@ -1,49 +1,47 @@
-import { viewWishStore } from '@/entities/wish/model/wishStore';
+import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import { updateWish } from '../lib';
+import { dialogStore } from '../model/dialogView';
 
 export const HideWish = () => {
-    const wishStore = useStore(viewWishStore);
+    const store = useStore(dialogStore);
+    const dialogWish = store.dialogWish;
+    const setDialogWish = store.setDialogWish;
 
     const onClick = () => {
-        if (!wishStore.wish) {
+        if (!dialogWish) {
             return;
         }
 
-        const isHidden = wishStore.wish.isHidden;
+        const wish = dialogWish as Wish;
 
-        const preparedWish = {
-            isHidden: isHidden ? false : true,
-        };
+        const isHidden = wish.isHidden;
 
-        if (wishStore.wish) {
-            updateWish(preparedWish, wishStore.wish.id)
-                .then(newWish => {
-                    wishStore.setWish(newWish);
-                    wishStore.setType('view');
+        updateWish({ isHidden: !isHidden }, wish.id)
+            .then(newWish => {
+                setDialogWish(newWish, 'view');
 
-                    toast.success('The wish successfully updated');
-                })
-                .catch(err => {
-                    toast.error(err.message);
-                });
-        }
+                toast.success('The wish successfully updated');
+            })
+            .catch(err => {
+                toast.error(err.message);
+            });
     };
 
-    if (!wishStore.wish) {
+    if (!dialogWish) {
         return (
             <Button asChild>
-                <Skeleton className="w-full" />
+                <Skeleton className="w-fit" />
             </Button>
         );
     }
 
     return (
         <Button variant="outline" onClick={onClick}>
-            {wishStore.wish?.isHidden ? 'Reveal gift' : 'Hide gift'}
+            {dialogWish?.isHidden ? 'Reveal gift' : 'Hide gift'}
         </Button>
     );
 };

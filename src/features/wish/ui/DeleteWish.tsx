@@ -1,5 +1,4 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { viewWishStore } from '@/entities/wish/model/wishStore';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,28 +15,26 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import { deleteWish } from '../lib';
+import { dialogStore } from '../model/dialogView';
 
 export const DeleteWish = () => {
-    const viewerStore = useViewerStore(state => state);
-    const wishStore = useStore(viewWishStore);
+    const store = useStore(dialogStore);
+    const dialogWish = store.dialogWish;
+    const setDialogWish = store.setDialogWish;
+    const removeWish = useViewerStore(state => state.removeWish);
 
     const onClick = () => {
-        if (!wishStore.wish) {
+        if (!dialogWish) {
             return;
         }
 
-        const wishId = wishStore.wish.id;
+        const wishId = dialogWish.id;
 
         deleteWish(wishId)
             .then(() => {
-                if (viewerStore.user) {
-                    const result = viewerStore.user.wishes.filter(
-                        wish => wish.id !== wishId,
-                    );
+                removeWish(dialogWish);
 
-                    viewerStore.setWishes(result);
-                }
-
+                setDialogWish(null, 'view');
                 toast.success('Gift successfully deleted!');
             })
             .catch(err => {
@@ -45,7 +42,7 @@ export const DeleteWish = () => {
             });
     };
 
-    if (!wishStore.wish) {
+    if (!dialogWish) {
         return (
             <Button asChild>
                 <Skeleton className="w-full" />
