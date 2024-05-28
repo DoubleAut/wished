@@ -1,31 +1,20 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { handleFriendsStore } from '@/entities/viewer/model/viewerFriendsStore';
-import {
-    FriendsList,
-    FriendsNavigation,
-    FriendsSearch,
-    FriendsWidget,
-} from '@/widgets/user/ui/Friends';
-import { useLayoutEffect } from 'react';
+import { FriendsWidget } from '@/widgets/user/ui/Friends';
 
 const Home = () => {
-    const store = useViewerStore(state => state);
+    const user = useViewerStore(state => state.user);
+    const followers = useViewerStore(state => state.followers);
+    const followings = useViewerStore(state => state.followings);
 
-    useLayoutEffect(() => {
-        if (store.user) {
-            handleFriendsStore(store.user);
-        }
-    }, []);
+    if (!user) {
+        return <div>Loading</div>;
+    }
 
     return (
         <div className="container flex flex-col items-center">
-            <FriendsWidget
-                navigation={<FriendsNavigation />}
-                search={<FriendsSearch />}
-                users={<FriendsList onFollowAction={() => {}} />}
-            />
+            <FriendsWidget user={{ ...user, followers, followings }} />
         </div>
     );
 };
