@@ -11,6 +11,7 @@ export interface ViewerActions {
     setFollowers: (followers: Viewer[]) => void;
     setFollowings: (followings: Viewer[]) => void;
     setWishes: (wishes: Wish[]) => void;
+    setReservations: (reservation: Wish[]) => void;
 }
 
 export type ViewerStore = ViewerState & ViewerActions;
@@ -45,6 +46,14 @@ export const createViewerStore = (
             set(state => {
                 if (state.user) {
                     return { user: { ...state.user, wishes } };
+                }
+
+                return state;
+            }),
+        setReservations: reservations =>
+            set(state => {
+                if (state.user) {
+                    return { user: { ...state.user, reservations } };
                 }
 
                 return state;

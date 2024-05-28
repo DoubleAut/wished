@@ -1,7 +1,9 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { ViewerStore } from '@/entities/viewer/model/viewerStore';
+import { dialogStore } from '@/features/wish/model/dialogView';
+import { remove } from '@/shared/api/Fetch';
+import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import {
     Form,
@@ -21,65 +23,83 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { createWish, getError, wishSchema } from '../lib';
+import { useStore } from 'zustand';
+import {
+    createWish,
+    getError,
+    updateWish,
+    wishSchema,
+} from '../../../features/wish/lib';
 
 interface Props {
     onCancel: () => void;
 }
 
-export const WishForm = ({ onCancel }: Props) => {
-    const store = useViewerStore<ViewerStore>(state => state);
+const deleteImage = async (key: string) => {
+    const response = await remove(`/media/${key}`);
+
+    return { success: true };
+};
+
+export const WishForm = (props: Props) => {
+    const user = useViewerStore(state => state.user);
+    const dialogWishStore = useStore(dialogStore);
+    const dialogWish = dialogWishStore.dialogWish;
+    const setDialogWish = dialogWishStore.setDialogWish;
+
+    const updateExistingWish = useViewerStore(state => state.updateWish);
+    const addWish = useViewerStore(state => state.addWish);
+
     const [isLoading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof wishSchema>>({
         resolver: zodResolver(wishSchema),
         defaultValues: {
-            picture: null,
-            isHidden: false,
-            canBeAnon: false,
+            title: dialogWish?.title ?? '',
+            description: dialogWish?.description ?? '',
+            price: dialogWish?.price ?? 0,
+            canBeAnon: dialogWish?.canBeAnon ?? false,
+            isHidden: dialogWish?.isHidden ?? false,
+            picture: dialogWish?.picture ?? null,
         },
     });
+
+    const isWishUpdate = Boolean(dialogWish?.id);
 
     const onSubmit = (result: z.infer<typeof wishSchema>) => {
         setLoading(true);
 
-        if (!store.user) {
+        if (!user) {
             setLoading(false);
 
             return;
         }
 
-        createWish(result, store.user.id)
-            .then(newWish => {
-                onCancel();
+        const onSuccess = (newWish: Wish) => {
+            if (!user) {
+                return;
+            }
 
-                if (!store.user) {
-                    return;
-                }
+            if (isWishUpdate) {
+                updateExistingWish(newWish);
+            }
 
-                store.setWishes([...store.user.wishes, newWish]);
+            if (!isWishUpdate) {
+                addWish(newWish);
+            }
 
-                const message = `${newWish.title} has been created.`;
+            const message = `${newWish.title} has been ${dialogWish?.id ? 'updated' : 'created'}.`;
 
-                toast.success(message);
-            })
-            .catch(error => {
-                const { response } = error;
+            toast.success(message);
 
-                if (Array.isArray(response.data.message)) {
-                    for (let message of response.data.message) {
-                        const err = getError(message) as
-                            | 'title'
-                            | 'description'
-                            | 'price'
-                            | null;
+            setDialogWish(newWish, 'edit');
+        };
 
-                        if (err) {
-                            form.setError(err, { message });
-                        }
-                    }
-                } else {
-                    const message = response.data.message;
+        const onError = (error: any) => {
+            const { response } = error;
+
+            if (Array.isArray(response.data.message)) {
+                for (let message of response.data.message) {
                     const err = getError(message) as
                         | 'title'
                         | 'description'
@@ -89,13 +109,42 @@ export const WishForm = ({ onCancel }: Props) => {
                     if (err) {
                         form.setError(err, { message });
                     }
-
-                    if (!err) {
-                        toast.error(error.message);
-                    }
                 }
-            })
-            .finally(() => setLoading(false));
+            } else {
+                const message = response.data.message;
+                const err = getError(message) as
+                    | 'title'
+                    | 'description'
+                    | 'price'
+                    | null;
+
+                if (err) {
+                    form.setError(err, { message });
+                }
+
+                if (!err) {
+                    toast.error(error.message);
+                }
+            }
+        };
+
+        if (!dialogWish?.id) {
+            createWish(result, user.id)
+                .then(onSuccess)
+                .catch(onError)
+                .finally(() => setLoading(false));
+
+            return;
+        }
+
+        if (dialogWish.id) {
+            updateWish(result, dialogWish.id)
+                .then(onSuccess)
+                .catch(onError)
+                .finally(() => setLoading(false));
+
+            return;
+        }
     };
 
     return (
@@ -185,7 +234,32 @@ export const WishForm = ({ onCancel }: Props) => {
                             <FormItem>
                                 <FormControl>
                                     <UploadSwitch
-                                        onDelete={() => field.onChange(null)}
+                                        savedPicture={
+                                            dialogWish
+                                                ? {
+                                                      key: dialogWish.picture
+                                                          ?.split('/')
+                                                          .at(-1) as string,
+                                                      url: dialogWish.picture as string,
+                                                  }
+                                                : undefined
+                                        }
+                                        onDelete={(key: string) => {
+                                            setLoading(true);
+
+                                            deleteImage(key)
+                                                .then(() => {
+                                                    field.onChange(null);
+                                                })
+                                                .catch(message =>
+                                                    form.setError('picture', {
+                                                        message,
+                                                    }),
+                                                )
+                                                .finally(() =>
+                                                    setLoading(false),
+                                                );
+                                        }}
                                         onError={message =>
                                             form.setError('picture', {
                                                 message,
@@ -203,22 +277,35 @@ export const WishForm = ({ onCancel }: Props) => {
                             </FormItem>
                         )}
                     />
-                    <Button
-                        disabled={isLoading}
-                        variant="outline"
-                        type="submit"
-                        className="w-full"
-                        aria-label="close"
-                    >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Please wait
-                            </>
-                        ) : (
-                            'Make a wish'
-                        )}
-                    </Button>
+                    <div className="flex gap-4">
+                        <Button
+                            variant="outline"
+                            className="w-full"
+                            aria-label="close"
+                            onClick={() => {
+                                setDialogWish(dialogWish, 'view');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            disabled={isLoading}
+                            variant="outline"
+                            type="submit"
+                            className="w-full"
+                        >
+                            {isLoading && (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Please wait
+                                </>
+                            )}
+
+                            {!isLoading && isWishUpdate
+                                ? 'Update the wish'
+                                : 'Make a wish'}
+                        </Button>
+                    </div>
                 </div>
             </form>
         </Form>

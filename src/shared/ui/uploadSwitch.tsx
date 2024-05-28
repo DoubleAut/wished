@@ -5,7 +5,8 @@ import { UploadZone } from '../lib/fileUploader';
 import { Button } from './button';
 
 interface Props {
-    onDelete: () => void;
+    savedPicture?: Picture;
+    onDelete: (key: string) => void;
     onUploading: () => void;
     onUploadComplete: (url: string) => void;
     onError: (message: string) => void;
@@ -13,23 +14,26 @@ interface Props {
 
 type Picture = {
     key: string;
-    name: string;
-    size: number;
-    type: string;
+    name?: string;
+    size?: number;
+    type?: string;
     url: string;
 };
 
 export const UploadSwitch = ({
+    savedPicture,
     onDelete,
     onUploading,
     onUploadComplete,
     onError,
 }: Props) => {
-    const [picture, setPicture] = useState<Picture | null>(null);
+    const [picture, setPicture] = useState<Picture | null>(
+        savedPicture ?? null,
+    );
 
     if (picture) {
         return (
-            <div className="relative aspect-square w-full">
+            <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded">
                 <div className="absolute right-0 top-0 z-10">
                     <Button
                         variant="ghost"
@@ -37,7 +41,7 @@ export const UploadSwitch = ({
                         onClick={() => {
                             setPicture(null);
 
-                            onDelete();
+                            onDelete(picture.key);
                         }}
                     >
                         <X />
@@ -46,7 +50,7 @@ export const UploadSwitch = ({
                 <Image
                     src={picture.url}
                     className="object-cover"
-                    alt={picture.name}
+                    alt="wish image"
                     fill
                 />
             </div>
@@ -56,7 +60,7 @@ export const UploadSwitch = ({
     return (
         <UploadZone
             endpoint="wishedUploader"
-            className="ut-button:bg-accent ut-label:text-primary ut-allowed-content:text-foreground"
+            className="max-w-xs ut-button:bg-accent ut-allowed-content:text-foreground ut-label:text-primary"
             onClientUploadComplete={(res: Picture[]) => {
                 const file = res[0] as Picture;
 

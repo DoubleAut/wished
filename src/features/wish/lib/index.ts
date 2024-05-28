@@ -1,8 +1,6 @@
-import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
+import { patch, post, remove } from '@/shared/api/Fetch';
 import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
-
-const MAX_IMAGE_UPLOAD_SIZE = 1024 * 1024 * 2; // 2MB
 
 export const wishSchema = z.object({
     title: z.string().min(2, {
@@ -31,15 +29,51 @@ export const getError = (message: string) => {
     return null;
 };
 
+type CreateProps = z.infer<typeof wishSchema> & {
+    userId: number;
+    isReserved: boolean;
+};
+
 export const createWish = async (
     wish: z.infer<typeof wishSchema>,
     userId: number,
 ) => {
-    const response = await axiosRequestWithBearer.post('/wishes', {
-        ...wish,
-        isReserved: false,
-        userId,
-    });
+    const response = await post<CreateProps, Wish>(
+        `/wishes`,
+        { ...wish, userId, isReserved: false },
+        true,
+    );
 
-    return response.data as Wish;
+    return response as Wish;
+};
+
+export const updateWish = async (
+    wish: Partial<z.infer<typeof wishSchema>>,
+    id: number,
+) => {
+    const response = await patch<typeof wish, Wish>(
+        `/wishes/${id}`,
+        wish,
+        true,
+    );
+
+    return response;
+};
+
+export const deleteWish = async (id: number) => {
+    const response = await remove<Wish>(`/wishes/${id}`, true);
+
+    return response;
+};
+
+export const reserveWish = async (id: number) => {
+    const response = await patch<{}, Wish>(`/wishes/reserve/${id}`, {}, true);
+
+    return response;
+};
+
+export const cancelReservedWish = async (id: number) => {
+    const response = await remove<Wish>(`/wishes/cancel/${id}`, true);
+
+    return response;
 };

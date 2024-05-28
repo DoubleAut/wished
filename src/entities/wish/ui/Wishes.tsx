@@ -1,66 +1,72 @@
-import { Wish as IWish } from '@/shared/types/Wish';
 import { Subheader } from '@/shared/ui/Text/subheader';
+
+import { dialogStore } from '@/features/wish/model/dialogView';
+import { DeleteWish } from '@/features/wish/ui/DeleteWish';
+import { EditWish } from '@/features/wish/ui/EditWish';
+import { HideWish } from '@/features/wish/ui/HideWish';
+import { ReserveWish } from '@/features/wish/ui/ReserveWish';
+import { Wish as IWish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
-import Image from 'next/image';
+import { useStore } from 'zustand';
+import { Wish } from './Wish';
 
-interface WishesProps {
-    wishes?: IWish[];
-}
+export const PersonalWishActions = () => {
+    const dialogWish = useStore(dialogStore);
 
-export const Wishes = ({ wishes }: WishesProps) => {
-    if (!wishes) {
+    if (!dialogWish) {
         return (
-            <div className="flex flex-col gap-3">
-                <Subheader>
+            <div className="flex flex-col gap-2 sm:flex-row">
+                <Button className="w-full" asChild>
                     <Skeleton />
-                </Subheader>
-                <div className="grid grid-cols-4 gap-3">
+                </Button>
+                <Button className="w-full" asChild>
                     <Skeleton />
+                </Button>
+                <Button className="w-full" asChild>
                     <Skeleton />
-                    <Skeleton />
-                    <Skeleton />
-                </div>
+                </Button>
             </div>
         );
     }
 
     return (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            {wishes.map(item => (
-                <Wish key={item.id} wish={item} />
-            ))}
+        <div className="flex flex-col justify-end gap-2 sm:flex-row">
+            <EditWish />
+            <HideWish />
+            <DeleteWish />
         </div>
     );
 };
 
-export const Wish = ({ wish }: { wish: IWish }) => {
-    const date = new Date(wish.created_at);
-    const splitted = [date.getDay(), date.getMonth(), date.getFullYear()];
-
+export const UserWishActions = () => {
     return (
-        <div className="flex w-full flex-col">
-            <div className="relative aspect-square overflow-hidden rounded">
-                <Image
-                    className="object-cover"
-                    src={wish.picture ?? '/avatar_not_found.png'}
-                    alt="Wish picture"
-                    sizes="(max-width: 640px) 320px, (max-width: 768px) 200px, (max-width: 1024px) 200px"
-                    fill
-                />
-                <Button
-                    className="absolute right-0 top-0 rounded-full"
-                    variant="ghost"
-                    size="icon"
-                ></Button>
-            </div>
-            <div className="flex flex-col space-y-2 px-3 py-3">
-                <div>{wish.title}</div>
-                <div className="flex justify-between">
-                    <p>{wish.price}</p>
-                    <p>{splitted.join('.')}</p>
-                </div>
-            </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+            <ReserveWish />
+        </div>
+    );
+};
+
+export const WishesSkeleton = () => (
+    <div className="flex flex-col gap-3">
+        <Subheader>
+            <Skeleton className="h-full w-full" />
+        </Subheader>
+        <div className="grid grid-cols-4 gap-3">
+            <Skeleton className="h-full w-full" />
+            <Skeleton className="h-full w-full" />
+            <Skeleton className="h-full w-full" />
+            <Skeleton className="h-full w-full" />
+        </div>
+    </div>
+);
+
+export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
+    return (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {wishes.map(wish => (
+                <Wish key={wish.id} wish={wish} />
+            ))}
         </div>
     );
 };
