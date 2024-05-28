@@ -2,65 +2,82 @@
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { Button } from '@/shared/ui/button';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { addFriend, removeFriend } from '../api/friendActions';
 
 interface Props {
     friendId: number;
-    onAction: () => void;
+    onAction?: () => void;
 }
 
 export const FriendButton = ({ friendId, onAction }: Props) => {
-    const { user, ...store } = useViewerStore(state => state);
-    const isIncluded = user?.followings.find(user => user.id === friendId);
+    const router = useRouter();
+    const viewer = useViewerStore(state => state.user);
+    const followings = useViewerStore(state => state.followings);
+    const setFollowings = useViewerStore(state => state.setFollowings);
 
-    if (!user) {
-        return null;
-    }
-
-    if (isIncluded) {
+    if (!viewer) {
         return (
-            <Button
-                variant="outline"
-                onClick={() =>
-                    removeFriend(user.id, friendId)
-                        .then(viewer => {
-                            store.setFollowings(viewer.followings);
-
-                            onAction();
-
-                            toast.success('Successfully unfollowed user');
-                        })
-                        .catch(() => {
-                            toast.error(
-                                'Error occured while unfollowing the user',
-                            );
-                        })
-                }
-            >
-                Unfollow
+            <Button asChild>
+                <Skeleton className="h-full w-full" />
             </Button>
         );
     }
 
+    const onFollow = () =>
+        addFriend(viewer.id, friendId)
+            .then(viewer => {
+                setFollowings(viewer.followings);
+
+                router.refresh();
+
+                toast.success('Successfully followed user');
+            })
+            .catch(() => {
+                toast.error('Error occured while following the user');
+            });
+
+    const onUnfollow = () =>
+        removeFriend(viewer.id, friendId)
+            .then(viewer => {
+                setFollowings(viewer.followings);
+
+                if (onAction) {
+                    onAction();
+                }
+
+                router.refresh();
+
+                toast.success('Successfully unfollowed user');
+            })
+            .catch(err => {
+                console.log(err);
+                toast.error('Error occured while unfollowing the user');
+            });
+
+    const isIncluded = followings.find(user => user.id === friendId);
+
     return (
-        <Button
-            variant="outline"
-            onClick={() =>
-                addFriend(user.id, friendId)
-                    .then(viewer => {
-                        store.setFollowings(viewer.followings);
-
-                        onAction();
-
-                        toast.success('Successfully followed user');
-                    })
-                    .catch(() => {
-                        toast.error('Error occured while following the user');
-                    })
-            }
-        >
-            Follow
+        <Button variant="outline" onClick={isIncluded ? onUnfollow : onFollow}>
+            <div className="inline-block h-full w-full overflow-hidden">
+                <motion.p
+                    animate={{
+                        y: isIncluded ? '0%' : '-100%',
+                    }}
+                >
+                    Unfollow
+                </motion.p>
+                <motion.p
+                    animate={{
+                        y: isIncluded ? '100%' : '-100%',
+                    }}
+                >
+                    Follow
+                </motion.p>
+            </div>
         </Button>
     );
 };
