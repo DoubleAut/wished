@@ -5,21 +5,22 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ChangeEvent, ReactNode, useState } from 'react';
-import { useStore } from 'zustand';
+import { ChangeEvent, useState } from 'react';
 import { UserSmallWidget, UserSmallWidgetSkeleton } from '.';
-import {
-    friendsStore,
-    updateCurrentList,
-} from '../../../entities/viewer/model/viewerFriendsStore';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { FriendButton } from '@/features/user/ui/FriendButton';
+import { PlainUser, UserWithFriends } from '@/shared/types/User';
 import { RiEmotionUnhappyLine } from '@remixicon/react';
 
-export const FriendsNavigation = () => {
+export const FriendsNavigation = ({
+    currentPath,
+    updateList,
+}: {
+    currentPath: 'followers' | 'followings';
+    updateList: (flag: 'followers' | 'followings') => void;
+}) => {
     const nav = ['followers', 'followings'] as const;
-    const store = useStore(friendsStore);
     const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
     return (
@@ -33,7 +34,9 @@ export const FriendsNavigation = () => {
                 >
                     <button
                         className="z-20 cursor-pointer uppercase"
-                        onClick={() => updateCurrentList(label)}
+                        onClick={() => {
+                            updateList(label);
+                        }}
                     >
                         {label}
                     </button>
@@ -51,7 +54,7 @@ export const FriendsNavigation = () => {
                         />
                     )}
 
-                    {store.currentPath === label && (
+                    {currentPath === label && (
                         <motion.span
                             layoutId="active_friends"
                             className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-white"
@@ -69,9 +72,11 @@ export const FriendsNavigation = () => {
     );
 };
 
-export const FriendsSearch = () => {
-    const { filterList } = useStore(friendsStore);
-
+export const FriendsSearch = ({
+    filterList,
+}: {
+    filterList: (query: string) => void;
+}) => {
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         filterList(e.target.value);
     };
@@ -84,14 +89,17 @@ export const FriendsSearch = () => {
 };
 
 export const FriendsList = ({
+    currentList,
+    user,
     onFollowAction,
 }: {
+    user: PlainUser;
+    currentList: PlainUser[];
     onFollowAction: () => void;
 }) => {
     const viewer = useViewerStore(state => state.user);
-    const store = useStore(friendsStore);
 
-    if (!store.user) {
+    if (!user) {
         return (
             <div className="w-full space-y-4">
                 <UserSmallWidgetSkeleton />
@@ -104,14 +112,14 @@ export const FriendsList = ({
 
     return (
         <div className="w-full space-y-4">
-            {store.currentList.length === 0 && (
+            {currentList.length === 0 && (
                 <div className="flex w-full justify-center space-x-4 px-4 py-8">
                     <RiEmotionUnhappyLine />
                     <p>Nothing</p>
                 </div>
             )}
 
-            {store.currentList.map(user => (
+            {currentList.map(user => (
                 <UserSmallWidget
                     key={user.id}
                     avatar={
@@ -126,13 +134,7 @@ export const FriendsList = ({
                             </Link>
                         </Button>
                     }
-                    links={
-                        <Button asChild variant="link">
-                            <Link href={`/users/${user.id}`} className="w-fit">
-                                {user.wishes.length} wishes
-                            </Link>
-                        </Button>
-                    }
+                    links={<></>}
                     more={
                         viewer?.id !== user.id ? (
                             <FriendButton
@@ -148,21 +150,61 @@ export const FriendsList = ({
 };
 
 interface FriendsWidgetProps {
-    navigation: ReactNode;
-    search: ReactNode;
-    users: ReactNode;
+    user: UserWithFriends;
 }
 
-export const FriendsWidget = ({
-    navigation,
-    search,
-    users,
-}: FriendsWidgetProps) => {
+export const FriendsWidget = ({ user }: FriendsWidgetProps) => {
+    const [currentPath, setCurrentPath] = useState<'followers' | 'followings'>(
+        'followers',
+    );
+    const [currentList, setCurrentList] = useState<PlainUser[]>(user.followers);
+
+    const updateCurrentList = (flag: 'followers' | 'followings') => {
+        if (flag === 'followers') {
+            setCurrentPath(flag);
+            setCurrentList(user.followers);
+        }
+
+        if (flag === 'followings') {
+            setCurrentPath(flag);
+            setCurrentList(user.followings);
+        }
+    };
+
+    const filterList = (query: string) => {
+        const currentList =
+            currentPath === 'followers' ? user.followers : user.followings;
+
+        if (query.length > 0) {
+            setCurrentList(
+                currentList.filter(user =>
+                    [
+                        user.name.toLocaleLowerCase(),
+                        user.surname.toLocaleLowerCase(),
+                    ]
+                        .join(' ')
+                        .includes(query.trim().toLocaleLowerCase()),
+                ),
+            );
+        }
+
+        if (query.length === 0) {
+            setCurrentList(user[currentPath]);
+        }
+    };
+
     return (
         <div className="container flex flex-col items-center gap-4 rounded border py-4">
-            {navigation}
-            {search}
-            {users}
+            <FriendsNavigation
+                currentPath={currentPath}
+                updateList={updateCurrentList}
+            />
+            <FriendsSearch filterList={filterList} />
+            <FriendsList
+                user={user}
+                currentList={currentList}
+                onFollowAction={() => {}}
+            />
         </div>
     );
 };

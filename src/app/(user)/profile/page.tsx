@@ -1,32 +1,21 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import {
-    UserAvatar,
-    UserInitials,
-    UserLinksVertical,
-} from '@/entities/user/ui/User';
-import { Wishes } from '@/entities/user/ui/Wishes';
-import { WishDialog } from '@/features/wish/ui/WishDialog';
+import { UserAvatar, UserInitials } from '@/entities/user/ui/User';
+import { Wishes } from '@/entities/wish/ui/Wishes';
+import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { UserWidget } from '@/widgets/user/ui';
-import { useRouter } from 'next/navigation';
-import { useLayoutEffect } from 'react';
+import Link from 'next/link';
 
 export default function Home() {
-    const store = useViewerStore(state => state);
-    const router = useRouter();
+    const user = useViewerStore(state => state.user);
+    const followers = useViewerStore(state => state.followers);
+    const followings = useViewerStore(state => state.followings);
+    const wishes = useViewerStore(state => state.wishes);
+    const reservations = useViewerStore(state => state.reservations);
 
-    useLayoutEffect(() => {
-        if (!store.user) {
-            const error =
-                'Profile page is not accessible, without authorization';
-
-            router.push(`/auth/login?error=${error}&callbackUrl=/profile`);
-        }
-    }, [router]);
-
-    if (!store.user) {
+    if (!user) {
         return (
             <UserWidget
                 avatar={<Skeleton />}
@@ -40,24 +29,40 @@ export default function Home() {
     return (
         <div className="container flex flex-col space-y-4">
             <UserWidget
-                avatar={<UserAvatar href={store.user.picture} />}
+                avatar={<UserAvatar href={user.picture} />}
                 initials={
-                    <UserInitials
-                        name={store.user.name}
-                        surname={store.user.surname}
-                    />
+                    <UserInitials name={user.name} surname={user.surname} />
                 }
                 links={
-                    <UserLinksVertical
-                        followings={store.user.followings}
-                        followers={store.user.followers}
-                        reservations={store.user.reservations}
-                        wishes={store.user.wishes}
-                    />
+                    <div className="flex space-x-2">
+                        <Button variant="link">
+                            <Link href={`/friends`}>
+                                <p>{followings.length}</p>
+                                <p>followings</p>
+                            </Link>
+                        </Button>
+                        <Button variant="link">
+                            <Link href={`/friends`}>
+                                <p>{followers.length}</p>
+                                <p>followers</p>
+                            </Link>
+                        </Button>
+                        <Button variant="link">
+                            <Link href={`/`}>
+                                <p>{wishes.length}</p>
+                                <p>wishes</p>
+                            </Link>
+                        </Button>
+                        <Button variant="link">
+                            <Link href={`/`}>
+                                <p>{reservations.length}</p>
+                                <p className="cursor-pointer">reserved</p>
+                            </Link>
+                        </Button>
+                    </div>
                 }
-                action={<WishDialog />}
             />
-            <Wishes subheader="Wishes" />
+            <Wishes wishes={wishes} />
         </div>
     );
 }

@@ -1,6 +1,4 @@
 import { cn } from '@/shared/lib/classNames/cn';
-import { User } from '@/shared/types/User';
-import { Wish } from '@/shared/types/Wish';
 import { Header } from '@/shared/ui/Text/header';
 import { AvatarImage } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
@@ -35,10 +33,10 @@ export const UserInitials = ({ name, surname }: UserInitialsProps) => {
 };
 
 interface UserLinksProps {
-    followings: User[];
-    followers: User[];
-    wishes: Wish[];
-    reservations: Wish[];
+    followings: number;
+    followers: number;
+    wishes: number;
+    reservations: number;
 }
 
 interface CustomLinkProps {
@@ -61,19 +59,19 @@ export const UserLinksVertical = ({
     return (
         <div className="flex space-x-2">
             <CustomLink href="/followings">
-                <p>{followings.length}</p>
+                <p>{followings}</p>
                 <p>followings</p>
             </CustomLink>
             <CustomLink href="/followers">
-                <p>{followers.length}</p>
+                <p>{followers}</p>
                 <p>followers</p>
             </CustomLink>
             <CustomLink href="/wishes">
-                <p>{wishes.length}</p>
+                <p>{wishes}</p>
                 <p>wishes</p>
             </CustomLink>
             <CustomLink href="/reservations">
-                <p>{reservations.length}</p>
+                <p>{reservations}</p>
                 <p className="cursor-pointer">reserved</p>
             </CustomLink>
         </div>
@@ -90,22 +88,22 @@ export const UserLinksHorizontal = ({
         <div className="flex space-x-2">
             <Button variant="link" asChild>
                 <Link href="/followings">
-                    <p>{followings.length} followings</p>
+                    <p>{followings} followings</p>
                 </Link>
             </Button>
             <Button>
                 <Link href="/followers">
-                    <p>{followers.length} followers</p>
+                    <p>{followers} followers</p>
                 </Link>
             </Button>
             <Button>
                 <Link href="/wishes">
-                    <p>{wishes.length} wishes</p>
+                    <p>{reservations} wishes</p>
                 </Link>
             </Button>
             <Button>
                 <Link href="/reservations">
-                    <p>{reservations.length} reserved</p>
+                    <p>{wishes} reserved</p>
                 </Link>
             </Button>
         </div>
