@@ -1,7 +1,8 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { axiosRequestWithBearer } from '@/shared/lib/axios/axiosRequest';
+import { dialogStore } from '@/features/wish/model/dialogView';
+import { remove } from '@/shared/api/Fetch';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import {
@@ -29,73 +30,69 @@ import {
     updateWish,
     wishSchema,
 } from '../../../features/wish/lib';
-import { viewWishStore } from '../model/wishStore';
 
 interface Props {
     onCancel: () => void;
 }
 
 const deleteImage = async (key: string) => {
-    const response = await axiosRequestWithBearer.delete(`/media/${key}`);
-
-    if (response.status > 400) {
-        throw new Error('Error while trying to delete an image');
-    }
+    const response = await remove(`/media/${key}`);
 
     return { success: true };
 };
 
 export const WishForm = (props: Props) => {
-    const viewerStore = useViewerStore(state => state);
-    const wishStore = useStore(viewWishStore);
+    const user = useViewerStore(state => state.user);
+    const dialogWishStore = useStore(dialogStore);
+    const dialogWish = dialogWishStore.dialogWish;
+    const setDialogWish = dialogWishStore.setDialogWish;
+
+    const updateExistingWish = useViewerStore(state => state.updateWish);
+    const addWish = useViewerStore(state => state.addWish);
+
     const [isLoading, setLoading] = useState(false);
 
     const form = useForm<z.infer<typeof wishSchema>>({
         resolver: zodResolver(wishSchema),
         defaultValues: {
-            title: wishStore.wish?.title ?? '',
-            description: wishStore.wish?.description ?? '',
-            price: wishStore.wish?.price ?? 0,
-            canBeAnon: wishStore.wish?.canBeAnon ?? false,
-            isHidden: wishStore.wish?.isHidden ?? false,
-            picture: wishStore.wish?.picture ?? null,
+            title: dialogWish?.title ?? '',
+            description: dialogWish?.description ?? '',
+            price: dialogWish?.price ?? 0,
+            canBeAnon: dialogWish?.canBeAnon ?? false,
+            isHidden: dialogWish?.isHidden ?? false,
+            picture: dialogWish?.picture ?? null,
         },
     });
 
-    const isWishUpdate = Boolean(wishStore.wish?.id);
+    const isWishUpdate = Boolean(dialogWish?.id);
 
     const onSubmit = (result: z.infer<typeof wishSchema>) => {
         setLoading(true);
 
-        if (!viewerStore.user) {
+        if (!user) {
             setLoading(false);
 
             return;
         }
 
         const onSuccess = (newWish: Wish) => {
-            if (!viewerStore.user) {
+            if (!user) {
                 return;
             }
 
             if (isWishUpdate) {
-                const replacedWishes = viewerStore.user.wishes.map(wish =>
-                    wish.id === newWish.id ? newWish : wish,
-                );
-
-                viewerStore.setWishes(replacedWishes);
+                updateExistingWish(newWish);
             }
 
             if (!isWishUpdate) {
-                viewerStore.setWishes([...viewerStore.user.wishes, newWish]);
+                addWish(newWish);
             }
 
-            const message = `${newWish.title} has been ${wishStore.wish?.id ? 'updated' : 'created'}.`;
+            const message = `${newWish.title} has been ${dialogWish?.id ? 'updated' : 'created'}.`;
 
             toast.success(message);
 
-            wishStore.setWish(newWish);
-            wishStore.setType('view');
+            setDialogWish(newWish, 'edit');
         };
 
         const onError = (error: any) => {
@@ -131,8 +128,8 @@ export const WishForm = (props: Props) => {
             }
         };
 
-        if (!wishStore.wish?.id) {
-            createWish(result, viewerStore.user.id)
+        if (!dialogWish?.id) {
+            createWish(result, user.id)
                 .then(onSuccess)
                 .catch(onError)
                 .finally(() => setLoading(false));
@@ -140,8 +137,8 @@ export const WishForm = (props: Props) => {
             return;
         }
 
-        if (wishStore.wish?.id) {
-            updateWish(result, wishStore.wish.id)
+        if (dialogWish.id) {
+            updateWish(result, dialogWish.id)
                 .then(onSuccess)
                 .catch(onError)
                 .finally(() => setLoading(false));
@@ -238,13 +235,12 @@ export const WishForm = (props: Props) => {
                                 <FormControl>
                                     <UploadSwitch
                                         savedPicture={
-                                            wishStore.wish
+                                            dialogWish
                                                 ? {
-                                                      key: wishStore.wish.picture
+                                                      key: dialogWish.picture
                                                           ?.split('/')
                                                           .at(-1) as string,
-                                                      url: wishStore.wish
-                                                          .picture as string,
+                                                      url: dialogWish.picture as string,
                                                   }
                                                 : undefined
                                         }
@@ -287,7 +283,7 @@ export const WishForm = (props: Props) => {
                             className="w-full"
                             aria-label="close"
                             onClick={() => {
-                                wishStore.setType('view');
+                                setDialogWish(dialogWish, 'view');
                             }}
                         >
                             Cancel
