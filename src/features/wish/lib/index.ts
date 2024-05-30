@@ -40,6 +40,7 @@ export const createWish = async (
 ) => {
     const response = await post<CreateProps, Wish>(
         `/wishes`,
+        ['wishes'],
         { ...wish, userId, isReserved: false },
         true,
     );
@@ -53,6 +54,7 @@ export const updateWish = async (
 ) => {
     const response = await patch<typeof wish, Wish>(
         `/wishes/${id}`,
+        ['wishes'],
         wish,
         true,
     );
@@ -61,19 +63,28 @@ export const updateWish = async (
 };
 
 export const deleteWish = async (id: number) => {
-    const response = await remove<Wish>(`/wishes/${id}`, true);
+    const response = await remove<Wish>(`/wishes/${id}`, ['wishes'], true);
 
     return response;
 };
 
 export const reserveWish = async (id: number) => {
-    const response = await patch<{}, Wish>(`/wishes/reserve/${id}`, {}, true);
+    const response = await patch<{}, Wish>(
+        `/wishes/reserve/${id}`,
+        ['wishes'],
+        {},
+        true,
+    );
 
     return response;
 };
 
 export const cancelReservedWish = async (id: number) => {
-    const response = await remove<Wish>(`/wishes/cancel/${id}`, true);
+    const response = await remove<Wish>(
+        `/wishes/cancel/${id}`,
+        ['wishes'],
+        true,
+    );
 
     return response;
 };
