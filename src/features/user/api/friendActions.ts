@@ -1,10 +1,11 @@
 import { post } from '@/shared/api/Fetch';
+import { FRIENDS_TAG, USER_TAG } from '@/shared/lib/constants/FetchTags';
 import { UserWithFriends } from '@/shared/types/User';
 
 export const removeFriend = async (userId: number, friendId: number) => {
     const response = await post<{}, UserWithFriends>(
         `/users/${userId}/friends/remove/${friendId}`,
-        ['user', 'friends'],
+        [USER_TAG, FRIENDS_TAG],
         {},
         true,
     );
@@ -15,7 +16,7 @@ export const removeFriend = async (userId: number, friendId: number) => {
 export const addFriend = async (userId: number, friendId: number) => {
     const response = await post<{}, UserWithFriends>(
         `/users/${userId}/friends/add/${friendId}`,
-        ['user', 'friends'],
+        [USER_TAG, FRIENDS_TAG],
         {},
         true,
     );
