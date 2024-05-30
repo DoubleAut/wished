@@ -1,4 +1,5 @@
 import { patch, post, remove } from '@/shared/api/Fetch';
+import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
 import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
 
@@ -40,6 +41,7 @@ export const createWish = async (
 ) => {
     const response = await post<CreateProps, Wish>(
         `/wishes`,
+        [WISHES_TAG],
         { ...wish, userId, isReserved: false },
         true,
     );
@@ -53,6 +55,7 @@ export const updateWish = async (
 ) => {
     const response = await patch<typeof wish, Wish>(
         `/wishes/${id}`,
+        [WISHES_TAG],
         wish,
         true,
     );
@@ -61,19 +64,28 @@ export const updateWish = async (
 };
 
 export const deleteWish = async (id: number) => {
-    const response = await remove<Wish>(`/wishes/${id}`, true);
+    const response = await remove<Wish>(`/wishes/${id}`, [WISHES_TAG], true);
 
     return response;
 };
 
 export const reserveWish = async (id: number) => {
-    const response = await patch<{}, Wish>(`/wishes/reserve/${id}`, {}, true);
+    const response = await patch<{}, Wish>(
+        `/wishes/reserve/${id}`,
+        [WISHES_TAG],
+        {},
+        true,
+    );
 
     return response;
 };
 
 export const cancelReservedWish = async (id: number) => {
-    const response = await remove<Wish>(`/wishes/cancel/${id}`, true);
+    const response = await remove<Wish>(
+        `/wishes/cancel/${id}`,
+        [WISHES_TAG],
+        true,
+    );
 
     return response;
 };

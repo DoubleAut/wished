@@ -5,13 +5,16 @@ import '@total-typescript/ts-reset';
 import { getUserWithFriends } from './friends';
 
 export const getUsers = async () => {
-    const response = await get<FullUser[]>('/users');
+    const response = await get<FullUser[]>('/users', ['users']);
 
     return response;
 };
 
 export const getUser = async (id: number) => {
-    const response = await get<UserWithFriends>(`/users/${id}`);
+    const response = await get<UserWithFriends>(`/users/${id}`, [
+        'user',
+        'friends',
+    ]);
 
     return response;
 };

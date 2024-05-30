@@ -7,13 +7,10 @@ interface WishesAndReservations {
 }
 
 export const getWishesAndReservations = async (userId: number) => {
-    const response = await get<WishesAndReservations>(`/wishes/${userId}`);
-
-    return response;
-};
-
-export const getUserWishes = async (userId: number) => {
-    const response = await get<Wish[]>(`/wishes/${userId}`);
+    const response = await get<WishesAndReservations>(`/wishes/${userId}`, [
+        'wishes',
+        'reservations',
+    ]);
 
     return response;
 };
