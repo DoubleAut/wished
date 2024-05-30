@@ -9,7 +9,7 @@ export const register = async ({
     const response = await post<
         Omit<RegisterSchema, 'confirmPassword'>,
         PlainUser
-    >(`/users`, data, true);
+    >(`/users`, ['user'], data, true);
 
     return response;
 };
