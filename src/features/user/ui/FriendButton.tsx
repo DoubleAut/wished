@@ -1,6 +1,8 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { revalidateTagFromServer } from '@/shared/api/Fetch/revalidateTag';
+import { FRIENDS_TAG, USERS_TAG } from '@/shared/lib/constants/FetchTags';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { motion } from 'framer-motion';
@@ -32,11 +34,13 @@ export const FriendButton = ({ friendId, onAction }: Props) => {
             .then(viewer => {
                 setFollowings(viewer.followings);
 
-                router.refresh();
+                revalidateTagFromServer(USERS_TAG);
+                revalidateTagFromServer(FRIENDS_TAG);
 
                 toast.success('Successfully followed user');
             })
-            .catch(() => {
+            .catch(e => {
+                console.log(e);
                 toast.error('Error occured while following the user');
             });
 
@@ -49,7 +53,8 @@ export const FriendButton = ({ friendId, onAction }: Props) => {
                     onAction();
                 }
 
-                router.refresh();
+                revalidateTagFromServer(USERS_TAG);
+                revalidateTagFromServer(FRIENDS_TAG);
 
                 toast.success('Successfully unfollowed user');
             })
