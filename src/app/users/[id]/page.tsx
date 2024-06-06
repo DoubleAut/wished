@@ -1,21 +1,20 @@
-import { getFullUser } from '@/entities/user/lib/user';
+import { getUser } from '@/entities/user/lib/user';
 import { UserAvatar, UserInitials } from '@/entities/user/ui/User';
+import { getUserWishes } from '@/entities/wish/lib';
 import { Wishes } from '@/entities/wish/ui/Wishes';
 import { FriendButton } from '@/features/user/ui/FriendButton';
 import { Button } from '@/shared/ui/button';
 import { UserWidget } from '@/widgets/user/ui';
 import Link from 'next/link';
-
 interface Props {
     params: {
         id: number;
     };
 }
 
-export const revalidate = false;
-
 const Home = async ({ params: { id } }: Props) => {
-    const user = await getFullUser(id);
+    const user = await getUser(id);
+    const wishes = await getUserWishes(id);
 
     return (
         <div className="container flex flex-col space-y-4">
@@ -52,9 +51,7 @@ const Home = async ({ params: { id } }: Props) => {
                         </Button>
                         <Button variant="link" className="px-0 py-0" asChild>
                             <Link className="flex gap-1" href="/wishes">
-                                <p className="font-bold">
-                                    {user.wishes.length}
-                                </p>
+                                <p className="font-bold">{wishes.length}</p>
                                 <p className="text-neutral-500">wishes</p>
                             </Link>
                         </Button>
@@ -62,7 +59,9 @@ const Home = async ({ params: { id } }: Props) => {
                 }
                 follow={<FriendButton friendId={user.id} />}
             />
-            <Wishes wishes={user.wishes} />
+            <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <Wishes wishes={wishes} />
+            </div>
         </div>
     );
 };
