@@ -1,11 +1,11 @@
 export const NAVIGATION_LINKS = [
     { label: 'My wishes', id: 'wishes', path: '/' },
-    { label: 'Ideas', id: 'ideas', path: '/ideas' },
     { label: 'Friends', id: 'friends', path: '/friends' },
+    { label: 'Profile', id: 'profile', path: '/profile' },
     {
-        label: 'Recommendations',
-        id: 'recommendations',
-        path: '/recommendations',
+        label: 'Settings',
+        id: 'settings',
+        path: '/settings',
     },
 ];
 
