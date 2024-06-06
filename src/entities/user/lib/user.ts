@@ -1,4 +1,4 @@
-import { getWishesAndReservations } from '@/entities/wish/lib';
+import { getOwnWishes } from '@/entities/wish/lib';
 import { get } from '@/shared/api/Fetch';
 import { FullUser, UserWithFriends } from '@/shared/types/User';
 import '@total-typescript/ts-reset';
@@ -11,7 +11,7 @@ export const getUsers = async () => {
 };
 
 export const getUser = async (id: number) => {
-    const response = await get<UserWithFriends>(`/users/${id}`, [
+    const response = await get<UserWithFriends>(`/users/${id}/friends`, [
         'user',
         'friends',
     ]);
@@ -19,9 +19,9 @@ export const getUser = async (id: number) => {
     return response;
 };
 
-export const getFullUser = async (id: number) => {
+export const getOwnFullUser = async (id: number) => {
     const user = await getUserWithFriends(id);
-    const result = await getWishesAndReservations(id);
+    const result = await getOwnWishes(id);
 
     return {
         ...user,

@@ -45,9 +45,8 @@ const handleUnauthorized = async () => {
     }
 
     const data = (await response.json()) as { accessToken: string; id: number };
-    console.log('refresh response: ', data);
+
     setAccessToken(data.accessToken);
-    console.log('access token is set', data);
 
     return data;
 };
@@ -178,12 +177,14 @@ export const remove = async <Body>(
 export const get = async <R>(
     url: string,
     tags: string[],
+    withBearer: boolean = false,
     retriesLeft: number = 3,
 ): Promise<R> => {
     const response = await fetch(API_URL + url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            ...(withBearer && getAuthorizationHeader()),
         },
         next: {
             tags,
@@ -197,7 +198,7 @@ export const get = async <R>(
     }
 
     if (!response.ok && response.status > 500 && retriesLeft > 0) {
-        await wait(300).then(() => get(url, tags, --retriesLeft));
+        await wait(300).then(() => get(url, tags, withBearer, --retriesLeft));
     }
 
     if (!response.ok) {

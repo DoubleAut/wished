@@ -1,6 +1,6 @@
 'use client';
 
-import { getFullUser } from '@/entities/user/lib/user';
+import { getOwnFullUser } from '@/entities/user/lib/user';
 import { rotateTokens } from '@/shared/api/Fetch';
 import { isSessionExist } from '@/shared/api/Fetch/tokens';
 import { FullUser } from '@/shared/types/User';
@@ -25,7 +25,7 @@ const revokeSession = async () => {
 
     const response = await rotateTokens();
 
-    return await getFullUser(response.id);
+    return await getOwnFullUser(response.id);
 };
 
 export function UserProvider({ children }: Props) {
@@ -33,6 +33,8 @@ export function UserProvider({ children }: Props) {
     const setUser = useViewerStore(state => state.setUser);
     const setWishes = useViewerStore(state => state.setWishes);
     const setReservations = useViewerStore(state => state.setReservations);
+    const setGifted = useViewerStore(state => state.setGifted);
+    const setCompleted = useViewerStore(state => state.setCompleted);
     const setFollowers = useViewerStore(state => state.setFollowers);
     const setFollowings = useViewerStore(state => state.setFollowings);
     const router = useRouter();
@@ -44,14 +46,24 @@ export function UserProvider({ children }: Props) {
             setFollowings(user.followings);
             setWishes(user.wishes);
             setReservations(user.reservations);
+            setGifted(user.gifted);
+            setCompleted(user.completed);
         },
-        [setFollowers, setFollowings, setReservations, setUser, setWishes],
+        [
+            setFollowers,
+            setFollowings,
+            setReservations,
+            setUser,
+            setWishes,
+            setGifted,
+            setCompleted,
+        ],
     );
 
     useLayoutEffect(() => {
         revokeSession()
             .then(user => setInitialUser(user))
-            .catch(() => router.push(`/auth/login?callbackUrl=/`))
+            .catch(() => router.push(`/auth/login`))
             .finally(() => setLoading(false));
     }, [router, setInitialUser]);
 
