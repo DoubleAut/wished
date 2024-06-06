@@ -26,7 +26,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
                 <Providers>
                     <main className="relative flex w-full flex-col items-center justify-center space-y-2">
                         <HeaderWidget
-                            logo={'WISHED'}
+                            logo={<p>WISHED</p>}
                             links={<Navigation links={NAVIGATION_LINKS} />}
                             profile={
                                 <div className="flex space-x-1">
