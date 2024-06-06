@@ -6,13 +6,18 @@ import { UserInformationSlice } from '../../user/model/user';
 export interface WishesSlice {
     wishes: Wish[];
     reservations: Wish[];
+    gifted: Wish[];
+    completed: Wish[];
     addWish: (wish: Wish) => void;
-    removeWish: (wish: Wish) => void;
+    removeWish: (wish: Wish, array?: 'wishes' | 'completed') => void;
     updateWish: (wish: Wish) => void;
     reserveWish: (wish: Wish) => void;
+    completeWish: (wish: Wish) => void;
     cancelReservation: (wish: Wish) => void;
     setWishes: (wishes: Wish[]) => void;
     setReservations: (wishes: Wish[]) => void;
+    setGifted: (wishes: Wish[]) => void;
+    setCompleted: (wishes: Wish[]) => void;
 }
 
 export const createWishesSlice: StateCreator<
@@ -23,27 +28,37 @@ export const createWishesSlice: StateCreator<
 > = (set, get) => ({
     wishes: [],
     reservations: [],
-    setWishes: (wishes: Wish[]) => {
+    gifted: [],
+    completed: [],
+    setWishes: wishes => {
         set({ wishes });
     },
-    setReservations: (reservations: Wish[]) => {
+    setReservations: reservations => {
         set({ reservations });
     },
-    addWish: (wish: Wish) => {
+    setGifted: gifted => {
+        set({ gifted });
+    },
+    setCompleted: completed => {
+        set({ completed });
+    },
+    addWish: wish => {
         const state = get();
 
         const wishes = [...state.wishes, wish];
 
         set({ wishes });
     },
-    removeWish: (wish: Wish) => {
+    removeWish: wish => {
         const state = get();
 
-        const wishes = state.wishes.filter(item => item.id !== wish.id);
+        const wishes = !wish.isCompleted
+            ? state.wishes.filter(item => item.id !== wish.id)
+            : state.completed.filter(item => item.id !== wish.id);
 
         set({ wishes });
     },
-    updateWish: (wish: Wish) => {
+    updateWish: wish => {
         const state = get();
 
         const wishes = state.wishes.map(item =>
@@ -52,14 +67,21 @@ export const createWishesSlice: StateCreator<
 
         set({ wishes });
     },
-    reserveWish: (wish: Wish) => {
+    reserveWish: wish => {
         const state = get();
 
         const reservations = [...state.reservations, wish];
 
         set({ reservations });
     },
-    cancelReservation: (wish: Wish) => {
+    completeWish: wish => {
+        const state = get();
+
+        const completed = [...state.completed, wish];
+
+        set({ completed });
+    },
+    cancelReservation: wish => {
         const state = get();
 
         const reservations = state.reservations.filter(
