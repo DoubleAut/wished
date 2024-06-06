@@ -1,3 +1,4 @@
+import { FullUser } from '@/shared/types/User';
 import { Wish } from '@/shared/types/Wish';
 import { StateCreator } from 'zustand';
 import { FriendsSlice } from '../../user/model/friendsStore';
@@ -18,6 +19,7 @@ export interface WishesSlice {
     setReservations: (wishes: Wish[]) => void;
     setGifted: (wishes: Wish[]) => void;
     setCompleted: (wishes: Wish[]) => void;
+    setFullUser: (user: FullUser) => void;
 }
 
 export const createWishesSlice: StateCreator<
@@ -89,5 +91,25 @@ export const createWishesSlice: StateCreator<
         );
 
         set({ reservations });
+    },
+    setFullUser: user => {
+        const state = get();
+        const {
+            followers,
+            followings,
+            wishes,
+            reservations,
+            gifted,
+            completed,
+            ...rest
+        } = user;
+
+        state.setUser(rest);
+        state.setFollowers(followers);
+        state.setFollowings(followings);
+        state.setWishes(wishes);
+        state.setReservations(reservations);
+        state.setGifted(gifted);
+        state.setCompleted(completed);
     },
 });
