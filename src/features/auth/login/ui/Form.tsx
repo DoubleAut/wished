@@ -23,15 +23,9 @@ import { getError } from '../../lib';
 import { login } from '../lib/login';
 
 export const LoginForm = () => {
-    const setUser = useViewerStore(state => state.setUser);
-    const setFollowers = useViewerStore(state => state.setFollowers);
-    const setFollowings = useViewerStore(state => state.setFollowings);
-    const setWishes = useViewerStore(state => state.setWishes);
-    const setReservations = useViewerStore(state => state.setReservations);
-    const setGifted = useViewerStore(state => state.setGifted);
-    const setCompleted = useViewerStore(state => state.setCompleted);
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
+    const setFullUser = useViewerStore(state => state.setFullUser);
 
     const {
         register,
@@ -71,13 +65,7 @@ export const LoginForm = () => {
 
         login(result)
             .then(user => {
-                setUser(user);
-                setFollowers(user.followers);
-                setFollowings(user.followings);
-                setWishes(user.wishes);
-                setReservations(user.reservations);
-                setGifted(user.wishes);
-                setCompleted(user.reservations);
+                setFullUser(user);
 
                 router.push('/');
             })

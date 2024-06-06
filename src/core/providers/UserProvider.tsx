@@ -30,34 +30,14 @@ const revokeSession = async () => {
 
 export function UserProvider({ children }: Props) {
     const [isLoading, setLoading] = useState(true);
-    const setUser = useViewerStore(state => state.setUser);
-    const setWishes = useViewerStore(state => state.setWishes);
-    const setReservations = useViewerStore(state => state.setReservations);
-    const setGifted = useViewerStore(state => state.setGifted);
-    const setCompleted = useViewerStore(state => state.setCompleted);
-    const setFollowers = useViewerStore(state => state.setFollowers);
-    const setFollowings = useViewerStore(state => state.setFollowings);
+    const setFullUser = useViewerStore(state => state.setFullUser);
     const router = useRouter();
 
     const setInitialUser = useCallback(
         (user: FullUser) => {
-            setUser(user);
-            setFollowers(user.followers);
-            setFollowings(user.followings);
-            setWishes(user.wishes);
-            setReservations(user.reservations);
-            setGifted(user.gifted);
-            setCompleted(user.completed);
+            setFullUser(user);
         },
-        [
-            setFollowers,
-            setFollowings,
-            setReservations,
-            setUser,
-            setWishes,
-            setGifted,
-            setCompleted,
-        ],
+        [setFullUser],
     );
 
     useLayoutEffect(() => {
