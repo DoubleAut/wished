@@ -1,3 +1,4 @@
+import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -7,6 +8,7 @@ import { updateWish } from '../lib';
 import { dialogStore } from '../model/dialogView';
 
 export const HideWish = () => {
+    const updateViewerWish = useViewerStore(state => state.updateWish);
     const store = useStore(dialogStore);
     const dialogWish = store.dialogWish;
     const setDialogWish = store.setDialogWish;
@@ -23,6 +25,8 @@ export const HideWish = () => {
         updateWish({ isHidden: !isHidden }, wish.id)
             .then(newWish => {
                 setDialogWish(newWish, 'view');
+
+                updateViewerWish(newWish);
 
                 toast.success('The wish successfully updated');
             })

@@ -20,7 +20,7 @@ import { dialogStore } from '../model/dialogView';
 export const DeleteWish = () => {
     const store = useStore(dialogStore);
     const dialogWish = store.dialogWish;
-    const setDialogWish = store.setDialogWish;
+    const setOpen = store.setOpen;
     const removeWish = useViewerStore(state => state.removeWish);
 
     const onClick = () => {
@@ -28,14 +28,15 @@ export const DeleteWish = () => {
             return;
         }
 
-        const wishId = dialogWish.id;
+        const wishId = dialogWish.id as number;
+
+        setOpen(false);
 
         deleteWish(wishId)
-            .then(() => {
-                removeWish(dialogWish);
+            .then(newWish => {
+                removeWish(newWish);
 
-                setDialogWish(null, 'view');
-                toast.success('Gift successfully deleted!');
+                toast.success('Wish successfully deleted!');
             })
             .catch(err => {
                 toast.error(err.message);
