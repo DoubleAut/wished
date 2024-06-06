@@ -5,6 +5,7 @@ import { Background } from '@/entities/wish/ui/WishCard';
 import { dialogStore } from '@/features/wish/model/dialogView';
 import { Wish } from '@/shared/types/Wish';
 import { Typography } from '@/shared/ui/Text/typography';
+import { AspectRatio } from '@/shared/ui/aspect-ratio';
 import { Badge } from '@/shared/ui/badge';
 import { Skeleton } from '@/shared/ui/skeleton';
 import Image from 'next/image';
@@ -55,29 +56,31 @@ export const WishContentSkeleton = () => (
 export const WishContent = ({ actions }: Props) => {
     const store = useStore(dialogStore);
     const viewerId = useViewerStore(state => state.user?.id);
-    const wish = store.dialogWish as Wish;
-    const isBadgesVisible = viewerId === wish.owner.id;
+    const wish = store.dialogWish;
+    const isBadgesVisible = viewerId === wish?.owner?.id ?? false;
 
     if (!wish) {
         return <WishContentSkeleton />;
     }
 
     return (
-        <div className="flex h-full flex-col gap-8 rounded-lg p-6 md:flex-row">
-            <div className="relative h-full w-full flex-shrink-0 overflow-hidden rounded-lg md:w-1/2">
+        <AspectRatio
+            ratio={6 / 3}
+            className="grid gap-4 md:grid-cols-2 md:flex-row"
+        >
+            <div className="relative h-full w-full flex-shrink-0 overflow-hidden rounded-lg">
                 {wish.picture ? (
                     <Image
                         className="object-cover"
                         src={wish.picture}
-                        alt={wish.title}
+                        alt={wish.title ?? 'Wish image'}
                         fill
                     />
                 ) : (
-                    <Background isHover={false} text={wish.title} />
+                    <Background isHover={false} text={wish.title ?? 'Wish'} />
                 )}
             </div>
-            <div className="flex flex-col justify-between gap-4">
-                <Typography variant="h3">{wish.title}</Typography>
+            <div className="flex h-fit w-full flex-col gap-4">
                 {isBadgesVisible && (
                     <div className="flex gap-2">
                         <Badge variant="outline">
@@ -94,6 +97,6 @@ export const WishContent = ({ actions }: Props) => {
                 </Typography>
                 {actions}
             </div>
-        </div>
+        </AspectRatio>
     );
 };

@@ -1,13 +1,22 @@
-import { dialogStore } from '@/features/wish/model/dialogView';
+import { DialogMode, dialogStore } from '@/features/wish/model/dialogView';
 import { Wish } from '@/shared/types/Wish';
-import { Dialog, DialogContent, DialogTrigger } from '@/shared/ui/dialog';
-import { ReactNode, useEffect, useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/shared/ui/dialog';
+import { ReactNode } from 'react';
 import { useStore } from 'zustand';
 
 interface Props {
     content: ReactNode;
     trigger: ReactNode;
+    className?: string;
     wish: Partial<Wish> | null;
+    isButtonTrigger?: boolean;
+    defaultMode?: DialogMode;
 }
 
 /**
@@ -22,21 +31,34 @@ interface Props {
  * @returns dialog component with wish and its controls
  */
 
-export const WishDialog = ({ trigger, content, wish }: Props) => {
+export const WishDialog = ({
+    wish,
+    trigger,
+    content,
+    isButtonTrigger = false,
+    defaultMode = 'view',
+}: Props) => {
     const store = useStore(dialogStore);
+    const isStoreWishIsTheSame = store.dialogWish?.id === wish?.id ?? false;
+    const isOpen = store.isOpen && isStoreWishIsTheSame;
+    const setOpen = store.setOpen;
     const setDialogWish = store.setDialogWish;
-    const [isOpen, setOpen] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
-            setDialogWish(wish, 'view');
+    const onOpenChange = (value: boolean) => {
+        if (value) {
+            setDialogWish(wish, defaultMode);
         }
-    }, [isOpen, setDialogWish, wish]);
+
+        setOpen(value);
+    };
 
     return (
-        <Dialog open={isOpen} onOpenChange={setOpen}>
-            <DialogTrigger>{trigger}</DialogTrigger>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogTrigger asChild={isButtonTrigger}>{trigger}</DialogTrigger>
             <DialogContent className="h-fit max-h-screen max-w-4xl overflow-auto p-6">
+                <DialogHeader>
+                    <DialogTitle>{store.dialogWish?.title}</DialogTitle>
+                </DialogHeader>
                 {content}
             </DialogContent>
         </Dialog>

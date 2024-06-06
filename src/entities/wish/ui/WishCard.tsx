@@ -10,10 +10,10 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
 
-const Badges = ({ wish }: { wish: Wish }) => {
+export const Badges = ({ wish }: { wish: Wish }) => {
     const viewer = useViewerStore(state => state.user);
     const isReservedByViewer =
-        wish.isReserved && wish.reservedBy?.id === viewer?.id;
+        wish.reservedBy && wish.reservedBy?.id === viewer?.id;
     const isHidden = viewer?.id === wish.owner.id && wish.isHidden;
     const isOwnPresent = wish.owner.id === viewer?.id;
 
@@ -53,6 +53,7 @@ export const Background = ({
                     'background-cover brightness-75 transition-all',
                     isHover && 'scale-105',
                 )}
+                sizes="(max-width: 640px) 320px, (max-width: 768px) 200px, (max-width: 1024px) 200px"
                 alt="placeholder"
                 fill
             />
@@ -63,7 +64,8 @@ export const Background = ({
     );
 };
 
-const MotionRatio = motion(AspectRatio);
+const MotionAspectRatio = motion(AspectRatio);
+const MotionImage = motion(Image);
 
 export const WishCard = ({ wish }: { wish: Wish }) => {
     const [isHover, setHover] = useState(false);
@@ -71,21 +73,20 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
     const splitted = [date.getDay(), date.getMonth(), date.getFullYear()];
 
     return (
-        <MotionRatio
+        <MotionAspectRatio
             ratio={4 / 3}
-            className="relative flex flex-col justify-end overflow-hidden rounded"
-            onMouseOver={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
+            className="relative flex h-full w-full flex-col justify-end overflow-hidden rounded"
+            onHoverStart={() => setHover(true)}
+            onHoverEnd={() => setHover(false)}
         >
             {wish.picture ? (
-                <Image
-                    className={cn(
-                        '-z-10 object-cover brightness-75 transition-transform',
-                        isHover && 'scale-105',
-                    )}
+                <MotionImage
+                    className="-z-10 object-cover brightness-75 transition-transform"
                     src={wish.picture}
+                    animate={{ scale: isHover ? 1.05 : 1 }}
                     alt="Wish picture"
                     sizes="(max-width: 640px) 320px, (max-width: 768px) 200px, (max-width: 1024px) 200px"
+                    priority={false}
                     fill
                 />
             ) : (
@@ -137,6 +138,6 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                     </Typography>
                 </div>
             </div>
-        </MotionRatio>
+        </MotionAspectRatio>
     );
 };

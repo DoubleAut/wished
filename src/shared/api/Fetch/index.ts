@@ -136,12 +136,12 @@ export const patch = async <B, R>(
     return result;
 };
 
-export const remove = async <T>(
+export const remove = async <Body>(
     url: string,
     tags: string[],
     withBearer: boolean = false,
     retriesLeft = 3,
-): Promise<T> => {
+): Promise<Body> => {
     const response = await fetch(API_URL + url, {
         method: 'DELETE',
         headers: {
@@ -157,12 +157,12 @@ export const remove = async <T>(
     if (response.status === 401 && retriesLeft > 0) {
         await handleUnauthorized();
 
-        return await remove<T>(url, tags, withBearer, --retriesLeft);
+        return await remove<Body>(url, tags, withBearer, --retriesLeft);
     }
 
     if (!response.ok && response.status > 500 && retriesLeft > 0) {
         await wait(300).then(() =>
-            remove(url, tags, withBearer, --retriesLeft),
+            remove<Body>(url, tags, withBearer, --retriesLeft),
         );
     }
 
@@ -170,7 +170,7 @@ export const remove = async <T>(
         throw new Error(`Error occured while retrieving url: ${url}`);
     }
 
-    const result = (await response.json()) as T;
+    const result = (await response.json()) as Body;
 
     return result;
 };

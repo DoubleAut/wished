@@ -1,4 +1,5 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { Wish } from '@/shared/types/Wish';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -14,29 +15,30 @@ import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
-import { deleteWish } from '../lib';
+import { updateWish } from '../lib';
 import { dialogStore } from '../model/dialogView';
 
-export const DeleteWish = () => {
+export const CompleteWish = () => {
+    const completeWish = useViewerStore(state => state.completeWish);
+    const removeWish = useViewerStore(state => state.removeWish);
     const store = useStore(dialogStore);
     const dialogWish = store.dialogWish;
     const setOpen = store.setOpen;
-    const removeWish = useViewerStore(state => state.removeWish);
 
     const onClick = () => {
         if (!dialogWish) {
             return;
         }
 
-        const wishId = dialogWish.id as number;
-
+        const wish = dialogWish as Wish;
         setOpen(false);
 
-        deleteWish(wishId)
+        updateWish({ isCompleted: true }, wish.id)
             .then(newWish => {
-                removeWish(newWish);
+                removeWish(wish);
+                completeWish(newWish);
 
-                toast.success('Wish successfully deleted!');
+                toast.success('The wish successfully updated');
             })
             .catch(err => {
                 toast.error(err.message);
@@ -46,7 +48,7 @@ export const DeleteWish = () => {
     if (!dialogWish) {
         return (
             <Button asChild>
-                <Skeleton className="w-full" />
+                <Skeleton className="w-fit" />
             </Button>
         );
     }
@@ -54,7 +56,7 @@ export const DeleteWish = () => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">Delete wish</Button>
+                <Button variant="outline">Complete</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -62,15 +64,14 @@ export const DeleteWish = () => {
                         Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. The gift will be
-                        permanently deleted.
+                        This action cannot be undone. The gift will be archived.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction asChild>
                         <Button variant="outline" onClick={onClick}>
-                            Delete wish
+                            Complete wish
                         </Button>
                     </AlertDialogAction>
                 </AlertDialogFooter>

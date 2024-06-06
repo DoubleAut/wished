@@ -1,6 +1,7 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { revalidateTagFromServer } from '@/shared/api/Fetch/revalidateTag';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { toast } from 'sonner';
@@ -28,7 +29,7 @@ export const ReserveWish = () => {
 
     const onClick = () => {
         if (dialogWish && viewer) {
-            const isReserved = dialogWish.isReserved;
+            const isReserved = dialogWish.reservedBy;
             const wish = dialogWish as Wish;
 
             if (!isReserved) {
@@ -39,6 +40,8 @@ export const ReserveWish = () => {
                         setDialogWish(reservedWish, 'view');
 
                         moveWishToViewerReservations(reservedWish);
+
+                        revalidateTagFromServer('wishes');
 
                         toast.success('Wish successfully reserved');
                     })
@@ -57,6 +60,8 @@ export const ReserveWish = () => {
 
                         removeWishFromViewerReservations(reservedWish);
 
+                        revalidateTagFromServer('wishes');
+
                         toast.success('Successfully canceled the reservation');
                     })
                     .catch(err => {
@@ -68,7 +73,7 @@ export const ReserveWish = () => {
 
     return (
         <Button variant="outline" onClick={onClick}>
-            {dialogWish?.isReserved ? 'Cancel reservation' : 'Reserve'}
+            {dialogWish?.reservedBy ? 'Cancel reservation' : 'Reserve'}
         </Button>
     );
 };

@@ -1,72 +1,124 @@
-import { Subheader } from '@/shared/ui/Text/subheader';
+'use client';
 
-import { dialogStore } from '@/features/wish/model/dialogView';
+import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { CompleteWish } from '@/features/wish/ui/CompleteWish';
 import { DeleteWish } from '@/features/wish/ui/DeleteWish';
 import { EditWish } from '@/features/wish/ui/EditWish';
 import { HideWish } from '@/features/wish/ui/HideWish';
 import { ReserveWish } from '@/features/wish/ui/ReserveWish';
 import { Wish as IWish } from '@/shared/types/Wish';
-import { Button } from '@/shared/ui/button';
-import { Skeleton } from '@/shared/ui/skeleton';
-import { useStore } from 'zustand';
-import { Wish } from './Wish';
+import { WishContent } from '@/widgets/wishes/ui/WishContent';
+import { WishCard } from './WishCard';
+import { WishDialog } from './WishDialog';
 
-export const PersonalWishActions = () => {
-    const dialogWish = useStore(dialogStore);
+export const PersonalWishActions = () => (
+    <div className="flex flex-col justify-end gap-2 sm:flex-row">
+        <CompleteWish />
+        <EditWish />
+        <HideWish />
+        <DeleteWish />
+    </div>
+);
 
-    if (!dialogWish) {
-        return (
-            <div className="flex flex-col gap-2 sm:flex-row">
-                <Button className="w-full" asChild>
-                    <Skeleton />
-                </Button>
-                <Button className="w-full" asChild>
-                    <Skeleton />
-                </Button>
-                <Button className="w-full" asChild>
-                    <Skeleton />
-                </Button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex flex-col justify-end gap-2 sm:flex-row">
-            <EditWish />
-            <HideWish />
-            <DeleteWish />
-        </div>
-    );
-};
-
-export const UserWishActions = () => {
-    return (
-        <div className="flex flex-col gap-2 sm:flex-row">
-            <ReserveWish />
-        </div>
-    );
-};
-
-export const WishesSkeleton = () => (
-    <div className="flex flex-col gap-3">
-        <Subheader>
-            <Skeleton className="h-full w-full" />
-        </Subheader>
-        <div className="grid grid-cols-4 gap-3">
-            <Skeleton className="h-full w-full" />
-            <Skeleton className="h-full w-full" />
-            <Skeleton className="h-full w-full" />
-            <Skeleton className="h-full w-full" />
-        </div>
+export const UserWishActions = () => (
+    <div className="flex flex-col gap-2 sm:flex-row">
+        <ReserveWish />
     </div>
 );
 
 export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
-    return (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {wishes.map(wish => (
-                <Wish key={wish.id} wish={wish} />
-            ))}
-        </div>
-    );
+    const viewer = useViewerStore(state => state.user);
+
+    const visibleWishes = wishes.filter(item => {
+        if (item.owner.id === viewer?.id) {
+            return true;
+        }
+
+        if (!item.reservedBy) {
+            return true;
+        }
+
+        if (item.owner.id === viewer?.id && item.reservedBy) {
+            return true;
+        }
+
+        if (item.reservedBy && item.reservedBy.id === viewer?.id) {
+            return true;
+        }
+
+        return false;
+    });
+
+    return visibleWishes.map(wish => (
+        <WishDialog
+            wish={wish}
+            key={wish.id + wish.title}
+            trigger={<WishCard wish={wish} />}
+            content={
+                <WishContent
+                    wish={wish}
+                    actions={
+                        viewer?.id === wish.owner.id ? (
+                            <PersonalWishActions key={wish.id} />
+                        ) : (
+                            <UserWishActions key={wish.id} />
+                        )
+                    }
+                />
+            }
+        />
+    ));
+};
+
+export const ReservedWishes = ({ wishes }: { wishes: IWish[] }) => {
+    const items = wishes.filter(item => !item.isCompleted);
+
+    return items.map(wish => (
+        <WishDialog
+            wish={wish}
+            key={wish.id + wish.title}
+            trigger={<WishCard wish={wish} />}
+            content={
+                <WishContent
+                    wish={wish}
+                    actions={<UserWishActions key={wish.id} />}
+                />
+            }
+        />
+    ));
+};
+
+export const GiftedWishes = ({ wishes }: { wishes: IWish[] }) => {
+    const items = wishes.filter(item => item.isCompleted);
+
+    return items.map(wish => (
+        <WishDialog
+            wish={wish}
+            key={wish.id + wish.title}
+            trigger={<WishCard wish={wish} />}
+            content={<WishContent wish={wish} actions={<></>} />}
+        />
+    ));
+};
+
+export const ArchivedWishes = ({ wishes }: { wishes: IWish[] }) => {
+    const items = wishes.filter(item => item.isCompleted);
+
+    return items.map(wish => (
+        <WishDialog
+            wish={wish}
+            key={wish.id + wish.title}
+            trigger={<WishCard wish={wish} />}
+            content={
+                <WishContent
+                    wish={wish}
+                    actions={
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                            <DeleteWish />
+                        </div>
+                    }
+                />
+            }
+        />
+    ));
 };
