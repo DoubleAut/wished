@@ -6,16 +6,16 @@ interface Props {
 }
 
 const baseClasses = {
-    h1: 'block antialiased tracking-normal font-sans text-5xl font-semibold leading-tight text-inherit',
-    h2: 'block antialiased tracking-normal font-sans text-4xl font-semibold leading-[1.3] text-inherit',
-    h3: 'block antialiased tracking-normal font-sans text-3xl font-semibold leading-snug text-inherit',
-    h4: 'block antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-inherit',
-    h5: 'block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-inherit',
-    h6: 'block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-inherit',
-    lead: 'block antialiased font-sans text-xl font-normal leading-relaxed text-inherit',
+    h1: 'antialiased font-sans text-5xl font-bold leading-tight text-inherit',
+    h2: 'antialiased font-sans text-4xl font-bold leading-[1.3] text-inherit',
+    h3: 'antialiased font-sans text-3xl font-bold leading-snug text-inherit',
+    h4: 'antialiased font-sans text-2xl font-semibold leading-snug text-inherit',
+    h5: 'antialiased font-sans text-xl font-semibold leading-snug text-inherit',
+    h6: 'antialiased font-sans text-base font-semibold leading-normal text-inherit',
+    lead: 'antialiased font-sans text-lg font-bold leading-normal text-inherit',
     paragraph:
-        'block antialiased font-sans text-base font-light leading-relaxed text-inherit',
-    small: 'block antialiased font-sans text-sm font-light leading-normal text-inherit',
+        'antialiased font-sans text-sm font-light leading-normal text-inherit',
+    small: 'antialiased font-sans text-xs font-light leading-normal text-inherit',
 };
 
 interface Props {
