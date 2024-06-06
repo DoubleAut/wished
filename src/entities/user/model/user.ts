@@ -4,7 +4,7 @@ import { StateCreator } from 'zustand';
 import { FriendsSlice } from './friendsStore';
 export interface UserInformationSlice {
     user: PlainUser | null;
-    setUser: (user: PlainUser) => void;
+    setUser: (user: PlainUser | null) => void;
 }
 
 export const createUserInformationSlice: StateCreator<
@@ -14,5 +14,5 @@ export const createUserInformationSlice: StateCreator<
     UserInformationSlice
 > = set => ({
     user: null,
-    setUser: (user: PlainUser) => set({ user }),
+    setUser: user => set({ user }),
 });
