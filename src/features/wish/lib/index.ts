@@ -14,6 +14,11 @@ export const wishSchema = z.object({
     isHidden: z.boolean(),
     canBeAnon: z.boolean(),
     picture: z.string().nullable(),
+    categoryId: z.number().nullable(),
+    giftDay: z
+        .date()
+        .refine(date => date.toISOString())
+        .nullable(),
 });
 
 export const getError = (message: string) => {
@@ -32,7 +37,6 @@ export const getError = (message: string) => {
 
 type CreateProps = z.infer<typeof wishSchema> & {
     userId: number;
-    isReserved: boolean;
 };
 
 export const createWish = async (
@@ -42,7 +46,7 @@ export const createWish = async (
     const response = await post<CreateProps, Wish>(
         `/wishes`,
         [WISHES_TAG],
-        { ...wish, userId, isReserved: false },
+        { ...wish, userId },
         true,
     );
 
@@ -50,7 +54,7 @@ export const createWish = async (
 };
 
 export const updateWish = async (
-    wish: Partial<z.infer<typeof wishSchema>>,
+    wish: Partial<z.infer<typeof wishSchema>> & { isCompleted?: boolean },
     id: number,
 ) => {
     const response = await patch<typeof wish, Wish>(
