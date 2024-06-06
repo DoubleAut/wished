@@ -9,15 +9,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@/shared/ui/card';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/shared/ui/form';
 import { Input } from '@/shared/ui/input';
+import { Label } from '@/shared/ui/label';
 import { RegisterSchema, registerSchema } from '@/widgets/auth/register/lib';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -26,13 +19,17 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { getError } from '../../lib';
-import { register } from '../lib/register';
+import { register as signUp } from '../lib/register';
 
 export const RegistrationForm = () => {
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
 
-    const form = useForm<z.infer<typeof registerSchema>>({
+    const {
+        register,
+        formState: { errors },
+        ...form
+    } = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             email: 'mail@mail.com',
@@ -43,134 +40,135 @@ export const RegistrationForm = () => {
         },
     });
 
+    const handleArrayError = (err: any) => {
+        for (let message of err.message) {
+            const error = getError(message) as 'email' | 'password' | null;
+
+            if (error) {
+                form.setError(error, { message });
+            }
+        }
+    };
+
+    const handleMessageError = (err: any) => {
+        const message = err.message;
+        const error = getError(message) as 'email' | 'password' | null;
+
+        if (error) {
+            form.setError(error, { message });
+        }
+    };
+
     const onSubmit = (result: RegisterSchema) => {
         setLoading(true);
 
-        register(result)
+        signUp(result)
             .then(() => {
                 router.push('/auth/login');
             })
-            .catch(err => {
-                const { response } = err;
-
-                if (Array.isArray(response.data.message)) {
-                    for (let message of response.data.message) {
-                        const err = getError(message);
-
-                        if (err) {
-                            form.setError(err, { message });
-                        }
-                    }
-                } else {
-                    const message = response.data.message;
-                    const err = getError(message);
-
-                    if (err) {
-                        form.setError(err, { message });
-                    }
-                }
+            .catch((err: any) => {
+                Array.isArray(err.message)
+                    ? handleArrayError(err)
+                    : handleMessageError(err);
             })
             .finally(() => setLoading(false));
     };
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Register</CardTitle>
-                        <CardDescription>
-                            Please enter your details.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="mail@mail.com"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage className="capitalize" />
-                                </FormItem>
-                            )}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Register</CardTitle>
+                    <CardDescription>
+                        Please enter your details.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            placeholder="mail@mail.com"
+                            {...register('email')}
                         />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="capitalize" />
-                                </FormItem>
-                            )}
+                        {errors.email && (
+                            <Label className="text-destructive">
+                                {errors.email?.message}
+                            </Label>
+                        )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="email">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            {...register('password')}
                         />
-                        <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Confirm password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="capitalize" />
-                                </FormItem>
-                            )}
+                        {errors.password && (
+                            <Label className="text-destructive">
+                                {errors.email?.message}
+                            </Label>
+                        )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="confirmPassword">
+                            Confirm password
+                        </Label>
+                        <Input
+                            id="confirmPassword"
+                            type="password"
+                            {...register('confirmPassword')}
                         />
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="John" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="capitalize" />
-                                </FormItem>
-                            )}
+                        {errors.confirmPassword && (
+                            <Label className="text-destructive">
+                                {errors.confirmPassword?.message}
+                            </Label>
+                        )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="name">Name</Label>
+                        <Input
+                            id="name"
+                            placeholder="John"
+                            {...register('name')}
                         />
-                        <FormField
-                            control={form.control}
-                            name="surname"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Surname</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Doe" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="capitalize" />
-                                </FormItem>
-                            )}
+                        {errors.name && (
+                            <Label className="text-destructive">
+                                {errors.name?.message}
+                            </Label>
+                        )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="consurname">Surname</Label>
+                        <Input
+                            id="surname"
+                            placeholder="John"
+                            {...register('surname')}
                         />
-                    </CardContent>
-                    <CardFooter>
-                        <Button
-                            disabled={isLoading}
-                            type="submit"
-                            className="w-full"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Please wait
-                                </>
-                            ) : (
-                                'Sign up'
-                            )}
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
+                        {errors.surname && (
+                            <Label className="text-destructive">
+                                {errors.surname?.message}
+                            </Label>
+                        )}
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button
+                        disabled={isLoading}
+                        type="submit"
+                        className="w-full"
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Please wait
+                            </>
+                        ) : (
+                            'Sign up'
+                        )}
+                    </Button>
+                </CardFooter>
+            </Card>
+        </form>
     );
 };

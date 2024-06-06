@@ -3,7 +3,7 @@ import '@uploadthing/react/styles.css';
 
 import { Providers } from '@/core/providers';
 import { NAVIGATION_LINKS } from '@/shared/lib/constants/Links';
-import { AuthHeader } from '@/shared/ui/AuthHeader';
+import { UserHeaderAvatar } from '@/shared/ui/AuthHeader';
 import { Navigation } from '@/shared/ui/Navigation';
 import { ModeToggle } from '@/shared/ui/Theme';
 import { Toaster } from '@/shared/ui/sonner';
@@ -31,7 +31,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
                             profile={
                                 <div className="flex space-x-1">
                                     <ModeToggle />
-                                    <AuthHeader />
+                                    <UserHeaderAvatar />
                                 </div>
                             }
                         />

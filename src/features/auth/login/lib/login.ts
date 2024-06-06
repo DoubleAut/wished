@@ -1,4 +1,4 @@
-import { getFullUser } from '@/entities/user/lib/user';
+import { getOwnFullUser } from '@/entities/user/lib/user';
 import { post } from '@/shared/api/Fetch';
 import { setAccessToken } from '@/shared/api/Fetch/accessToken';
 import { USER_TAG } from '@/shared/lib/constants/FetchTags';
@@ -17,7 +17,7 @@ export const login = async (data: LoginSchema) => {
 
     setAccessToken(response.accessToken);
 
-    const user = await getFullUser(response.id);
+    const user = await getOwnFullUser(response.id);
 
     return user;
 };
