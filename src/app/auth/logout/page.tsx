@@ -1,8 +1,7 @@
-'use client';
-import { Login } from '@/widgets/auth/login';
+import { Logout } from '@/widgets/auth/logout/ui/Logout';
 
 const Page = () => {
-    return <Login />;
+    return <Logout />;
 };
 
 export default Page;
