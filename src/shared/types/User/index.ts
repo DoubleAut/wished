@@ -23,4 +23,6 @@ export interface FullUser extends PlainUser {
     followers: PlainUser[];
     wishes: Wish[];
     reservations: Wish[];
+    gifted: Wish[];
+    completed: Wish[];
 }
