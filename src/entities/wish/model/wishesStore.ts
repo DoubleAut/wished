@@ -10,7 +10,7 @@ export interface WishesSlice {
     gifted: Wish[];
     completed: Wish[];
     addWish: (wish: Wish) => void;
-    removeWish: (wish: Wish, array?: 'wishes' | 'completed') => void;
+    removeWish: (wish: Wish) => void;
     updateWish: (wish: Wish) => void;
     reserveWish: (wish: Wish) => void;
     completeWish: (wish: Wish) => void;
@@ -54,11 +54,17 @@ export const createWishesSlice: StateCreator<
     removeWish: wish => {
         const state = get();
 
-        const wishes = !wish.isCompleted
-            ? state.wishes.filter(item => item.id !== wish.id)
-            : state.completed.filter(item => item.id !== wish.id);
+        if (wish.isCompleted) {
+            const completed = state.completed.filter(item => item.id !== wish.id);
+    
+            set({ completed });
+        }
 
-        set({ wishes });
+        if (!wish.isCompleted) {
+            const wishes = state.wishes.filter(item => item.id !== wish.id);
+    
+            set({ wishes });
+        }
     },
     updateWish: wish => {
         const state = get();
