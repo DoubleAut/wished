@@ -7,11 +7,10 @@ export const EditWish = () => {
     const dialogWish = store.dialogWish;
     const setDialogWish = store.setDialogWish;
 
+    const onClick = () => setDialogWish(dialogWish, 'edit');
+
     return (
-        <Button
-            variant="outline"
-            onClick={() => setDialogWish(dialogWish, 'edit')}
-        >
+        <Button variant="outline" onClick={onClick}>
             Edit
         </Button>
     );
