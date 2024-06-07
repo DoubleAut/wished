@@ -11,26 +11,21 @@ import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { RiBardLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 
 type TabsValues = 'wishes' | 'reservations' | 'gifted' | 'archived';
 
 const MotionTabsContent = motion(TabsContent);
 
-const Content = (props: { children: ReactNode; value: string }) => (
-    <MotionTabsContent
-        value={props.value}
-        className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-        forceMount={true}
-        animate={{
-            transition: {
-                delayChildren: 0.1,
-            },
-        }}
-    >
-        {props.children}
-    </MotionTabsContent>
-);
+const container = {
+    closed: { opacity: 0 },
+    open: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.05,
+        },
+    },
+};
 
 export const WishesTabs = () => {
     const [state, setState] = useState<TabsValues>('wishes');
@@ -40,6 +35,8 @@ export const WishesTabs = () => {
     const completed = useViewerStore(state => state.completed);
 
     const onChange = (value: string) => setState(value as TabsValues);
+
+    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
     return (
         <Tabs defaultValue="wishes" className="w-full" onValueChange={onChange}>
@@ -64,24 +61,48 @@ export const WishesTabs = () => {
                 />
             </div>
             {state === 'wishes' && (
-                <Content value="wishes">
+                <MotionTabsContent
+                    value="wishes"
+                    className={className}
+                    variants={container}
+                    initial="closed"
+                    animate="open"
+                >
                     <Wishes wishes={wishes} />
-                </Content>
+                </MotionTabsContent>
             )}
             {state === 'reservations' && (
-                <Content value="reservations">
+                <MotionTabsContent
+                    value="reservations"
+                    className={className}
+                    variants={container}
+                    initial="closed"
+                    animate="open"
+                >
                     <ReservedWishes wishes={reservations} />
-                </Content>
+                </MotionTabsContent>
             )}
             {state === 'gifted' && (
-                <Content value="gifted">
+                <MotionTabsContent
+                    value="gifted"
+                    className={className}
+                    variants={container}
+                    initial="closed"
+                    animate="open"
+                >
                     <GiftedWishes wishes={gifted} />
-                </Content>
+                </MotionTabsContent>
             )}
             {state === 'archived' && (
-                <Content value="archived">
+                <MotionTabsContent
+                    value="archived"
+                    className={className}
+                    variants={container}
+                    initial="closed"
+                    animate="open"
+                >
                     <ArchivedWishes wishes={completed} />
-                </Content>
+                </MotionTabsContent>
             )}
         </Tabs>
     );
