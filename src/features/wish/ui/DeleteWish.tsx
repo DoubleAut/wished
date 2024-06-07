@@ -1,4 +1,5 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { Wish } from '@/shared/types/Wish';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -33,8 +34,8 @@ export const DeleteWish = () => {
         setOpen(false);
 
         deleteWish(wishId)
-            .then(newWish => {
-                removeWish(newWish);
+            .then(() => {
+                removeWish(dialogWish as Wish);
 
                 toast.success('Wish successfully deleted!');
             })
