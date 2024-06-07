@@ -1,7 +1,7 @@
 import { Wish } from '@/shared/types/Wish';
 import { create } from 'zustand';
 
-export type DialogMode = 'edit' | 'view' | null;
+export type DialogMode = 'edit' | 'view';
 
 interface DialogStore {
     isOpen: boolean;
