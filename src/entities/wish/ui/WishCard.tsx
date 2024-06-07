@@ -64,7 +64,7 @@ export const Background = ({
     );
 };
 
-const MotionAspectRatio = motion(AspectRatio);
+const Ratio = motion(AspectRatio);
 const MotionImage = motion(Image);
 
 export const WishCard = ({ wish }: { wish: Wish }) => {
@@ -73,7 +73,7 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
     const splitted = [date.getDay(), date.getMonth(), date.getFullYear()];
 
     return (
-        <MotionAspectRatio
+        <Ratio
             ratio={4 / 3}
             className="relative flex h-full w-full flex-col justify-end overflow-hidden rounded"
             onHoverStart={() => setHover(true)}
@@ -138,6 +138,6 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                     </Typography>
                 </div>
             </div>
-        </MotionAspectRatio>
+        </Ratio>
     );
 };
