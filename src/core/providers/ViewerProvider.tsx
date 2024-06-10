@@ -1,13 +1,11 @@
 'use client';
 
-import { FriendsSlice } from '@/entities/user/model/friendsStore';
-import { UserInformationSlice } from '@/entities/user/model/user';
 import { useBoundGlobalUserStore } from '@/entities/viewer/model/viewerStore';
-import { WishesSlice } from '@/entities/wish/model/wishesStore';
+import { GlobalStore } from '@/shared/types/GlobalStore';
 import { createContext, useContext, useRef, type ReactNode } from 'react';
 import { useStore, type StoreApi } from 'zustand';
 
-type Store = StoreApi<UserInformationSlice & WishesSlice & FriendsSlice>;
+type Store = StoreApi<GlobalStore>;
 
 export const ViewerStoreContext = createContext<Store | null>(null);
 
@@ -30,9 +28,7 @@ export const ViewerStoreProvider = ({ children }: Props) => {
     );
 };
 
-export const useViewerStore = <T,>(
-    selector: (store: UserInformationSlice & WishesSlice & FriendsSlice) => T,
-): T => {
+export const useViewerStore = <T,>(selector: (store: GlobalStore) => T): T => {
     const viewerStoreContext = useContext(ViewerStoreContext);
 
     if (!viewerStoreContext) {

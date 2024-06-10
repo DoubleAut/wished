@@ -1,3 +1,4 @@
+import { Category } from '../Category';
 import { Wish } from '../Wish';
 export interface PlainUser {
     id: number;
@@ -25,4 +26,5 @@ export interface FullUser extends PlainUser {
     reservations: Wish[];
     gifted: Wish[];
     completed: Wish[];
+    categories: Category[];
 }

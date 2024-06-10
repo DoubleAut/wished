@@ -3,12 +3,12 @@ import { Wish } from '@/shared/types/Wish';
 export const getDefaultValues = (dialogWish: Partial<Wish> | null) => {
     if (!dialogWish) {
         return {
-            title: '',
-            description: '',
-            price: 0,
+            title: '123',
+            description: '123',
+            price: 123,
             canBeAnon: false,
             isHidden: false,
-            giftDay: undefined,
+            giftDay: new Date(),
             picture: null,
             categoryId: null,
         };

@@ -1,7 +1,6 @@
-import { WishesSlice } from '@/entities/wish/model/wishesStore';
+import { GlobalStore } from '@/shared/types/GlobalStore';
 import { PlainUser } from '@/shared/types/User';
 import { StateCreator } from 'zustand';
-import { UserInformationSlice } from './user';
 
 export interface FriendsSlice {
     followers: PlainUser[];
@@ -13,7 +12,7 @@ export interface FriendsSlice {
 }
 
 export const createFriendsSlice: StateCreator<
-    UserInformationSlice & WishesSlice & FriendsSlice,
+    GlobalStore,
     [],
     [],
     FriendsSlice
