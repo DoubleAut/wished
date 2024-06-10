@@ -85,7 +85,7 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                     src={wish.picture}
                     animate={{ scale: isHover ? 1.05 : 1 }}
                     alt="Wish picture"
-                    sizes="(max-width: 640px) 320px, (max-width: 768px) 200px, (max-width: 1024px) 200px"
+                    sizes="(max-width: 320px) 160px, (max-width: 640px) 320px, (max-width: 768px) 256px, (max-width: 1024px) 350px"
                     priority={false}
                     fill
                 />

@@ -9,7 +9,7 @@ import {
 } from '@/entities/wish/ui/Wishes';
 import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
-import { RiBardLine } from '@remixicon/react';
+import { RiBardLine, RiMenuSearchLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -33,10 +33,9 @@ export const WishesTabs = () => {
     const reservations = useViewerStore(state => state.reservations);
     const gifted = useViewerStore(state => state.gifted);
     const completed = useViewerStore(state => state.completed);
+    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
     const onChange = (value: string) => setState(value as TabsValues);
-
-    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
     return (
         <Tabs defaultValue="wishes" className="w-full" onValueChange={onChange}>
@@ -47,18 +46,23 @@ export const WishesTabs = () => {
                     <TabsTrigger value="gifted">Gifted</TabsTrigger>
                     <TabsTrigger value="archived">Archived</TabsTrigger>
                 </TabsList>
-                <WishDialog
-                    trigger={
-                        <Button variant="outline">
-                            <RiBardLine className="mr-3 h-4 w-4" />
-                            Make a wish
-                        </Button>
-                    }
-                    content={<WishForm onCancel={() => {}} />}
-                    wish={null}
-                    isButtonTrigger={true}
-                    defaultMode={'edit'}
-                />
+                <div className="space-x-2">
+                    <WishDialog
+                        trigger={
+                            <Button variant="outline">
+                                <RiBardLine className="mr-3 h-4 w-4" />
+                                Make a wish
+                            </Button>
+                        }
+                        content={<WishForm onCancel={() => {}} />}
+                        wish={null}
+                        isButtonTrigger={true}
+                        defaultMode={'edit'}
+                    />
+                    <Button variant="outline" size="icon">
+                        <RiMenuSearchLine className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
             {state === 'wishes' && (
                 <MotionTabsContent
