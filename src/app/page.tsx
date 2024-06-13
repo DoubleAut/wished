@@ -19,9 +19,11 @@ const Home = () => {
             <div className="flex items-center capitalize">
                 <Typography variant="h3">My wishes</Typography>
             </div>
-            <CategoryList items={categories} />
             <div className="rounded border p-2">
                 <WishesTabs />
+            </div>
+            <div className="rounded border p-2">
+                <CategoryList items={categories} />
             </div>
         </motion.div>
     );
