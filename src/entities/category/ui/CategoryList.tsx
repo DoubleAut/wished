@@ -12,15 +12,11 @@ export const CategoryList = ({ items }: { items: ICategory[] }) => {
     const [tempCategories, setTempCategories] = useState<TempCategory[]>([]);
     const addCategory = useViewerStore(state => state.addCategory);
 
-    const onAction = (data: TempCategory, index: number) => {
+    const onAction = (data: TempCategory) => {
         if (Boolean(data.name)) {
             createCategory({ ...data })
                 .then(item => {
                     addCategory(item);
-
-                    setTempCategories(
-                        tempCategories.filter((c, i) => i !== index),
-                    );
 
                     toast.message('The category successfully created');
                 })
@@ -33,21 +29,16 @@ export const CategoryList = ({ items }: { items: ICategory[] }) => {
     };
 
     return (
-        <div className="flex w-full items-center justify-start gap-2">
-            {items.map(category => (
-                <Category key={category.name} category={category} />
-            ))}
-            {tempCategories.map((category, index) => (
-                <CategoryForm
-                    key={category.name}
-                    onAction={item => onAction({ ...item }, index)}
-                    onCancel={() =>
-                        setTempCategories(
-                            tempCategories.filter((c, i) => i !== index),
-                        )
-                    }
-                />
-            ))}
+        <div className="flex w-full items-center justify-between">
+            <div className="flex w-full gap-1 overflow-x-auto">
+                {items.map(category => (
+                    <Category key={category.name} category={category} />
+                ))}
+            </div>
+            <CategoryForm
+                onAction={item => onAction({ ...item })}
+                onCancel={() => {}}
+            />
         </div>
     );
 };

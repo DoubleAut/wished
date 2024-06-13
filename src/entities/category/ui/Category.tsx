@@ -12,7 +12,7 @@ export const Category = ({ category }: { category: ICategory }) => {
 
     return (
         <Toggle
-            className="w-fit truncate rounded-full capitalize"
+            className="w-fit whitespace-nowrap rounded-full capitalize"
             onClick={onClick}
         >
             {category.name}

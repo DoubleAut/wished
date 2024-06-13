@@ -3,7 +3,7 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddLine, RiCloseLine } from '@remixicon/react';
+import { RiAddLine } from '@remixicon/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -43,7 +43,7 @@ export const CategoryForm = ({ value, onAction, onCancel }: Props) => {
     return (
         <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex w-full flex-col items-center justify-center gap-2 lg:flex-row"
+            className="flex w-full items-center justify-center gap-2"
         >
             <div className="flex flex-col gap-1">
                 <Input
@@ -58,14 +58,10 @@ export const CategoryForm = ({ value, onAction, onCancel }: Props) => {
                     </Label>
                 )}
             </div>
-            <div className="flex w-fit flex-col items-center gap-2 lg:flex-row">
-                <Button type="submit" disabled={isLoading}>
-                    <RiAddLine className="h-4 w-4" />
-                </Button>
-                <Button type="reset" disabled={isLoading} onClick={onCancel}>
-                    <RiCloseLine className="h-4 w-4" />
-                </Button>
-            </div>
+            <Button type="submit" disabled={isLoading}>
+                <RiAddLine className="mr-2 h-4 w-4" />
+                Create
+            </Button>
         </form>
     );
 };
