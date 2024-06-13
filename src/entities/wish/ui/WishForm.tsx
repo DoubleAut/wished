@@ -1,6 +1,7 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { CategorySelect } from '@/entities/category/ui/CategorySelect';
 import { dialogStore } from '@/features/wish/model/dialogView';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
@@ -159,7 +160,7 @@ export const WishForm = ({ onCancel }: Props) => {
                         </Label>
                     )}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col items-start gap-2">
                         <Label>Description</Label>
                         <Input type="number" {...register('price')} />
@@ -180,6 +181,19 @@ export const WishForm = ({ onCancel }: Props) => {
                         {errors.giftDay && (
                             <Label className="text-destructive">
                                 {errors.giftDay.message}
+                            </Label>
+                        )}
+                    </div>
+                    <div className="flex flex-col items-start gap-2">
+                        <Label>Category</Label>
+                        <CategorySelect
+                            onChange={value =>
+                                form.setValue('categoryId', Number(value))
+                            }
+                        />
+                        {errors.categoryId && (
+                            <Label className="text-destructive">
+                                {errors.categoryId.message}
                             </Label>
                         )}
                     </div>
