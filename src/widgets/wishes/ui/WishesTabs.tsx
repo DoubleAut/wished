@@ -9,7 +9,7 @@ import {
 } from '@/entities/wish/ui/Wishes';
 import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
-import { RiBardLine, RiMenuSearchLine } from '@remixicon/react';
+import { RiBardLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -46,23 +46,18 @@ export const WishesTabs = () => {
                     <TabsTrigger value="gifted">Gifted</TabsTrigger>
                     <TabsTrigger value="archived">Archived</TabsTrigger>
                 </TabsList>
-                <div className="space-x-2">
-                    <WishDialog
-                        trigger={
-                            <Button variant="outline">
-                                <RiBardLine className="mr-3 h-4 w-4" />
-                                Make a wish
-                            </Button>
-                        }
-                        content={<WishForm onCancel={() => {}} />}
-                        wish={null}
-                        isButtonTrigger={true}
-                        defaultMode={'edit'}
-                    />
-                    <Button variant="outline" size="icon">
-                        <RiMenuSearchLine className="h-4 w-4" />
-                    </Button>
-                </div>
+                <WishDialog
+                    trigger={
+                        <Button variant="outline">
+                            <RiBardLine className="mr-3 h-4 w-4" />
+                            Make a wish
+                        </Button>
+                    }
+                    content={<WishForm onCancel={() => {}} />}
+                    wish={null}
+                    isButtonTrigger={true}
+                    defaultMode={'edit'}
+                />
             </div>
             {state === 'wishes' && (
                 <MotionTabsContent
