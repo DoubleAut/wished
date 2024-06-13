@@ -1,3 +1,4 @@
+import { CategorySlice } from '@/entities/category/model/categorySlice';
 import { FullUser } from '@/shared/types/User';
 import { Wish } from '@/shared/types/Wish';
 import { StateCreator } from 'zustand';
@@ -23,7 +24,7 @@ export interface WishesSlice {
 }
 
 export const createWishesSlice: StateCreator<
-    UserInformationSlice & WishesSlice & FriendsSlice,
+    UserInformationSlice & WishesSlice & FriendsSlice & CategorySlice,
     [],
     [],
     WishesSlice
@@ -32,6 +33,7 @@ export const createWishesSlice: StateCreator<
     reservations: [],
     gifted: [],
     completed: [],
+    categories: [],
     setWishes: wishes => {
         set({ wishes });
     },
@@ -55,14 +57,16 @@ export const createWishesSlice: StateCreator<
         const state = get();
 
         if (wish.isCompleted) {
-            const completed = state.completed.filter(item => item.id !== wish.id);
-    
+            const completed = state.completed.filter(
+                item => item.id !== wish.id,
+            );
+
             set({ completed });
         }
 
         if (!wish.isCompleted) {
             const wishes = state.wishes.filter(item => item.id !== wish.id);
-    
+
             set({ wishes });
         }
     },
@@ -107,6 +111,7 @@ export const createWishesSlice: StateCreator<
             reservations,
             gifted,
             completed,
+            categories,
             ...rest
         } = user;
 
@@ -117,5 +122,6 @@ export const createWishesSlice: StateCreator<
         state.setReservations(reservations);
         state.setGifted(gifted);
         state.setCompleted(completed);
+        state.setCategories(categories);
     },
 });

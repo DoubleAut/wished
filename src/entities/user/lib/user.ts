@@ -1,4 +1,5 @@
 import { getOwnWishes } from '@/entities/wish/lib';
+import { getCategories } from '@/features/category/lib';
 import { get } from '@/shared/api/Fetch';
 import { FullUser, UserWithFriends } from '@/shared/types/User';
 import '@total-typescript/ts-reset';
@@ -21,10 +22,12 @@ export const getUser = async (id: number) => {
 
 export const getOwnFullUser = async (id: number) => {
     const user = await getUserWithFriends(id);
-    const result = await getOwnWishes(id);
+    const wishes = await getOwnWishes(id);
+    const categories = await getCategories(id);
 
     return {
         ...user,
-        ...result,
+        ...wishes,
+        categories,
     };
 };

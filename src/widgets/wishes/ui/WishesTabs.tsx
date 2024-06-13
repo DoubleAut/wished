@@ -33,10 +33,9 @@ export const WishesTabs = () => {
     const reservations = useViewerStore(state => state.reservations);
     const gifted = useViewerStore(state => state.gifted);
     const completed = useViewerStore(state => state.completed);
+    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
     const onChange = (value: string) => setState(value as TabsValues);
-
-    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
     return (
         <Tabs defaultValue="wishes" className="w-full" onValueChange={onChange}>
