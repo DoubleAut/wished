@@ -1,7 +1,7 @@
 import { post } from '@/shared/api/Fetch';
 import { USERS_TAG } from '@/shared/lib/constants/FetchTags';
-import { PlainUser } from '@/shared/types/User';
 import { RegisterSchema } from '@/widgets/auth/register/lib';
+import { PlainUser } from '../../../../../shared/types/User';
 
 export const register = async ({
     confirmPassword,

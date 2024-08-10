@@ -1,6 +1,6 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { Category as ICategory } from '@/shared/types/Category';
 import { Toggle } from '@/shared/ui/toggle';
+import { Category as ICategory } from '../../../../shared/types/Category';
 
 export const Category = ({ category }: { category: ICategory }) => {
     const selectedCategory = useViewerStore(state => state.selectedCategory);

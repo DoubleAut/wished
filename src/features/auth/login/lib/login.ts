@@ -2,7 +2,7 @@ import { getOwnFullUser } from '@/entities/user/lib/user';
 import { post } from '@/shared/api/Fetch';
 import { setAccessToken } from '@/shared/api/Fetch/accessToken';
 import { USER_TAG } from '@/shared/lib/constants/FetchTags';
-import { PlainUser } from '@/shared/types/User';
+import { PlainUser } from '../../../../../shared/types/User';
 
 export interface LoginSchema {
     email: string;

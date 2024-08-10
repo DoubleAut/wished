@@ -186,9 +186,6 @@ export const get = async <R>(
             'Content-Type': 'application/json',
             ...(withBearer && getAuthorizationHeader()),
         },
-        next: {
-            tags,
-        },
     });
 
     if (response.status === 401 && retriesLeft > 0) {

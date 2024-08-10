@@ -3,11 +3,11 @@
 import { getOwnFullUser } from '@/entities/user/lib/user';
 import { rotateTokens } from '@/shared/api/Fetch';
 import { isSessionExist } from '@/shared/api/Fetch/tokens';
-import { FullUser } from '@/shared/types/User';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { HeaderWidget } from '@/widgets/header';
 import { redirect, useRouter } from 'next/navigation';
 import { ReactNode, useCallback, useLayoutEffect, useState } from 'react';
+import { FullUser } from '../../../shared/types/User';
 import { useViewerStore } from './ViewerProvider';
 
 interface Props {
@@ -44,7 +44,7 @@ export function UserProvider({ children }: Props) {
         revokeSession()
             .then(user => setInitialUser(user))
             .catch(() => router.push(`/auth/login`))
-            .finally(() => setLoading(false));
+            .finally(() => setLoading(false))
     }, [router, setInitialUser]);
 
     if (isLoading) {
@@ -62,11 +62,11 @@ export function UserProvider({ children }: Props) {
                     profile={<Skeleton className="h-10 w-10 rounded-full" />}
                 />
                 <div className="container flex flex-col gap-4">
-                    <Skeleton className="h-full w-fit" />
-                    <div className="grid grid-cols-3">
-                        <Skeleton className="col-span-1 h-full w-full" />
-                        <Skeleton className="col-span-1 h-full w-full" />
-                        <Skeleton className="col-span-1 h-full w-full" />
+                    <Skeleton className="mt-4 h-8 w-24" /> 
+                    <div className="grid grid-cols-3 gap-5 h-full w-full">
+                        <Skeleton className="col-span-1 h-40 w-full" />
+                        <Skeleton className="col-span-1 h-40 w-full" />
+                        <Skeleton className="col-span-1 h-40 w-full" />
                     </div>
                 </div>
             </div>

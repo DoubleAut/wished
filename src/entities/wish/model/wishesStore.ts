@@ -1,7 +1,7 @@
 import { CategorySlice } from '@/entities/category/model/categorySlice';
-import { FullUser } from '@/shared/types/User';
-import { Wish } from '@/shared/types/Wish';
 import { StateCreator } from 'zustand';
+import { FullUser } from '../../../../shared/types/User';
+import { Wish } from '../../../../shared/types/Wish';
 import { FriendsSlice } from '../../user/model/friendsStore';
 import { UserInformationSlice } from '../../user/model/user';
 

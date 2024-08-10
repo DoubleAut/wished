@@ -53,7 +53,7 @@ export const LoginForm = () => {
         const message = err.message;
         const error = getError(message) as 'email' | 'password' | null;
 
-        console.log('this is handle massage error', err, error);
+        console.log('this is handle message error', err, error);
 
         if (error) {
             form.setError(error, { message });

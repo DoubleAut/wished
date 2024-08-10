@@ -1,6 +1,6 @@
 import { get, remove } from '@/shared/api/Fetch';
 import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
-import { Wish } from '@/shared/types/Wish';
+import { Wish } from '../../../../shared/types/Wish';
 
 interface WishesAndReservations {
     wishes: Wish[];

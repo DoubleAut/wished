@@ -1,7 +1,7 @@
 import { patch, post, remove } from '@/shared/api/Fetch';
 import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
-import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
+import { Wish } from '../../../../shared/types/Wish';
 
 export const wishSchema = z.object({
     title: z.string().min(2, {
@@ -37,6 +37,7 @@ export const getError = (message: string) => {
 
 type CreateProps = z.infer<typeof wishSchema> & {
     userId: number;
+    isReserved: false;
 };
 
 export const createWish = async (
@@ -46,7 +47,7 @@ export const createWish = async (
     const response = await post<CreateProps, Wish>(
         `/wishes`,
         [WISHES_TAG],
-        { ...wish, userId },
+        { ...wish, userId, isReserved: false },
         true,
     );
 

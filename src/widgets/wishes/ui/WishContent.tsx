@@ -3,7 +3,6 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { Background } from '@/entities/wish/ui/WishCard';
 import { dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
 import { Typography } from '@/shared/ui/Text/typography';
 import { AspectRatio } from '@/shared/ui/aspect-ratio';
 import { Badge } from '@/shared/ui/badge';
@@ -11,6 +10,7 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 
 interface Props {
     wish: Wish;

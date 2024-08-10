@@ -3,7 +3,6 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { CategorySelect } from '@/entities/category/ui/CategorySelect';
 import { dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { DatePicker } from '@/shared/ui/date-picker';
 import { Input } from '@/shared/ui/input';
@@ -17,6 +16,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 import {
     createWish,
     getError,
@@ -162,7 +162,7 @@ export const WishForm = ({ onCancel }: Props) => {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col items-start gap-2">
-                        <Label>Description</Label>
+                        <Label>Price</Label>
                         <Input type="number" {...register('price')} />
                         {errors.price && (
                             <Label className="text-destructive">

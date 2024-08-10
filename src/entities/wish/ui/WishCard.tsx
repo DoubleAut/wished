@@ -1,6 +1,5 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { cn } from '@/shared/lib/classNames/cn';
-import { Wish } from '@/shared/types/Wish';
 import { Typography } from '@/shared/ui/Text/typography';
 import { AspectRatio } from '@/shared/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
@@ -9,6 +8,7 @@ import { RiEyeLine, RiEyeOffLine, RiGiftLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Wish } from '../../../../shared/types/Wish';
 
 export const Badges = ({ wish }: { wish: Wish }) => {
     const viewer = useViewerStore(state => state.user);

@@ -1,5 +1,4 @@
 import { DialogMode, dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
 import {
     Dialog,
     DialogContent,
@@ -9,6 +8,7 @@ import {
 } from '@/shared/ui/dialog';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 
 interface Props {
     content: ReactNode;

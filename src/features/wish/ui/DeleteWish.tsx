@@ -1,5 +1,4 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { Wish } from '@/shared/types/Wish';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -15,6 +14,7 @@ import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 import { deleteWish } from '../lib';
 import { dialogStore } from '../model/dialogView';
 

@@ -1,6 +1,6 @@
 import { post, remove } from '@/shared/api/Fetch';
 import { FRIENDS_TAG, USER_TAG } from '@/shared/lib/constants/FetchTags';
-import { UserWithFriends } from '@/shared/types/User';
+import { UserWithFriends } from '../../../../shared/types/User';
 
 export const removeFriend = async (userId: number, friendId: number) => {
     const response = await remove<UserWithFriends>(

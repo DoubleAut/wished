@@ -1,4 +1,4 @@
-import { Wish } from '@/shared/types/Wish';
+import { Wish } from '../../../../shared/types/Wish';
 
 export const getDefaultValues = (dialogWish: Partial<Wish> | null) => {
     if (!dialogWish) {

@@ -1,6 +1,6 @@
 import { get, patch, post, remove } from '@/shared/api/Fetch';
 import { CATEGORIES_TAG } from '@/shared/lib/constants/FetchTags';
-import { Category } from '@/shared/types/Category';
+import { Category } from '../../../../shared/types/Category';
 
 export const getCategories = (id: number) => {
     const response = get<Category[]>(`/category/${id}`, [CATEGORIES_TAG], true);
