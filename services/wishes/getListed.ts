@@ -1,6 +1,6 @@
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { MISSING_FIELDS } from '../../shared/errors/messages';
 
@@ -9,11 +9,9 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 const WISHES_TABLE_NAME = process.env.WISHES_TABLE_NAME || '';
 
-const requiredFields = ['title', 'description', 'price', 'giftDay'] as const;
-
 export const handler = async (event: APIGatewayProxyEvent) => {
     console.log('Creating product with provided data: ', event.body);
-    const ownerId = event.pathParameters?.productId;
+    const ownerId = event.pathParameters?.ownerId;
 
     if (!ownerId) {
         return {
@@ -21,13 +19,16 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message: MISSING_FIELDS, fields: ['ownerId'] }),
+            body: JSON.stringify({
+                message: MISSING_FIELDS,
+                fields: ['ownerId'],
+            }),
         };
     }
 
     const queryCommand = new QueryCommand({
         TableName: WISHES_TABLE_NAME,
-        AttributesToGet: ['id', 'title', 'description', 'price', 'giftDay', 'picture'],
+        IndexName: 'ownerId',
         KeyConditionExpression: 'ownerId = :ownerId',
         ExpressionAttributeValues: marshall({ ':ownerId': ownerId }),
     });
@@ -47,6 +48,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             };
         }
 
+        const wishes = response.Items.map(item => unmarshall(item));
+
         return {
             statusCode: 201,
             headers: {
@@ -54,7 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST',
             },
-            body: JSON.stringify(response.Items),
+            body: JSON.stringify(wishes),
         };
     } catch (err: unknown) {
         const error = err as { message: string };

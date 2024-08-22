@@ -10,7 +10,7 @@ const WISHES_TABLE_NAME = process.env.WISHES_TABLE_NAME || '';
 export const handler = async (event: APIGatewayProxyEvent) => {
     console.log('Creating product with provided data: ', event.body);
     
-    const id = event.pathParameters?.id;
+    const id = event.pathParameters?.wishId;
 
     const deleteCommand = new DeleteCommand({
         TableName: WISHES_TABLE_NAME,

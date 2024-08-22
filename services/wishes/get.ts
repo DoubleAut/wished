@@ -11,11 +11,11 @@ const requiredFields = ['title', 'description', 'price', 'giftDay'] as const;
 
 export const handler = async (event: APIGatewayProxyEvent) => {
     console.log('Creating product with provided data: ', event.body);
-    const ownerId = event.pathParameters?.productId;
+    const id = event.pathParameters?.id;
 
     const getCommand = new GetCommand({
         TableName: WISHES_TABLE_NAME,
-        Key: { ownerId },
+        Key: { id },
     });
 
     try {

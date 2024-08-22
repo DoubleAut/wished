@@ -30,7 +30,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         };
     }
 
-    const { title, description, price, giftDay } = body;
+    const { title, description, price, giftDay, ownerId } = body;
 
     if (!title || !description || !price || !giftDay) {
         const missing = requiredFields.filter((key) => !body[key]);
@@ -56,12 +56,12 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             description,
             price,
             giftDay,
+            ownerId,
             canBeAnon: body.canBeAnon ?? false,
             isHidden: body.isHidden ?? false,
             picture: body.picture ?? null,
-            reservedBy: body.reservedBy ?? null,
-            ownerId: body.owner,
             isCompleted: false,
+            reservedBy: null,
         },
     });
 
