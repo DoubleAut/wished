@@ -1,13 +1,20 @@
 import {
     CfnOutput,
     Duration,
+    Fn,
     RemovalPolicy,
     Stack,
     StackProps,
 } from 'aws-cdk-lib';
-import { Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import {
+    Cors,
+    LambdaIntegration,
+    RestApi,
+    TokenAuthorizer,
+} from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Function } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -20,6 +27,13 @@ const lambdaPath = path.join(rootDir, 'services', 'users');
 export class UsersStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
+
+        const authorizationHandlerArn = Fn.importValue('TokenAuthorizerArn');
+        const authorizationHandler = Function.fromFunctionArn(
+            this,
+            'TokenAuthorizerHandler',
+            authorizationHandlerArn,
+        );
 
         const userPool = new UserPool(this, wishedUserPoolName, {
             userPoolName: wishedUserPoolName,
@@ -41,7 +55,7 @@ export class UsersStack extends Stack {
             authFlows: {
                 userPassword: true,
             },
-            accessTokenValidity: Duration.minutes(10),
+            accessTokenValidity: Duration.minutes(5),
         });
 
         const signUpHandler = new NodejsFunction(this, 'SignUpHandler', {
@@ -56,6 +70,40 @@ export class UsersStack extends Stack {
             entry: path.join(lambdaPath, 'register.ts'),
         });
 
+        const authenticationHandler = new NodejsFunction(
+            this,
+            'AuthenticationHandler',
+            {
+                ...commonLambdaProps,
+                environment: {
+                    COGNITO_REGION: this.region,
+                    COGNITO_CLIENT_ID: userClient.userPoolClientId,
+                    COGNITO_CLIENT_SECRET:
+                        userClient.userPoolClientSecret.unsafeUnwrap(),
+                    COGNITO_USER_POOL_ID: userPool.userPoolId,
+                },
+                functionName: 'AuthenticationHandler',
+                entry: path.join(lambdaPath, 'authenticate.ts'),
+            },
+        );
+
+        const rotateTokensHandler = new NodejsFunction(
+            this,
+            'RotateTokensHandler',
+            {
+                ...commonLambdaProps,
+                environment: {
+                    COGNITO_REGION: this.region,
+                    COGNITO_CLIENT_ID: userClient.userPoolClientId,
+                    COGNITO_CLIENT_SECRET:
+                        userClient.userPoolClientSecret.unsafeUnwrap(),
+                    COGNITO_USER_POOL_ID: userPool.userPoolId,
+                },
+                functionName: 'RotateTokensHandler',
+                entry: path.join(lambdaPath, 'rotateTokens.ts'),
+            },
+        );
+
         const confirmSignUpHandler = new NodejsFunction(
             this,
             'ConfirmSignUpHandler',
@@ -64,6 +112,8 @@ export class UsersStack extends Stack {
                 environment: {
                     COGNITO_REGION: this.region,
                     COGNITO_CLIENT_ID: userClient.userPoolClientId,
+                    COGNITO_CLIENT_SECRET:
+                        userClient.userPoolClientSecret.unsafeUnwrap(),
                 },
                 functionName: 'ConfirmSignUpHandler',
                 entry: path.join(lambdaPath, 'confirmation.ts'),
@@ -78,6 +128,18 @@ export class UsersStack extends Stack {
             },
             functionName: 'GetUserHandler',
             entry: path.join(lambdaPath, 'getUser.ts'),
+        });
+
+        const integrationRole = new Role(this, 'authExecutionRole', {
+            assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+        });
+
+        authorizationHandler.grantInvoke(integrationRole);
+
+        const authorizer = new TokenAuthorizer(this, 'TokenAuthorizer', {
+            handler: authorizationHandler,
+            authorizerName: 'TokenAuthorizer',
+            assumeRole: integrationRole,
         });
 
         const registerPolicy = new PolicyStatement({
@@ -98,53 +160,68 @@ export class UsersStack extends Stack {
         });
         confirmSignUpHandler.addToRolePolicy(confirmPolicy);
 
+        const authenticationPolicy = new PolicyStatement({
+            actions: ['cognito-idp:InitiateAuth'],
+            resources: [userPool.userPoolArn],
+        });
+        authenticationHandler.addToRolePolicy(authenticationPolicy);
+        rotateTokensHandler.addToRolePolicy(authenticationPolicy);
+
         const restApi = new RestApi(this, 'UsersApi', {
             restApiName: 'UsersApi',
             description: 'Users API',
+        });
+
+        const apiEndpoint = restApi.root.addResource('users', {
             defaultCorsPreflightOptions: {
-                allowOrigins: [
-                    'http://localhost:3000',
-                    'https://www.wished.richardpickman.space',
-                ],
+                allowOrigins: ['http://localhost:3000'],
+                allowMethods: ['GET'],
+            },
+        });
+        const signUpEndpoint = apiEndpoint.addResource('register');
+        const confirmSignUpEndpoint = apiEndpoint.addResource('confirm');
+        const authenticationEndpoint = apiEndpoint.addResource('auth', {
+            defaultCorsPreflightOptions: {
+                allowOrigins: ['http://localhost:3000'],
                 allowMethods: Cors.ALL_METHODS,
+                allowCredentials: true,
+            },
+        });
+        const rotateTokensEndpoint = apiEndpoint.addResource('rotate', {
+            defaultCorsPreflightOptions: {
+                allowOrigins: ['http://localhost:3000'],
+                allowMethods: Cors.ALL_METHODS,
+                allowCredentials: true,
             },
         });
 
-        const apiEndpoint = restApi.root.addResource('users');
-
-        const signUpEndpoint = apiEndpoint.addResource('register');
-        const confirmSignUpEndpoint = apiEndpoint.addResource('confirm');
+        const getUserEnpoint = apiEndpoint;
 
         signUpEndpoint.addMethod('POST', new LambdaIntegration(signUpHandler));
-        apiEndpoint.addMethod('POST', new LambdaIntegration(getUserHandler));
+        getUserEnpoint.addMethod('GET', new LambdaIntegration(getUserHandler), {
+            authorizer: authorizer,
+        });
         confirmSignUpEndpoint.addMethod(
             'POST',
             new LambdaIntegration(confirmSignUpHandler),
         );
+        authenticationEndpoint.addMethod(
+            'POST',
+            new LambdaIntegration(authenticationHandler),
+        );
+        rotateTokensEndpoint.addMethod(
+            'POST',
+            new LambdaIntegration(rotateTokensHandler),
+        );
 
-        new CfnOutput(this, 'cognitoUserPoolId', {
-            value: userPool.userPoolId,
-            exportName: 'CognitoUserPoolId',
-        });
-
-        new CfnOutput(this, 'usersApiEndpoint', {
+        new CfnOutput(this, 'ApiEndpoint', {
             value: restApi.url,
-            exportName: 'UsersApi',
+            exportName: 'ApiEndpoint',
         });
 
-        new CfnOutput(this, 'signInLamdaHandlerArn', {
-            value: getUserHandler.functionArn,
-            exportName: 'SignInLambdaHandlerArn',
-        });
-
-        new CfnOutput(this, 'signUpLamdaHandlerArn', {
-            value: signUpHandler.functionArn,
-            exportName: 'SignUpLambdaHandlerArn',
-        });
-
-        new CfnOutput(this, 'confirmSignUpLamdaHandlerArn', {
-            value: confirmSignUpHandler.functionArn,
-            exportName: 'ConfirmSignUpLambdaHandlerArn',
+        new CfnOutput(this, 'UserPoolPoolId', {
+            value: userPool.userPoolId,
+            exportName: 'UserPoolId',
         });
 
         new CfnOutput(this, 'UserPoolClientId', {
