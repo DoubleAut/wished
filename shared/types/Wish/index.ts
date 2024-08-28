@@ -1,5 +1,3 @@
-import { PlainUser } from '../User';
-
 export interface Wish {
     id: number;
     title: string;
@@ -8,8 +6,8 @@ export interface Wish {
     canBeAnon: boolean;
     isHidden: boolean;
     picture: string | null;
-    reservedBy: PlainUser | null;
-    owner: PlainUser;
+    reservedBy: string | null;
+    ownerId: string;
     categoryId: number | null;
     giftDay: string | null;
     isCompleted: boolean;
