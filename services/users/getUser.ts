@@ -16,9 +16,13 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     const accessToken = event.headers['Authorization'] as string;
 
+    console.log('Access token: ', accessToken);
+
     const splitted = accessToken.split(' ') as [string, string];
 
-    const [key, value] = splitted;
+    const [_key, value] = splitted;
+
+    console.log('Value: ', value);
 
     try {
         const client = new CognitoIdentityProviderClient({
@@ -36,12 +40,12 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         console.log('Command executed. Result: ', result);
 
         return {
-            statusCode: 201,
+            statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': 'http://localhost:3000',
                 'Access-Control-Allow-Methods': 'GET',
-                'Access-Control-Allow-Credentials': true,
                 'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Credentials': true,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(userData),

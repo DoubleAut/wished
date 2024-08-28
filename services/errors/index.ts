@@ -8,8 +8,8 @@ export const getErrorResponse = (
 ) => ({
     statusCode: code,
     headers: {
-        'Access-Control-Allow-Methods': methods,
         'Access-Control-Allow-Origin': allowOrigin,
+        'Access-Control-Allow-Methods': methods,
         'Access-Control-Allow-Headers': allowHeaders,
     },
     body: JSON.stringify({

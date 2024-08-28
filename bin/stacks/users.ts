@@ -17,7 +17,7 @@ import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
-import * as path from 'path';
+import path from 'path';
 import { commonLambdaProps } from './helpers';
 
 const wishedUserPoolName = 'wished-user-pool';
@@ -120,13 +120,10 @@ export class UsersStack extends Stack {
             },
         );
 
-        const getUserHandler = new NodejsFunction(this, 'GetUserHandler', {
+        const getUserHandler = new NodejsFunction(this, 'GetUserHandlerTest', {
             ...commonLambdaProps,
-            environment: {
-                COGNITO_REGION: this.region,
-                COGNITO_CLIENT_ID: userPool.userPoolId,
-            },
-            functionName: 'GetUserHandler',
+            environment: { COGNITO_REGION: this.region },
+            functionName: 'GetUserHandlerTest',
             entry: path.join(lambdaPath, 'getUser.ts'),
         });
 
@@ -176,8 +173,11 @@ export class UsersStack extends Stack {
             defaultCorsPreflightOptions: {
                 allowOrigins: ['http://localhost:3000'],
                 allowMethods: ['GET'],
+                allowCredentials: true,
+                allowHeaders: Cors.DEFAULT_HEADERS,
             },
         });
+
         const signUpEndpoint = apiEndpoint.addResource('register');
         const confirmSignUpEndpoint = apiEndpoint.addResource('confirm');
         const authenticationEndpoint = apiEndpoint.addResource('auth', {
@@ -195,10 +195,8 @@ export class UsersStack extends Stack {
             },
         });
 
-        const getUserEnpoint = apiEndpoint;
-
         signUpEndpoint.addMethod('POST', new LambdaIntegration(signUpHandler));
-        getUserEnpoint.addMethod('GET', new LambdaIntegration(getUserHandler), {
+        apiEndpoint.addMethod('GET', new LambdaIntegration(getUserHandler), {
             authorizer: authorizer,
         });
         confirmSignUpEndpoint.addMethod(
