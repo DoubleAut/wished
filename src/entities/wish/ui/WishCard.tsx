@@ -13,9 +13,9 @@ import { Wish } from '../../../../shared/types/Wish';
 export const Badges = ({ wish }: { wish: Wish }) => {
     const viewer = useViewerStore(state => state.user);
     const isReservedByViewer =
-        wish.reservedBy && wish.reservedBy?.id === viewer?.id;
-    const isHidden = viewer?.id === wish.owner.id && wish.isHidden;
-    const isOwnPresent = wish.owner.id === viewer?.id;
+        wish.reservedBy && wish.reservedBy === viewer?.id;
+    const isHidden = viewer?.id === wish.ownerId && wish.isHidden;
+    const isOwnPresent = wish.ownerId === viewer?.id;
 
     return (
         <div className="inherit">
@@ -105,15 +105,13 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                         <Avatar className="h-10 w-10">
                             <AvatarImage
                                 className="object-cover"
-                                src={
-                                    wish.owner.picture ?? 'avatar_not_found.png'
-                                }
+                                src="avatar_not_found.png"
                                 alt="@shadcn"
                             />
                             <AvatarFallback>Avatar</AvatarFallback>
                         </Avatar>
                         <Typography variant="lead">
-                            {wish.owner.name} {wish.owner.surname}
+                            Placeholder Name : Placeholder Surname
                         </Typography>
                     </div>
                     <div className="flex items-center justify-between">

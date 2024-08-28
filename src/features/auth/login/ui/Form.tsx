@@ -20,12 +20,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { getError } from '../../lib';
+import { getUser } from '../lib/getUser';
 import { login } from '../lib/login';
 
 export const LoginForm = () => {
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
-    const setFullUser = useViewerStore(state => state.setFullUser);
+    const setUser = useViewerStore(state => state.setUser);
 
     const {
         register,
@@ -34,8 +35,9 @@ export const LoginForm = () => {
     } = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: 'mail@mail.com',
-            password: '123Qweasd',
+            username: 'richardpickman32',
+            email: 'drezzerock+32@gmail.com',
+            password: '123,.Qweasd',
         },
     });
 
@@ -60,20 +62,22 @@ export const LoginForm = () => {
         }
     };
 
+    const onSuccessfulLogin = async (accessToken: string) => {
+        const user = await getUser(accessToken);
+
+        localStorage.setItem('accessToken', accessToken);
+
+        setUser(user);
+
+        router.push('/');
+    };
+
     const onSubmit = (result: z.infer<typeof loginSchema>) => {
         setLoading(true);
 
         login(result)
-            .then(user => {
-                setFullUser(user);
-
-                router.push('/');
-            })
-            .catch(err =>
-                Array.isArray(err.message)
-                    ? handleArrayError(err)
-                    : handleMessageError(err),
-            )
+            .then(data => onSuccessfulLogin(data.accessToken))
+            .catch(handleMessageError)
             .finally(() => setLoading(false));
     };
 
@@ -87,6 +91,19 @@ export const LoginForm = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="username">Username</Label>
+                        <Input
+                            placeholder="johndoe"
+                            id="username"
+                            {...register('username')}
+                        />
+                        {errors.username && (
+                            <Label className="text-destructive">
+                                {errors.username?.message}
+                            </Label>
+                        )}
+                    </div>
                     <div className="flex flex-col space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input

@@ -23,7 +23,10 @@ const Home = async ({ params: { id } }: Props) => {
                     <UserAvatar href={user.picture ?? 'avatar_not_found.png'} />
                 }
                 initials={
-                    <UserInitials name={user.name} surname={user.surname} />
+                    <UserInitials
+                        name={user.username}
+                        surname={user.username ?? ''}
+                    />
                 }
                 links={
                     <div className="flex space-x-2">

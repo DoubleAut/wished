@@ -1,9 +1,8 @@
 import { logout } from '@/features/auth/logout/lib';
-import { API_URL } from '@/shared/lib/constants/Config';
 import { redirect } from 'next/navigation';
 import {
     getAccessToken,
-    getAuthorizationHeader,
+    getHeadersWithAuthorizationIfPresent,
     setAccessToken,
 } from './accessToken';
 
@@ -31,12 +30,9 @@ const handleUnauthorized = async () => {
         logOutAndRedirect();
     }
 
-    const response = await fetch(API_URL + '/auth/refresh', {
+    const response = await fetch('/api/rotate', {
         method: 'GET',
         credentials: 'include',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
     });
 
     if (!response.ok) {
@@ -58,12 +54,11 @@ export const post = async <B, R>(
     withBearer: boolean = false,
     retriesLeft = 3,
 ): Promise<R> => {
-    const response = await fetch(`${API_URL}${url}`, {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
+
+    const response = await fetch(url, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
+        headers: headers,
         next: {
             tags,
         },
@@ -99,14 +94,12 @@ export const patch = async <B, R>(
     withBearer: boolean = false,
     retriesLeft: number = 3,
 ): Promise<R> => {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
     const body = JSON.stringify(data);
 
-    const response = await fetch(API_URL + url, {
+    const response = await fetch(url, {
         method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
+        headers: headers,
         next: {
             tags,
         },
@@ -141,12 +134,10 @@ export const remove = async <Body>(
     withBearer: boolean = false,
     retriesLeft = 3,
 ): Promise<Body> => {
-    const response = await fetch(API_URL + url, {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
+    const response = await fetch(url, {
         method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
+        headers: headers,
         next: {
             tags,
         },
@@ -180,12 +171,10 @@ export const get = async <R>(
     withBearer: boolean = false,
     retriesLeft: number = 3,
 ): Promise<R> => {
-    const response = await fetch(API_URL + url, {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
+    const response = await fetch(url, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
+        headers: headers,
     });
 
     if (response.status === 401 && retriesLeft > 0) {

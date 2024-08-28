@@ -34,7 +34,7 @@ export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
     const viewer = useViewerStore(state => state.user);
 
     const visibleWishes = wishes.filter(item => {
-        if (item.owner.id === viewer?.id) {
+        if (item.ownerId === viewer?.id) {
             return true;
         }
 
@@ -42,11 +42,11 @@ export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
             return true;
         }
 
-        if (item.owner.id === viewer?.id && item.reservedBy) {
+        if (item.ownerId === viewer?.id && item.reservedBy) {
             return true;
         }
 
-        if (item.reservedBy && item.reservedBy.id === viewer?.id) {
+        if (item.reservedBy && item.reservedBy === viewer?.id) {
             return true;
         }
 
@@ -61,20 +61,7 @@ export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
             content={
-                isView ? (
-                    <WishContent
-                        wish={wish}
-                        actions={
-                            viewer?.id === wish.owner.id ? (
-                                <PersonalWishActions key={wish.id} />
-                            ) : (
-                                <UserWishActions key={wish.id} />
-                            )
-                        }
-                    />
-                ) : (
-                    <WishForm onCancel={() => {}} />
-                )
+                isView ? <WishContent /> : <WishForm onCancel={() => {}} />
             }
         />
     ));
@@ -88,12 +75,7 @@ export const ReservedWishes = ({ wishes }: { wishes: IWish[] }) => {
             wish={wish}
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
-            content={
-                <WishContent
-                    wish={wish}
-                    actions={<UserWishActions key={wish.id} />}
-                />
-            }
+            content={<WishContent />}
         />
     ));
 };
@@ -106,7 +88,7 @@ export const GiftedWishes = ({ wishes }: { wishes: IWish[] }) => {
             wish={wish}
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
-            content={<WishContent wish={wish} actions={<></>} />}
+            content={<WishContent />}
         />
     ));
 };
@@ -119,16 +101,7 @@ export const ArchivedWishes = ({ wishes }: { wishes: IWish[] }) => {
             wish={wish}
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
-            content={
-                <WishContent
-                    wish={wish}
-                    actions={
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <DeleteWish />
-                        </div>
-                    }
-                />
-            }
+            content={<WishContent />}
         />
     ));
 };

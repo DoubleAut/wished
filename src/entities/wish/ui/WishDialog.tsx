@@ -1,4 +1,6 @@
 import { DialogMode, dialogStore } from '@/features/wish/model/dialogView';
+import { DeleteWish } from '@/features/wish/ui/DeleteWish';
+import { EditWish } from '@/features/wish/ui/EditWish';
 import {
     Dialog,
     DialogContent,
@@ -55,9 +57,15 @@ export const WishDialog = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild={isButtonTrigger}>{trigger}</DialogTrigger>
-            <DialogContent className="h-fit max-h-screen max-w-4xl overflow-auto p-6">
-                <DialogHeader>
-                    <DialogTitle>{store.dialogWish?.title}</DialogTitle>
+            <DialogContent className="max-w-xl overflow-auto p-6">
+                <DialogHeader className="relative flex flex-row items-center justify-between space-y-0">
+                    <DialogTitle className="text-2xl font-bold">
+                        {wish?.title}
+                    </DialogTitle>
+                    <div className="flex space-x-2">
+                        <EditWish />
+                        <DeleteWish />
+                    </div>
                 </DialogHeader>
                 {content}
             </DialogContent>

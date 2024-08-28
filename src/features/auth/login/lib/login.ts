@@ -1,23 +1,19 @@
-import { getOwnFullUser } from '@/entities/user/lib/user';
-import { post } from '@/shared/api/Fetch';
-import { setAccessToken } from '@/shared/api/Fetch/accessToken';
-import { USER_TAG } from '@/shared/lib/constants/FetchTags';
-import { PlainUser } from '../../../../../shared/types/User';
+'use client';
+
+import { authenticateUser } from './authenticateUser';
 
 export interface LoginSchema {
+    username: string;
     email: string;
     password: string;
 }
 
 export const login = async (data: LoginSchema) => {
-    const response = await post<
-        LoginSchema,
-        PlainUser & { accessToken: string }
-    >('/auth/login', [USER_TAG], data, true);
+    const response = await authenticateUser(data);
 
-    setAccessToken(response.accessToken);
+    if (!response.accessToken) {
+        throw new Error('Authentication failed');
+    }
 
-    const user = await getOwnFullUser(response.id);
-
-    return user;
+    return response;
 };

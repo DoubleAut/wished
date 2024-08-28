@@ -4,8 +4,7 @@ export interface RegisterSchema {
     email: string;
     password: string;
     confirmPassword: string;
-    name: string;
-    surname: string;
+    username: string;
 }
 
 export const registerSchema = z
@@ -17,11 +16,8 @@ export const registerSchema = z
         confirmPassword: z.string().min(2, {
             message: 'Confirm password must be atleast 8 characters long',
         }),
-        name: z.string().min(1, {
-            message: 'Name cannot be empty',
-        }),
-        surname: z.string().min(1, {
-            message: 'Surname cannot be empty',
+        username: z.string().min(1, {
+            message: 'Username cannot be empty',
         }),
     })
     .refine(({ password, confirmPassword }) => password === confirmPassword, {

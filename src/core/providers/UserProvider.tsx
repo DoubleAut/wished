@@ -6,8 +6,7 @@ import { isSessionExist } from '@/shared/api/Fetch/tokens';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { HeaderWidget } from '@/widgets/header';
 import { redirect, useRouter } from 'next/navigation';
-import { ReactNode, useCallback, useLayoutEffect, useState } from 'react';
-import { FullUser } from '../../../shared/types/User';
+import { ReactNode, useState } from 'react';
 import { useViewerStore } from './ViewerProvider';
 
 interface Props {
@@ -29,23 +28,9 @@ const revokeSession = async () => {
 };
 
 export function UserProvider({ children }: Props) {
-    const [isLoading, setLoading] = useState(true);
-    const setFullUser = useViewerStore(state => state.setFullUser);
+    const [isLoading, setLoading] = useState(false);
+    const setFullUser = useViewerStore(state => state.setFollowings);
     const router = useRouter();
-
-    const setInitialUser = useCallback(
-        (user: FullUser) => {
-            setFullUser(user);
-        },
-        [setFullUser],
-    );
-
-    useLayoutEffect(() => {
-        revokeSession()
-            .then(user => setInitialUser(user))
-            .catch(() => router.push(`/auth/login`))
-            .finally(() => setLoading(false))
-    }, [router, setInitialUser]);
 
     if (isLoading) {
         return (
@@ -62,8 +47,8 @@ export function UserProvider({ children }: Props) {
                     profile={<Skeleton className="h-10 w-10 rounded-full" />}
                 />
                 <div className="container flex flex-col gap-4">
-                    <Skeleton className="mt-4 h-8 w-24" /> 
-                    <div className="grid grid-cols-3 gap-5 h-full w-full">
+                    <Skeleton className="mt-4 h-8 w-24" />
+                    <div className="grid h-full w-full grid-cols-3 gap-5">
                         <Skeleton className="col-span-1 h-40 w-full" />
                         <Skeleton className="col-span-1 h-40 w-full" />
                         <Skeleton className="col-span-1 h-40 w-full" />

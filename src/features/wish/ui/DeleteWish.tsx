@@ -12,6 +12,7 @@ import {
 } from '@/shared/ui/alert-dialog';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
+import { TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import { Wish } from '../../../../shared/types/Wish';
@@ -55,7 +56,9 @@ export const DeleteWish = () => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">Delete wish</Button>
+                <Button variant="destructive">
+                    <TrashIcon className="h-4 w-4" />
+                </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
