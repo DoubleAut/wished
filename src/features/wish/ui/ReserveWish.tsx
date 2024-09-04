@@ -11,6 +11,7 @@ import { dialogStore } from '../model/dialogView';
 
 export const ReserveWish = () => {
     const dialogWishStore = useStore(dialogStore);
+    const userStore = useViewerStore(state => state.user);
     const dialogWish = dialogWishStore.dialogWish;
     const setDialogWish = dialogWishStore.setDialogWish;
 
@@ -28,6 +29,10 @@ export const ReserveWish = () => {
     }
 
     const onClick = () => {
+        if (!userStore) {
+            return;
+        }
+
         if (dialogWish && viewer) {
             const isReserved = dialogWish.reservedBy;
             const wish = dialogWish as Wish;
@@ -35,9 +40,9 @@ export const ReserveWish = () => {
             if (!isReserved) {
                 const id = wish.id;
 
-                reserveWish(id)
+                reserveWish(id, userStore.id)
                     .then(reservedWish => {
-                        setDialogWish(reservedWish, 'view');
+                        setDialogWish({}, 'view');
 
                         moveWishToViewerReservations(reservedWish);
 
@@ -50,12 +55,14 @@ export const ReserveWish = () => {
                     });
             }
 
-            if (isReserved && dialogWish.reservedBy?.id === viewer.id) {
+            if (isReserved && dialogWish.reservedBy === viewer.id) {
                 const wish = dialogWish as Wish;
                 const id = wish.id;
 
                 cancelReservedWish(id)
-                    .then(reservedWish => {
+                    .then(result => {
+                        const reservedWish = result as Wish;
+
                         setDialogWish(reservedWish, 'view');
 
                         removeWishFromViewerReservations(reservedWish);

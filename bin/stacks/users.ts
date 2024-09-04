@@ -1,7 +1,6 @@
 import {
     CfnOutput,
     Duration,
-    Fn,
     RemovalPolicy,
     Stack,
     StackProps,
@@ -14,7 +13,6 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Function } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import path from 'path';
@@ -27,13 +25,6 @@ const lambdaPath = path.join(rootDir, 'services', 'users');
 export class UsersStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
-
-        const authorizationHandlerArn = Fn.importValue('TokenAuthorizerArn');
-        const authorizationHandler = Function.fromFunctionArn(
-            this,
-            'TokenAuthorizerHandler',
-            authorizationHandlerArn,
-        );
 
         const userPool = new UserPool(this, wishedUserPoolName, {
             userPoolName: wishedUserPoolName,
@@ -58,7 +49,21 @@ export class UsersStack extends Stack {
             accessTokenValidity: Duration.minutes(5),
         });
 
-        const signUpHandler = new NodejsFunction(this, 'SignUpHandler', {
+        const TokenAuthorizerHandler = new NodejsFunction(
+            this,
+            'TokenAuthorizerHandler',
+            {
+                ...commonLambdaProps,
+                environment: {
+                    COGNITO_CLIENT_ID: userClient.userPoolClientId,
+                    COGNITO_USER_POOL_ID: userPool.userPoolId,
+                },
+                functionName: 'TokenAuthorizerHandler',
+                entry: path.join(lambdaPath, 'authorizeRequest.ts'),
+            },
+        );
+
+        const registerHandler = new NodejsFunction(this, 'RegisterHandler', {
             ...commonLambdaProps,
             environment: {
                 COGNITO_REGION: this.region,
@@ -66,26 +71,22 @@ export class UsersStack extends Stack {
                 COGNITO_CLIENT_SECRET:
                     userClient.userPoolClientSecret.unsafeUnwrap(),
             },
-            functionName: 'SignUpHandler',
+            functionName: 'RegisterHandler',
             entry: path.join(lambdaPath, 'register.ts'),
         });
 
-        const authenticationHandler = new NodejsFunction(
-            this,
-            'AuthenticationHandler',
-            {
-                ...commonLambdaProps,
-                environment: {
-                    COGNITO_REGION: this.region,
-                    COGNITO_CLIENT_ID: userClient.userPoolClientId,
-                    COGNITO_CLIENT_SECRET:
-                        userClient.userPoolClientSecret.unsafeUnwrap(),
-                    COGNITO_USER_POOL_ID: userPool.userPoolId,
-                },
-                functionName: 'AuthenticationHandler',
-                entry: path.join(lambdaPath, 'authenticate.ts'),
+        const loginHandler = new NodejsFunction(this, 'LoginHandler', {
+            ...commonLambdaProps,
+            environment: {
+                COGNITO_REGION: this.region,
+                COGNITO_CLIENT_ID: userClient.userPoolClientId,
+                COGNITO_CLIENT_SECRET:
+                    userClient.userPoolClientSecret.unsafeUnwrap(),
+                COGNITO_USER_POOL_ID: userPool.userPoolId,
             },
-        );
+            functionName: 'LoginHandler',
+            entry: path.join(lambdaPath, 'login.ts'),
+        });
 
         const rotateTokensHandler = new NodejsFunction(
             this,
@@ -104,9 +105,9 @@ export class UsersStack extends Stack {
             },
         );
 
-        const confirmSignUpHandler = new NodejsFunction(
+        const confirmRegisterHandler = new NodejsFunction(
             this,
-            'ConfirmSignUpHandler',
+            'ConfirmRegisterHandler',
             {
                 ...commonLambdaProps,
                 environment: {
@@ -115,15 +116,15 @@ export class UsersStack extends Stack {
                     COGNITO_CLIENT_SECRET:
                         userClient.userPoolClientSecret.unsafeUnwrap(),
                 },
-                functionName: 'ConfirmSignUpHandler',
+                functionName: 'ConfirmRegisterHandler',
                 entry: path.join(lambdaPath, 'confirmation.ts'),
             },
         );
 
-        const getUserHandler = new NodejsFunction(this, 'GetUserHandlerTest', {
+        const getUserHandler = new NodejsFunction(this, 'GetUserHandler', {
             ...commonLambdaProps,
             environment: { COGNITO_REGION: this.region },
-            functionName: 'GetUserHandlerTest',
+            functionName: 'GetUserHandler',
             entry: path.join(lambdaPath, 'getUser.ts'),
         });
 
@@ -131,19 +132,20 @@ export class UsersStack extends Stack {
             assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
         });
 
-        authorizationHandler.grantInvoke(integrationRole);
+        TokenAuthorizerHandler.grantInvoke(integrationRole);
 
         const authorizer = new TokenAuthorizer(this, 'TokenAuthorizer', {
-            handler: authorizationHandler,
+            handler: TokenAuthorizerHandler,
             authorizerName: 'TokenAuthorizer',
             assumeRole: integrationRole,
+            resultsCacheTtl: Duration.minutes(0),
         });
 
         const registerPolicy = new PolicyStatement({
             actions: ['cognito-idp:SignUp'],
             resources: [userPool.userPoolArn],
         });
-        signUpHandler.addToRolePolicy(registerPolicy);
+        registerHandler.addToRolePolicy(registerPolicy);
 
         const loginPolicy = new PolicyStatement({
             actions: ['cognito-idp:GetUser'],
@@ -155,13 +157,13 @@ export class UsersStack extends Stack {
             actions: ['cognito-idp:ConfirmSignUp'],
             resources: [userPool.userPoolArn],
         });
-        confirmSignUpHandler.addToRolePolicy(confirmPolicy);
+        confirmRegisterHandler.addToRolePolicy(confirmPolicy);
 
         const authenticationPolicy = new PolicyStatement({
             actions: ['cognito-idp:InitiateAuth'],
             resources: [userPool.userPoolArn],
         });
-        authenticationHandler.addToRolePolicy(authenticationPolicy);
+        loginHandler.addToRolePolicy(authenticationPolicy);
         rotateTokensHandler.addToRolePolicy(authenticationPolicy);
 
         const restApi = new RestApi(this, 'UsersApi', {
@@ -178,9 +180,9 @@ export class UsersStack extends Stack {
             },
         });
 
-        const signUpEndpoint = apiEndpoint.addResource('register');
-        const confirmSignUpEndpoint = apiEndpoint.addResource('confirm');
-        const authenticationEndpoint = apiEndpoint.addResource('auth', {
+        const registerEndpoint = apiEndpoint.addResource('register');
+        const confirmRegisterEndpoint = apiEndpoint.addResource('confirm');
+        const loginEndpoint = apiEndpoint.addResource('login', {
             defaultCorsPreflightOptions: {
                 allowOrigins: ['http://localhost:3000'],
                 allowMethods: Cors.ALL_METHODS,
@@ -195,18 +197,18 @@ export class UsersStack extends Stack {
             },
         });
 
-        signUpEndpoint.addMethod('POST', new LambdaIntegration(signUpHandler));
+        registerEndpoint.addMethod(
+            'POST',
+            new LambdaIntegration(registerHandler),
+        );
         apiEndpoint.addMethod('GET', new LambdaIntegration(getUserHandler), {
             authorizer: authorizer,
         });
-        confirmSignUpEndpoint.addMethod(
+        confirmRegisterEndpoint.addMethod(
             'POST',
-            new LambdaIntegration(confirmSignUpHandler),
+            new LambdaIntegration(confirmRegisterHandler),
         );
-        authenticationEndpoint.addMethod(
-            'POST',
-            new LambdaIntegration(authenticationHandler),
-        );
+        loginEndpoint.addMethod('POST', new LambdaIntegration(loginHandler));
         rotateTokensEndpoint.addMethod(
             'POST',
             new LambdaIntegration(rotateTokensHandler),

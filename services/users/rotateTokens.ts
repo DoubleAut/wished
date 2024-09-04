@@ -27,52 +27,75 @@ const client = new CognitoIdentityProviderClient({
     region: COGNITO_REGION,
 });
 
+const getCookieFromHeadersOrNull = (headers: string, cookieName: string) => {
+    const arr = headers.split('; ');
+
+    console.log('Array of cookies values: ', arr);
+
+    const cookie = arr.find(cookie => cookie.includes(cookieName + '='));
+
+    console.log('Found cookie: ', cookie);
+
+    if (!cookie) {
+        return null;
+    }
+
+    const value = cookie.split('=')[1]!;
+
+    return decodeURIComponent(value).trim();
+};
+
 export const handler = async (event: APIGatewayProxyEvent) => {
-    if (!event.body) {
-        return getErrorResponse(
-            400,
-            'No body provided. Please provide a valid body.',
-        );
+    const cookieString = event.headers['Cookie'];
+
+    console.log('Event: ', event);
+
+    if (!cookieString) {
+        const err = getErrorResponse(400, 'No cookies found.');
+        return {
+            ...err,
+            headers: {
+                ...err.headers,
+                'Access-Control-Allow-Credentials': true,
+            },
+        };
     }
 
-    const body = JSON.parse(event.body) as { username: string };
-
-    const headers = event.multiValueHeaders['Set-Cookie'] as string[];
-
-    const refreshToken = headers.find(cookie =>
-        cookie.includes('refreshToken='),
+    const refreshToken = getCookieFromHeadersOrNull(
+        cookieString,
+        'refreshToken',
     );
+    const username = getCookieFromHeadersOrNull(cookieString, 'username');
 
-    if (!refreshToken) {
-        console.error('No refresh token found');
-
-        return getErrorResponse(
-            401,
-            'No refresh token found. Please try again.',
+    if (!refreshToken || !username) {
+        console.log(
+            'No refresh token or username found. Results: ',
+            refreshToken,
+            username,
         );
+
+        const err = getErrorResponse(
+            400,
+            'No refresh token or username found.',
+        );
+        return {
+            ...err,
+            headers: {
+                ...err.headers,
+                'Access-Control-Allow-Credentials': true,
+            },
+        };
     }
 
-    const refreshTokenValue = refreshToken.split('=')[1]!;
-
-    if (!refreshTokenValue) {
-        console.error('RefreshTokenValue is not set');
-
-        return getErrorResponse(
-            401,
-            'No refresh token value found. Please try again.',
-        );
-    }
-
-    console.log('Refresh token: ', refreshToken);
-    console.log('Refresh token value: ', refreshTokenValue);
+    console.log('Executing command with values: ', refreshToken, username);
 
     const initAuthCommand = new InitiateAuthCommand({
-        AuthFlow: 'REFRESH_TOKEN',
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
         ClientId: process.env.COGNITO_CLIENT_ID,
         AuthParameters: {
-            REFRESH_TOKEN: refreshTokenValue,
-            SecretHash: getSecretHash(
-                body.username,
+            REFRESH_TOKEN: refreshToken,
+            SECRET_HASH: getSecretHash(
+                username,
                 COGNITO_CLIENT_SECRET,
                 COGNITO_CLIENT_ID,
             ),
@@ -84,15 +107,20 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const statusCode = response.$metadata.httpStatusCode;
         const authResult = response.AuthenticationResult;
 
-        if (
-            !authResult ||
-            !authResult.AccessToken ||
-            !authResult.RefreshToken
-        ) {
-            return getErrorResponse(
+        console.log('Response: ', response);
+
+        if (!authResult || !authResult.AccessToken) {
+            const err = getErrorResponse(
                 401,
                 'Authentication failed. No tokens present.',
             );
+            return {
+                ...err,
+                headers: {
+                    ...err.headers,
+                    'Access-Control-Allow-Credentials': true,
+                },
+            };
         }
 
         return {
@@ -102,7 +130,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
                 'Access-Control-Allow-Methods': 'POST',
                 'Access-Control-Allow-Credentials': true,
                 'Content-Type': 'application/json',
-                'Set-Cookie': `refreshToken=${authResult.RefreshToken};SameSite=Lax;Secure;HttpOnly;`,
             },
             body: JSON.stringify({
                 accessToken: authResult.AccessToken,
@@ -116,14 +143,31 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const code = err.$metadata.httpStatusCode || 500;
 
         if (error instanceof UserNotConfirmedException) {
-            return getErrorResponse(
+            const err = getErrorResponse(
                 code,
                 'User not confirmed. Please try again.',
             );
+            return {
+                ...err,
+                headers: {
+                    ...err.headers,
+                    'Access-Control-Allow-Credentials': true,
+                },
+            };
         }
 
         if (error instanceof UserNotFoundException) {
-            return getErrorResponse(code, 'User not found. Please try again.');
+            const err = getErrorResponse(
+                code,
+                'User not found. Please try again.',
+            );
+            return {
+                ...err,
+                headers: {
+                    ...err.headers,
+                    'Access-Control-Allow-Credentials': true,
+                },
+            };
         }
 
         return getErrorResponse(

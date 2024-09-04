@@ -30,7 +30,7 @@ export const DeleteWish = () => {
             return;
         }
 
-        const wishId = dialogWish.id as number;
+        const wishId = dialogWish.id as string;
 
         setOpen(false);
 

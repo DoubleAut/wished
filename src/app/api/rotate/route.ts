@@ -4,26 +4,23 @@ import { cookies } from 'next/headers';
 const handler = async () => {
     const cookiesStore = cookies();
 
+    const refreshToken = cookiesStore.get('refreshToken');
     const username = cookiesStore.get('username');
 
-    if (!username) {
-        return new Response(JSON.stringify({ message: 'No username found' }), {
+    if (!refreshToken || !username) {
+        return new Response(JSON.stringify({ message: 'No cookies found' }), {
             status: 400,
         });
     }
 
-    if (!username) {
-        return new Response(
-            JSON.stringify({ message: 'No credentials provided' }),
-            { status: 400 },
-        );
-    }
-
     const response = await fetch(USERS_ENDPOINT + '/rotate', {
         method: 'POST',
-        credentials: 'include',
-        body: JSON.stringify({ username }),
+        headers: {
+            Cookie: cookiesStore.toString(),
+        },
     });
+
+    console.log('Response: ', response);
 
     if (response.status !== 200) {
         const err = (await response.json()) as { message: string };

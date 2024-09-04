@@ -16,9 +16,8 @@ const handler = async (req: NextRequest) => {
         );
     }
 
-    const response = await fetch(USERS_ENDPOINT + '/auth', {
+    const response = await fetch(USERS_ENDPOINT + '/login', {
         method: 'POST',
-        credentials: 'include',
         body: JSON.stringify(body),
     });
 
@@ -58,7 +57,7 @@ const handler = async (req: NextRequest) => {
     expires.setDate(expires.getDate() + 30);
 
     cookiesStore.set('refreshToken', refreshTokenValue, {
-        path: '/auth/login',
+        path: '/',
         sameSite: 'lax',
         secure: true,
         httpOnly: true,

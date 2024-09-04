@@ -33,6 +33,7 @@ export const CompleteWish = () => {
         }
 
         const wish = dialogWish as Wish;
+
         setOpen(false);
 
         updateWish({ isCompleted: true }, wish.id)

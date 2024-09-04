@@ -12,11 +12,5 @@ export const authenticateUser = async (data: AuthenticateUserSchema) => {
         { accessToken: string }
     >('/api/authorize', [], data, true);
 
-    // const response = await fetch('/api/authorize', {
-    //     method: 'POST',
-    //     credentials: 'include',
-    //     body: JSON.stringify(data),
-    // });
-
     return response;
 };

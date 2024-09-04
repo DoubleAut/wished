@@ -41,17 +41,7 @@ export const LoginForm = () => {
         },
     });
 
-    const handleArrayError = (err: any) => {
-        for (let message of err.message) {
-            const error = getError(message) as 'email' | 'password' | null;
-
-            if (error) {
-                form.setError(error, { message });
-            }
-        }
-    };
-
-    const handleMessageError = (err: any) => {
+    const onFailure = (err: any) => {
         const message = err.message;
         const error = getError(message) as 'email' | 'password' | null;
 
@@ -62,8 +52,10 @@ export const LoginForm = () => {
         }
     };
 
-    const onSuccessfulLogin = async (accessToken: string) => {
+    const onSuccess = async (accessToken: string) => {
         const user = await getUser(accessToken);
+
+        console.log('Log in successfuly. User: ', user);
 
         localStorage.setItem('accessToken', accessToken);
 
@@ -76,8 +68,8 @@ export const LoginForm = () => {
         setLoading(true);
 
         login(result)
-            .then(data => onSuccessfulLogin(data.accessToken))
-            .catch(handleMessageError)
+            .then(data => onSuccess(data.accessToken))
+            .catch(onFailure)
             .finally(() => setLoading(false));
     };
 

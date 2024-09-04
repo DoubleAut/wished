@@ -16,13 +16,17 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     const accessToken = event.headers['Authorization'] as string;
 
-    console.log('Access token: ', accessToken);
+    if (!accessToken) {
+        return getErrorResponse(401, 'No access token provided');
+    }
 
     const splitted = accessToken.split(' ') as [string, string];
 
     const [_key, value] = splitted;
 
-    console.log('Value: ', value);
+    if (!value) {
+        return getErrorResponse(401, 'No access token provided');
+    }
 
     try {
         const client = new CognitoIdentityProviderClient({
@@ -51,6 +55,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             body: JSON.stringify(userData),
         };
     } catch (error) {
+        console.log('Command execution failed. Error: ', error);
+
         if (error instanceof ForbiddenException) {
             return getErrorResponse(403, 'Access token is invalid');
         }

@@ -1,7 +1,4 @@
-import {
-    appendHeadersWithJsonContentType,
-    getAuthorizedHeaders,
-} from '@/shared/api/Fetch/headers';
+import { patch, post, remove } from '@/shared/api/Fetch';
 import { z } from 'zod';
 import { Wish } from '../../../../shared/types/Wish';
 import { WISHES_ENDPOINT } from './api';
@@ -42,93 +39,52 @@ export const createWish = async (
     data: z.infer<typeof wishSchema>,
     userId: string,
 ) => {
-    const headers = getAuthorizedHeaders();
-    const response = await fetch(WISHES_ENDPOINT, {
-        method: 'POST',
-        headers: appendHeadersWithJsonContentType(headers),
-        body: JSON.stringify({
+    const wish = await post<{}, Wish>(
+        WISHES_ENDPOINT + '/wishes',
+        [],
+        {
             ...data,
             ownerId: userId,
-        }),
-    });
-
-    if (!response.ok) {
-        const error = (await response.json()) as { message: string };
-
-        throw new Error(error.message);
-    }
-
-    const wish = (await response.json()) as Wish;
+        },
+        true,
+    );
 
     return wish;
 };
 
 export const updateWish = async (
     wish: Partial<z.infer<typeof wishSchema>> & { isCompleted?: boolean },
-    id: string,
+    wishId: string,
 ) => {
-    const headers = getAuthorizedHeaders();
-    const response = await fetch(`${WISHES_ENDPOINT}/${id}`, {
-        method: 'PATCH',
-        headers: appendHeadersWithJsonContentType(headers),
-        body: JSON.stringify(wish),
-    });
+    const updatedWish = await patch(WISHES_ENDPOINT + wishId, [], wish, true);
 
-    if (!response.ok) {
-        throw new Error('');
-    }
-
-    const result = (await response.json()) as Wish;
-
-    return result;
+    return updatedWish as Wish;
 };
 
-export const deleteWish = async (id: number) => {
-    const headers = getAuthorizedHeaders();
-    const response = await fetch(`${WISHES_ENDPOINT}/${id}`, {
-        method: 'DELETE',
-        headers: appendHeadersWithJsonContentType(headers),
-    });
+export const deleteWish = async (id: string) => {
+    const response = await remove(WISHES_ENDPOINT + id, [], true);
 
-    if (!response.ok) {
-        throw new Error('');
-    }
-
-    const result = await response.json();
-
-    return result;
+    return response;
 };
 
-export const reserveWish = async (id: number, reserverId: number) => {
-    const headers = getAuthorizedHeaders();
-    const response = await fetch(`${WISHES_ENDPOINT}/${id}`, {
-        method: 'PUT',
-        headers: appendHeadersWithJsonContentType(headers),
-        body: JSON.stringify({ isReserved: true, reservedBy: reserverId }),
-    });
+export const reserveWish = async (id: string, reserverId: string) => {
+    const wish = await patch(
+        WISHES_ENDPOINT + id,
+        [],
+        { reservedBy: reserverId },
+        true,
+    );
 
-    if (!response.ok) {
-        throw new Error('');
-    }
-
-    const result = (await response.json()) as Wish;
-
-    return result;
+    return wish as Wish;
 };
 
-export const cancelReservedWish = async (id: number) => {
-    const headers = getAuthorizedHeaders();
-    const response = await fetch(`${WISHES_ENDPOINT}/${id}`, {
-        method: 'PUT',
-        headers: appendHeadersWithJsonContentType(headers),
-        body: JSON.stringify({ isReserved: true, reservedBy: null }),
-    });
+export const cancelReservedWish = async (id: string) => {
+    const wish = await patch(
+        WISHES_ENDPOINT + id,
+        [],
+        { reservedBy: null },
+        true,
+    );
 
-    if (!response.ok) {
-        throw new Error('');
-    }
-
-    const result = (await response.json()) as Wish;
-
-    return result;
+    return wish;
 };
