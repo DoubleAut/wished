@@ -2,6 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Wish } from '../../shared/types/Wish';
+import { getErrorResponse } from '../errors';
 import { getTypesafeBodyOrNull } from '../helpers';
 
 const client = new DynamoDBClient();
@@ -15,15 +16,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     const body = getTypesafeBodyOrNull<Partial<Wish>>(event.body);
 
     if (!body) {
-        return {
-            statusCode: 400,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-            },
-            body: JSON.stringify({ message: 'Body is empty' }),
-        };
+        return getErrorResponse(400, NO_BODY_ERROR);
     }
 
     const updateCommand = new PutCommand({
@@ -49,16 +42,9 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         };
     } catch (err: unknown) {
         const error = err as { message: string };
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-            },
-            body: JSON.stringify({
-                message: error.message,
-            }),
-        };
+        return getErrorResponse(
+            500,
+            'Internal server error. Please contact support',
+        );
     }
 };

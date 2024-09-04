@@ -3,6 +3,7 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { MISSING_FIELDS } from '../../shared/errors/messages';
+import { getErrorResponse } from '../errors';
 
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
@@ -14,16 +15,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     const ownerId = event.pathParameters?.ownerId;
 
     if (!ownerId) {
-        return {
-            statusCode: 400,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: MISSING_FIELDS,
-                fields: ['ownerId'],
-            }),
-        };
+        return getErrorResponse(400, MISSING_FIELDS);
     }
 
     const queryCommand = new QueryCommand({
@@ -37,15 +29,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const response = await docClient.send(queryCommand);
 
         if (!response.Items) {
-            return {
-                statusCode: 404,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'POST',
-                },
-                body: JSON.stringify({ message: 'Wishes not found' }),
-            };
+            return getErrorResponse(404, 'Wishes not found');
         }
 
         const wishes = response.Items.map(item => unmarshall(item));
@@ -61,16 +45,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         };
     } catch (err: unknown) {
         const error = err as { message: string };
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-            },
-            body: JSON.stringify({
-                message: error.message,
-            }),
-        };
+        return getErrorResponse(500, error.message);
     }
 };

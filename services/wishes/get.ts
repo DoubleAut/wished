@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { getErrorResponse } from '../errors';
 
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
@@ -22,15 +23,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const response = await docClient.send(getCommand);
 
         if (!response.Item) {
-            return {
-                statusCode: 404,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'POST',
-                },
-                body: JSON.stringify({ message: 'Product not found' }),
-            };
+            return getErrorResponse(404, 'Wish not found');
         }
 
         return {
@@ -44,16 +37,9 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         };
     } catch (err: unknown) {
         const error = err as { message: string };
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-            },
-            body: JSON.stringify({
-                message: error.message,
-            }),
-        };
+        return getErrorResponse(
+            500,
+            'Internal server error. Please contact support',
+        );
     }
 };
