@@ -1,7 +1,4 @@
-import { logout } from '@/features/auth/logout/lib';
-import { redirect } from 'next/navigation';
 import {
-    getAccessToken,
     getHeadersWithAuthorizationIfPresent,
     setAccessToken,
 } from './accessToken';
@@ -11,36 +8,24 @@ function wait(delay: number) {
 }
 
 export const rotateTokens = async () => {
-    const response = (await handleUnauthorized()) as { id: number };
+    const response = await handleUnauthorized();
 
-    return response;
-};
-
-const logOutAndRedirect = () => {
-    logout();
-
-    redirect('/auth/login');
+    return response as { accessToken: string };
 };
 
 const handleUnauthorized = async () => {
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-        console.log('No access token');
-        logOutAndRedirect();
-    }
-
     const response = await fetch('/api/rotate', {
-        method: 'GET',
+        method: 'POST',
         credentials: 'include',
     });
 
     if (!response.ok) {
-        console.log('response is not ok');
-        logOutAndRedirect();
+        console.log('Token rotation failed. Response: ', response);
+
+        return null;
     }
 
-    const data = (await response.json()) as { accessToken: string; id: number };
+    const data = (await response.json()) as { accessToken: string };
 
     setAccessToken(data.accessToken);
 
@@ -59,9 +44,7 @@ export const post = async <B, R>(
     const response = await fetch(url, {
         method: 'POST',
         headers: headers,
-        next: {
-            tags,
-        },
+        next: { tags },
         credentials: withBearer ? 'include' : 'omit',
         body: JSON.stringify(data),
     });
