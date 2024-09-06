@@ -10,10 +10,10 @@ const docClient = DynamoDBDocumentClient.from(client);
 const WISHES_TABLE_NAME = process.env.WISHES_TABLE_NAME || '';
 
 export const handler = async (event: APIGatewayProxyEvent) => {
-    console.log('Creating product with provided data: ', event.body);
-    const ownerId = event.pathParameters?.ownerId;
+    const reservedBy = event.pathParameters?.reservedBy;
+    console.log('Getting reservations with provided id: ', reservedBy);
 
-    if (!ownerId) {
+    if (!reservedBy) {
         return {
             statusCode: 400,
             headers: {
@@ -30,9 +30,9 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     const queryCommand = new QueryCommand({
         TableName: WISHES_TABLE_NAME,
-        IndexName: 'ownerId',
-        KeyConditionExpression: 'ownerId = :ownerId',
-        ExpressionAttributeValues: marshall({ ':ownerId': ownerId }),
+        IndexName: 'reservedBy',
+        KeyConditionExpression: 'reservedBy = :reservedBy',
+        ExpressionAttributeValues: marshall({ ':reservedBy': reservedBy }),
     });
 
     try {

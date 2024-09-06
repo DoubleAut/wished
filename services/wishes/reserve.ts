@@ -2,7 +2,6 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Wish } from '../../shared/types/Wish';
-import { getErrorResponse } from '../errors';
 import { getTypesafeBodyOrNull } from '../helpers';
 
 const client = new DynamoDBClient();
@@ -16,7 +15,18 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     const body = getTypesafeBodyOrNull<Partial<Wish>>(event.body);
 
     if (!body) {
-        return getErrorResponse(400, NO_BODY_ERROR);
+        return {
+            statusCode: 400,
+            headers: {
+                'Access-Control-Allow-Origin': 'http://localhost:3000',
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Methods': '*',
+                'Access-Control-Allow-Headers': '*',
+            },
+            body: JSON.stringify({
+                message: 'No body provided',
+            }),
+        };
     }
 
     const updateCommand = new PutCommand({
@@ -34,9 +44,10 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         return {
             statusCode: 200,
             headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
+                'Access-Control-Allow-Origin': 'http://localhost:3000',
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Methods': '*',
+                'Access-Control-Allow-Headers': '*',
             },
             body: JSON.stringify({ message: 'Product successfully created' }),
         };
@@ -44,11 +55,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const error = err as { message: string };
         return {
             statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-            },
             body: JSON.stringify({
                 message: error.message,
             }),
