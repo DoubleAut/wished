@@ -128,6 +128,20 @@ export class UsersStack extends Stack {
             entry: path.join(lambdaPath, 'getUser.ts'),
         });
 
+        const getPublicUserHandler = new NodejsFunction(
+            this,
+            'GetPublicUserHandler',
+            {
+                ...commonLambdaProps,
+                environment: {
+                    COGNITO_REGION: this.region,
+                    COGNITO_USER_POOL_ID: userPool.userPoolId,
+                },
+                functionName: 'GetPublicUserHandler',
+                entry: path.join(lambdaPath, 'getPublicUser.ts'),
+            },
+        );
+
         const integrationRole = new Role(this, 'authExecutionRole', {
             assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
         });
@@ -152,6 +166,12 @@ export class UsersStack extends Stack {
             resources: [userPool.userPoolArn],
         });
         getUserHandler.addToRolePolicy(loginPolicy);
+
+        const adminGetUserPolicy = new PolicyStatement({
+            actions: ['cognito-idp:AdminGetUser'],
+            resources: [userPool.userPoolArn],
+        });
+        getPublicUserHandler.addToRolePolicy(adminGetUserPolicy);
 
         const confirmPolicy = new PolicyStatement({
             actions: ['cognito-idp:ConfirmSignUp'],
@@ -196,6 +216,7 @@ export class UsersStack extends Stack {
                 allowCredentials: true,
             },
         });
+        const getPublicUserEndpoint = apiEndpoint.addResource('{username}');
 
         registerEndpoint.addMethod(
             'POST',
@@ -212,6 +233,10 @@ export class UsersStack extends Stack {
         rotateTokensEndpoint.addMethod(
             'POST',
             new LambdaIntegration(rotateTokensHandler),
+        );
+        getPublicUserEndpoint.addMethod(
+            'GET',
+            new LambdaIntegration(getPublicUserHandler),
         );
 
         new CfnOutput(this, 'ApiEndpoint', {
@@ -232,6 +257,11 @@ export class UsersStack extends Stack {
         new CfnOutput(this, 'UserPoolClientSecret', {
             value: userClient.userPoolClientSecret.unsafeUnwrap(),
             exportName: 'UserPoolClientSecret',
+        });
+
+        new CfnOutput(this, 'TokenAuthorizerHandlerArn', {
+            value: TokenAuthorizerHandler.functionArn,
+            exportName: 'TokenAuthorizerHandlerArn',
         });
     }
 }

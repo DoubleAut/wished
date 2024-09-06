@@ -1,7 +1,7 @@
 import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
-import { AccountPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -26,6 +26,18 @@ export class WishesStack extends Stack {
             indexName: 'ownerId',
             partitionKey: {
                 name: 'ownerId',
+                type: AttributeType.STRING,
+            },
+            sortKey: {
+                name: 'id',
+                type: AttributeType.STRING,
+            },
+        });
+
+        wishesTable.addGlobalSecondaryIndex({
+            indexName: 'reservedBy',
+            partitionKey: {
+                name: 'reservedBy',
                 type: AttributeType.STRING,
             },
             sortKey: {
@@ -78,6 +90,17 @@ export class WishesStack extends Stack {
             },
         );
 
+        const getReservationsHandler = new NodejsFunction(
+            this,
+            'GetReservationsHandler',
+            {
+                ...commonLambdaProps,
+                functionName: 'ReservationsHandler',
+                entry: path.join(lambdaPath, 'getReservations.ts'),
+                environment,
+            },
+        );
+
         const updateWishHandler = new NodejsFunction(
             this,
             'UpdateWishHandler',
@@ -89,8 +112,6 @@ export class WishesStack extends Stack {
             },
         );
 
-        const principal = new AccountPrincipal(this.account);
-
         // Get wish permissions
         const getWishPolicy = new PolicyStatement({
             actions: ['dynamodb:GetItem'],
@@ -99,19 +120,21 @@ export class WishesStack extends Stack {
         getWishHandler.addToRolePolicy(getWishPolicy);
 
         // List wishes permissions
-        const listWishesPolicy = new PolicyStatement({
+        const queryPolicy = new PolicyStatement({
             effect: Effect.ALLOW,
             actions: ['dynamodb:Query'],
             resources: [
                 wishesTable.tableArn,
                 `${wishesTable.tableArn}/index/ownerId`,
+                `${wishesTable.tableArn}/index/reservedBy`,
             ],
         });
-        getListedWishHandler.addToRolePolicy(listWishesPolicy);
+        getListedWishHandler.addToRolePolicy(queryPolicy);
+        getReservationsHandler.addToRolePolicy(queryPolicy);
 
         // PUT permissions
         const putWishPolicy = new PolicyStatement({
-            actions: ['dynamodb:PutItem'],
+            actions: ['dynamodb:PutItem', 'dynamodb:UpdateItem'],
             resources: [wishesTable.tableArn],
         });
         createWishHandler.addToRolePolicy(putWishPolicy);
@@ -127,35 +150,49 @@ export class WishesStack extends Stack {
         const api = new RestApi(this, 'WishesApi', {
             restApiName: 'WishesApi',
             description: 'Wishes API',
+        });
+
+        const rootEndpoint = api.root.addResource('wishes', {
             defaultCorsPreflightOptions: {
-                allowOrigins: [
-                    'http://localhost:3000',
-                    'https://www.wished.richardpickman.space',
-                ],
+                allowOrigins: ['http://localhost:3000'],
+                allowCredentials: true,
+                allowMethods: Cors.ALL_METHODS,
+            },
+        });
+        const wishEndpoint = rootEndpoint.addResource('{id}', {
+            defaultCorsPreflightOptions: {
+                allowOrigins: ['http://localhost:3000'],
+                allowCredentials: true,
                 allowMethods: Cors.ALL_METHODS,
             },
         });
 
-        const apiEndpoint = api.root.addResource('wishes');
-        const getSingleWishEndpoint = apiEndpoint.addResource('{id}');
+        const listWishesEndpoint = rootEndpoint.addResource('list');
+        const reservationsEndpoint = rootEndpoint.addResource('reservations');
 
-        const listWishesEndpoint = apiEndpoint.addResource('list');
         const listWishesByOwnerEndpoint =
             listWishesEndpoint.addResource('{ownerId}');
 
-        const deleteWishEndpoint = apiEndpoint.addResource('{wishId}');
+        const reservationsByOwnerEndpoint =
+            reservationsEndpoint.addResource('{reservedBy}');
 
-        getSingleWishEndpoint.addMethod(
+        reservationsByOwnerEndpoint.addMethod(
             'GET',
-            new LambdaIntegration(getWishHandler),
+            new LambdaIntegration(getReservationsHandler),
         );
         listWishesByOwnerEndpoint.addMethod(
             'GET',
             new LambdaIntegration(getListedWishHandler),
         );
-        apiEndpoint.addMethod('POST', new LambdaIntegration(createWishHandler));
-        apiEndpoint.addMethod('PUT', new LambdaIntegration(updateWishHandler));
-        deleteWishEndpoint.addMethod(
+
+        rootEndpoint.addMethod(
+            'POST',
+            new LambdaIntegration(createWishHandler),
+        );
+
+        wishEndpoint.addMethod('GET', new LambdaIntegration(getWishHandler));
+        wishEndpoint.addMethod('PUT', new LambdaIntegration(updateWishHandler));
+        wishEndpoint.addMethod(
             'DELETE',
             new LambdaIntegration(deleteWishHandler),
         );
