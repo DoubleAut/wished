@@ -8,7 +8,7 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { UserWidget } from '@/widgets/user/ui';
 import Link from 'next/link';
 
-export default function Home() {
+export default function Home({}: { params: { username: string } }) {
     const user = useViewerStore(state => state.user);
     const followers = useViewerStore(state => state.followers);
     const followings = useViewerStore(state => state.followings);
@@ -31,7 +31,11 @@ export default function Home() {
             <UserWidget
                 avatar={<UserAvatar href={user.picture} />}
                 initials={
-                    <UserInitials name={user.name} surname={user.surname} />
+                    <UserInitials
+                        username={username}
+                        name={user.name}
+                        surname={user.surname}
+                    />
                 }
                 links={
                     <div className="flex space-x-2">
