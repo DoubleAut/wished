@@ -42,7 +42,7 @@ const getCookieFromHeadersOrNull = (headers: string, cookieName: string) => {
 
     const value = cookie.split('=')[1]!;
 
-    return decodeURIComponent(value).trim();
+    return decodeURIComponent(value).replace(';SameSite', '');
 };
 
 export const handler = async (event: APIGatewayProxyEvent) => {
@@ -78,6 +78,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             400,
             'No refresh token or username found.',
         );
+
         return {
             ...err,
             headers: {
@@ -90,8 +91,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     console.log('Executing command with values: ', refreshToken, username);
 
     const initAuthCommand = new InitiateAuthCommand({
-        AuthFlow: 'REFRESH_TOKEN_AUTH',
-        ClientId: process.env.COGNITO_CLIENT_ID,
+        AuthFlow: 'REFRESH_TOKEN',
+        ClientId: COGNITO_CLIENT_ID,
         AuthParameters: {
             REFRESH_TOKEN: refreshToken,
             SECRET_HASH: getSecretHash(
