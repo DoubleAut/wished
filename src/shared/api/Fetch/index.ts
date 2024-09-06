@@ -20,9 +20,9 @@ const handleUnauthorized = async () => {
     });
 
     if (!response.ok) {
-        console.log('Token rotation failed. Response: ', response);
+        const err = (await response.json()) as { message: string };
 
-        return null;
+        throw new Error(err.message);
     }
 
     const data = (await response.json()) as { accessToken: string };
@@ -81,7 +81,7 @@ export const patch = async <B, R>(
     const body = JSON.stringify(data);
 
     const response = await fetch(url, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: headers,
         next: {
             tags,

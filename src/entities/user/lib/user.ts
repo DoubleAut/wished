@@ -1,8 +1,7 @@
-import { getOwnWishes } from '@/entities/wish/lib';
+import { USERS_ENDPOINT } from '@/features/auth/login/lib/api';
 import { get } from '@/shared/api/Fetch';
 import '@total-typescript/ts-reset';
-import { FullUser, UserWithFriends } from '../../../../shared/types/User';
-import { getUserWithFriends } from './friends';
+import { FullUser, PlainUser } from '../../../../shared/types/User';
 
 export const getUsers = async () => {
     const response = await get<FullUser[]>('/users', ['users']);
@@ -10,22 +9,15 @@ export const getUsers = async () => {
     return response;
 };
 
-export const getUser = async (id: number) => {
-    const response = await get<UserWithFriends>(`/users/${id}/friends`, [
+type GetUserResponse = { message: string; user: PlainUser };
+
+export const getUser = async (id: string) => {
+    const response = await get<GetUserResponse>(`${USERS_ENDPOINT}/${id}`, [
         'user',
         'friends',
     ]);
 
-    return response;
-};
+    console.log('Response: ', response);
 
-export const getOwnFullUser = async (id: number) => {
-    const user = await getUserWithFriends(id);
-    const wishes = await getOwnWishes(id);
-
-    return {
-        ...user,
-        ...wishes,
-        categories: [],
-    };
+    return response.user;
 };

@@ -35,12 +35,14 @@ export const getError = (message: string) => {
     return null;
 };
 
+type WishResponse = { message: string; wish: Wish };
+
 export const createWish = async (
     data: z.infer<typeof wishSchema>,
     userId: string,
 ) => {
-    const wish = await post<{}, Wish>(
-        WISHES_ENDPOINT + '/wishes',
+    const response = await post<{}, WishResponse>(
+        WISHES_ENDPOINT,
         [],
         {
             ...data,
@@ -49,42 +51,47 @@ export const createWish = async (
         true,
     );
 
-    return wish;
+    return response.wish;
 };
 
 export const updateWish = async (
     wish: Partial<z.infer<typeof wishSchema>> & { isCompleted?: boolean },
     wishId: string,
 ) => {
-    const updatedWish = await patch(WISHES_ENDPOINT + wishId, [], wish, true);
+    const response = await patch<{}, WishResponse>(
+        `${WISHES_ENDPOINT}/${wishId}`,
+        [],
+        wish,
+        true,
+    );
 
-    return updatedWish as Wish;
+    return response.wish;
 };
 
 export const deleteWish = async (id: string) => {
-    const response = await remove(WISHES_ENDPOINT + id, [], true);
+    const response = await remove(`${WISHES_ENDPOINT}/${id}`, [], true);
 
     return response;
 };
 
 export const reserveWish = async (id: string, reserverId: string) => {
-    const wish = await patch(
-        WISHES_ENDPOINT + id,
+    const response = await patch<{}, WishResponse>(
+        `${WISHES_ENDPOINT}/${id}`,
         [],
         { reservedBy: reserverId },
         true,
     );
 
-    return wish as Wish;
+    return response.wish;
 };
 
 export const cancelReservedWish = async (id: string) => {
-    const wish = await patch(
-        WISHES_ENDPOINT + id,
+    const response = await patch<{}, WishResponse>(
+        `${WISHES_ENDPOINT}/${id}`,
         [],
-        { reservedBy: null },
+        { reservedBy: 'None' },
         true,
     );
 
-    return wish;
+    return response.wish;
 };

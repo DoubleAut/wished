@@ -5,6 +5,7 @@ import { FriendsSlice } from '../../user/model/friendsStore';
 import { UserInformationSlice } from '../../user/model/user';
 
 export interface WishesSlice {
+    isLoading: boolean;
     wishes: Wish[];
     reservations: Wish[];
     gifted: Wish[];
@@ -17,8 +18,6 @@ export interface WishesSlice {
     cancelReservation: (wish: Wish) => void;
     setWishes: (wishes: Wish[]) => void;
     setReservations: (wishes: Wish[]) => void;
-    setGifted: (wishes: Wish[]) => void;
-    setCompleted: (wishes: Wish[]) => void;
 }
 
 export const createWishesSlice: StateCreator<
@@ -27,22 +26,25 @@ export const createWishesSlice: StateCreator<
     [],
     WishesSlice
 > = (set, get) => ({
+    isLoading: false,
     wishes: [],
     reservations: [],
     gifted: [],
     completed: [],
     categories: [],
-    setWishes: wishes => {
-        set({ wishes });
+    setWishes: data => {
+        const wishes = data.filter(wish => !Boolean(wish.isCompleted));
+
+        const completed = data.filter(wish => Boolean(wish.isCompleted));
+
+        set({ wishes, completed });
     },
-    setReservations: reservations => {
-        set({ reservations });
-    },
-    setGifted: gifted => {
-        set({ gifted });
-    },
-    setCompleted: completed => {
-        set({ completed });
+    setReservations: data => {
+        const reservations = data.filter(wish => !Boolean(wish.isCompleted));
+
+        const gifted = data.filter(wish => Boolean(wish.isCompleted));
+
+        set({ reservations, gifted });
     },
     addWish: wish => {
         const state = get();

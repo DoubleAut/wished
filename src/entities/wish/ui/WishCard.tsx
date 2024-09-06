@@ -69,8 +69,6 @@ const MotionImage = motion(Image);
 
 export const WishCard = ({ wish }: { wish: Wish }) => {
     const [isHover, setHover] = useState(false);
-    const date = new Date(wish.created_at);
-    const splitted = [date.getDay(), date.getMonth(), date.getFullYear()];
 
     return (
         <Ratio
@@ -130,9 +128,6 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                         className="truncate text-left"
                     >
                         {wish.description}
-                    </Typography>
-                    <Typography variant="small" className="w-fit text-end">
-                        {splitted.join('.')}
                     </Typography>
                 </div>
             </div>

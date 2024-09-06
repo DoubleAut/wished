@@ -38,11 +38,15 @@ export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
             return true;
         }
 
-        if (!item.reservedBy) {
+        if (item.reservedBy === 'None') {
             return true;
         }
 
-        if (item.ownerId === viewer?.id && item.reservedBy) {
+        if (item.isHidden && item.ownerId === viewer?.id) {
+            return true;
+        }
+
+        if (item.ownerId === viewer?.id && item.reservedBy === viewer?.id) {
             return true;
         }
 

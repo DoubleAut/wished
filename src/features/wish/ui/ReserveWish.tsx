@@ -29,12 +29,14 @@ export const ReserveWish = () => {
     }
 
     const onClick = () => {
-        if (!userStore) {
+        console.log(dialogWish);
+
+        if (!userStore || !dialogWish) {
             return;
         }
 
-        if (dialogWish && viewer) {
-            const isReserved = dialogWish.reservedBy;
+        if (viewer) {
+            const isReserved = dialogWish.reservedBy !== 'None';
             const wish = dialogWish as Wish;
 
             if (!isReserved) {
@@ -42,9 +44,10 @@ export const ReserveWish = () => {
 
                 reserveWish(id, userStore.id)
                     .then(reservedWish => {
-                        setDialogWish({}, 'view');
+                        const newWish = { ...dialogWish, ...reservedWish };
+                        setDialogWish(newWish, 'view');
 
-                        moveWishToViewerReservations(reservedWish);
+                        moveWishToViewerReservations(newWish);
 
                         revalidateTagFromServer('wishes');
 
@@ -61,7 +64,10 @@ export const ReserveWish = () => {
 
                 cancelReservedWish(id)
                     .then(result => {
-                        const reservedWish = result as Wish;
+                        const reservedWish = {
+                            ...dialogWish,
+                            ...result,
+                        } as Wish;
 
                         setDialogWish(reservedWish, 'view');
 
@@ -80,7 +86,9 @@ export const ReserveWish = () => {
 
     return (
         <Button variant="outline" onClick={onClick}>
-            {dialogWish?.reservedBy ? 'Cancel reservation' : 'Reserve'}
+            {dialogWish?.reservedBy === 'None'
+                ? 'Reserve'
+                : 'Cancel reservation'}
         </Button>
     );
 };
