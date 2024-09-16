@@ -1,7 +1,7 @@
 import { patch, post, remove } from '@/shared/api/Fetch';
-import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
-import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
+import { Wish } from '../../../../shared/types/Wish';
+import { WISHES_ENDPOINT } from './api';
 
 export const wishSchema = z.object({
     title: z.string().min(2, {
@@ -35,61 +35,63 @@ export const getError = (message: string) => {
     return null;
 };
 
-type CreateProps = z.infer<typeof wishSchema> & {
-    userId: number;
-};
+type WishResponse = { message: string; wish: Wish };
 
 export const createWish = async (
-    wish: z.infer<typeof wishSchema>,
-    userId: number,
+    data: z.infer<typeof wishSchema>,
+    userId: string,
 ) => {
-    const response = await post<CreateProps, Wish>(
-        `/wishes`,
-        [WISHES_TAG],
-        { ...wish, userId },
+    const response = await post<{}, WishResponse>(
+        WISHES_ENDPOINT,
+        [],
+        {
+            ...data,
+            ownerId: userId,
+        },
         true,
     );
 
-    return response as Wish;
+    return response.wish;
 };
 
 export const updateWish = async (
     wish: Partial<z.infer<typeof wishSchema>> & { isCompleted?: boolean },
-    id: number,
+    wishId: string,
 ) => {
-    const response = await patch<typeof wish, Wish>(
-        `/wishes/${id}`,
-        [WISHES_TAG],
+    const response = await patch<{}, WishResponse>(
+        `${WISHES_ENDPOINT}/${wishId}`,
+        [],
         wish,
         true,
     );
 
+    return response.wish;
+};
+
+export const deleteWish = async (id: string) => {
+    const response = await remove(`${WISHES_ENDPOINT}/${id}`, [], true);
+
     return response;
 };
 
-export const deleteWish = async (id: number) => {
-    const response = await remove<Wish>(`/wishes/${id}`, [WISHES_TAG], true);
-
-    return response;
-};
-
-export const reserveWish = async (id: number) => {
-    const response = await patch<{}, Wish>(
-        `/wishes/reserve/${id}`,
-        [WISHES_TAG],
-        {},
+export const reserveWish = async (id: string, reserverId: string) => {
+    const response = await patch<{}, WishResponse>(
+        `${WISHES_ENDPOINT}/${id}`,
+        [],
+        { reservedBy: reserverId },
         true,
     );
 
-    return response;
+    return response.wish;
 };
 
-export const cancelReservedWish = async (id: number) => {
-    const response = await remove<Wish>(
-        `/wishes/cancel/${id}`,
-        [WISHES_TAG],
+export const cancelReservedWish = async (id: string) => {
+    const response = await patch<{}, WishResponse>(
+        `${WISHES_ENDPOINT}/${id}`,
+        [],
+        { reservedBy: 'None' },
         true,
     );
 
-    return response;
+    return response.wish;
 };

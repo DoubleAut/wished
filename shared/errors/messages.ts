@@ -1,0 +1,1 @@
+export const MISSING_FIELDS = 'Missing item values';

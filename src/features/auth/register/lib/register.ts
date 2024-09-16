@@ -1,16 +1,20 @@
 import { post } from '@/shared/api/Fetch';
-import { USERS_TAG } from '@/shared/lib/constants/FetchTags';
-import { PlainUser } from '@/shared/types/User';
 import { RegisterSchema } from '@/widgets/auth/register/lib';
+import { USERS_ENDPOINT } from '../../login/lib/api';
+
+interface RegisterResponse {
+    statusCode: number;
+}
 
 export const register = async ({
     confirmPassword,
     ...data
 }: RegisterSchema) => {
-    const response = await post<
-        Omit<RegisterSchema, 'confirmPassword'>,
-        PlainUser
-    >(`/users`, [USERS_TAG], data, true);
+    const response = await post<unknown, RegisterResponse>(
+        USERS_ENDPOINT + '/register',
+        [],
+        data,
+    );
 
     return response;
 };

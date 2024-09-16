@@ -1,0 +1,7 @@
+const RAW_WISHES_ENDPOINT = process.env.NEXT_PUBLIC_WISHES_ENDPOINT;
+
+if (!RAW_WISHES_ENDPOINT) {
+    throw new Error('WISHES_ENDPOINT is not set');
+}
+
+export const WISHES_ENDPOINT = RAW_WISHES_ENDPOINT!;

@@ -1,6 +1,6 @@
-import { Category } from '@/shared/types/Category';
 import { GlobalStore } from '@/shared/types/GlobalStore';
 import { StateCreator } from 'zustand';
+import { Category } from '../../../../shared/types/Category';
 
 export interface CategorySlice {
     categories: Category[];

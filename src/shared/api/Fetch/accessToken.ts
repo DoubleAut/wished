@@ -16,14 +16,15 @@ export const removeAccessToken = (): void => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 };
 
-export const getAuthorizationHeader = (): { Authorization: string } | null => {
+export const getHeadersWithAuthorizationIfPresent = (
+    includeToken: boolean,
+): Headers => {
+    const headers = new Headers();
     const accessToken = getAccessToken();
 
-    if (!accessToken) {
-        return null;
+    if (includeToken) {
+        headers.append('Authorization', `Bearer ${accessToken}`);
     }
 
-    return {
-        Authorization: `Bearer ${accessToken}`,
-    };
+    return headers;
 };

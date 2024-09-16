@@ -1,4 +1,5 @@
 import { Button } from '@/shared/ui/button';
+import { PencilIcon } from 'lucide-react';
 import { useStore } from 'zustand';
 import { dialogStore } from '../model/dialogView';
 
@@ -11,7 +12,7 @@ export const EditWish = () => {
 
     return (
         <Button variant="outline" onClick={onClick}>
-            Edit
+            <PencilIcon className="h-4 w-4" />
         </Button>
     );
 };

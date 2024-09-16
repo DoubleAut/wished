@@ -7,9 +7,9 @@ import { DeleteWish } from '@/features/wish/ui/DeleteWish';
 import { EditWish } from '@/features/wish/ui/EditWish';
 import { HideWish } from '@/features/wish/ui/HideWish';
 import { ReserveWish } from '@/features/wish/ui/ReserveWish';
-import { Wish as IWish } from '@/shared/types/Wish';
 import { WishContent } from '@/widgets/wishes/ui/WishContent';
 import { useStore } from 'zustand';
+import { Wish as IWish } from '../../../../shared/types/Wish';
 import { WishCard } from './WishCard';
 import { WishDialog } from './WishDialog';
 import { WishForm } from './WishForm';
@@ -34,19 +34,23 @@ export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
     const viewer = useViewerStore(state => state.user);
 
     const visibleWishes = wishes.filter(item => {
-        if (item.owner.id === viewer?.id) {
+        if (item.ownerId === viewer?.id) {
             return true;
         }
 
-        if (!item.reservedBy) {
+        if (item.reservedBy === 'None') {
             return true;
         }
 
-        if (item.owner.id === viewer?.id && item.reservedBy) {
+        if (item.isHidden && item.ownerId === viewer?.id) {
             return true;
         }
 
-        if (item.reservedBy && item.reservedBy.id === viewer?.id) {
+        if (item.ownerId === viewer?.id && item.reservedBy === viewer?.id) {
+            return true;
+        }
+
+        if (item.reservedBy && item.reservedBy === viewer?.id) {
             return true;
         }
 
@@ -61,20 +65,7 @@ export const Wishes = ({ wishes }: { wishes: IWish[] }) => {
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
             content={
-                isView ? (
-                    <WishContent
-                        wish={wish}
-                        actions={
-                            viewer?.id === wish.owner.id ? (
-                                <PersonalWishActions key={wish.id} />
-                            ) : (
-                                <UserWishActions key={wish.id} />
-                            )
-                        }
-                    />
-                ) : (
-                    <WishForm onCancel={() => {}} />
-                )
+                isView ? <WishContent /> : <WishForm onCancel={() => {}} />
             }
         />
     ));
@@ -88,12 +79,7 @@ export const ReservedWishes = ({ wishes }: { wishes: IWish[] }) => {
             wish={wish}
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
-            content={
-                <WishContent
-                    wish={wish}
-                    actions={<UserWishActions key={wish.id} />}
-                />
-            }
+            content={<WishContent />}
         />
     ));
 };
@@ -106,7 +92,7 @@ export const GiftedWishes = ({ wishes }: { wishes: IWish[] }) => {
             wish={wish}
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
-            content={<WishContent wish={wish} actions={<></>} />}
+            content={<WishContent />}
         />
     ));
 };
@@ -119,16 +105,7 @@ export const ArchivedWishes = ({ wishes }: { wishes: IWish[] }) => {
             wish={wish}
             key={wish.id + wish.title}
             trigger={<WishCard wish={wish} />}
-            content={
-                <WishContent
-                    wish={wish}
-                    actions={
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <DeleteWish />
-                        </div>
-                    }
-                />
-            }
+            content={<WishContent />}
         />
     ));
 };

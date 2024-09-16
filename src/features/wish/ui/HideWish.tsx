@@ -1,9 +1,9 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 import { updateWish } from '../lib';
 import { dialogStore } from '../model/dialogView';
 

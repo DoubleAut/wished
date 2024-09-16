@@ -1,6 +1,6 @@
 import { GlobalStore } from '@/shared/types/GlobalStore';
-import { PlainUser } from '@/shared/types/User';
 import { StateCreator } from 'zustand';
+import { PlainUser } from '../../../../shared/types/User';
 
 export interface FriendsSlice {
     followers: PlainUser[];

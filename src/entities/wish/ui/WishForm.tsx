@@ -3,13 +3,11 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { CategorySelect } from '@/entities/category/ui/CategorySelect';
 import { dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { DatePicker } from '@/shared/ui/date-picker';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { Switch } from '@/shared/ui/switch';
-import { UploadSwitch } from '@/shared/ui/uploadSwitch';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -17,14 +15,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useStore } from 'zustand';
-import {
-    createWish,
-    getError,
-    updateWish,
-    wishSchema,
-} from '../../../features/wish/lib';
-import { deleteImage } from '../lib';
-import { getDefaultValues, getImageObject } from '../lib/helpers';
+import { Wish } from '../../../../shared/types/Wish';
+import { createWish, updateWish, wishSchema } from '../../../features/wish/lib';
+import { getDefaultValues } from '../lib/helpers';
 
 interface Props {
     onCancel: () => void;
@@ -53,7 +46,39 @@ export const WishForm = ({ onCancel }: Props) => {
 
     const isWishUpdate = Boolean(dialogWish?.id);
 
+    const onSuccess = (newWish: Wish) => {
+        if (!user) {
+            return;
+        }
+
+        if (isWishUpdate) {
+            updateExistingWish({
+                ...dialogWish,
+                ...newWish,
+            });
+        }
+
+        if (!isWishUpdate) {
+            addWish(newWish);
+        }
+
+        const message = `${newWish.title} has been ${dialogWish?.id ? 'updated' : 'created'}.`;
+
+        toast.success(message);
+
+        setDialogWish(newWish, 'view');
+        setOpen(true);
+    };
+
+    const onError = (error: any) => {
+        const message = error.message;
+
+        toast.error(message);
+    };
+
     const onSubmit = (result: z.infer<typeof wishSchema>) => {
+        console.log(dialogWish);
+
         setLoading(true);
 
         if (!user) {
@@ -61,64 +86,6 @@ export const WishForm = ({ onCancel }: Props) => {
 
             return;
         }
-
-        const onSuccess = (newWish: Wish) => {
-            if (!user) {
-                return;
-            }
-
-            if (isWishUpdate) {
-                updateExistingWish(newWish);
-            }
-
-            if (!isWishUpdate) {
-                addWish(newWish);
-            }
-
-            const message = `${newWish.title} has been ${dialogWish?.id ? 'updated' : 'created'}.`;
-
-            toast.success(message);
-
-            setDialogWish(newWish, 'view');
-            setOpen(true);
-        };
-
-        const onFormError = (error: any) => {
-            for (let message of error.message) {
-                const err = getError(message) as
-                    | 'title'
-                    | 'description'
-                    | 'price'
-                    | null;
-
-                if (err) {
-                    form.setError(err, { message });
-                }
-            }
-        };
-
-        const onStatusError = (error: any) => {
-            const message = error.message;
-            const err = getError(message) as
-                | 'title'
-                | 'description'
-                | 'price'
-                | null;
-
-            if (err) {
-                form.setError(err, { message });
-            }
-
-            if (!err) {
-                toast.error(error.message);
-            }
-        };
-
-        const onError = (error: any) => {
-            Array.isArray(error.message)
-                ? onFormError(error)
-                : onStatusError(error);
-        };
 
         if (!dialogWish?.id) {
             createWish(result, user.id)
@@ -162,7 +129,7 @@ export const WishForm = ({ onCancel }: Props) => {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col items-start gap-2">
-                        <Label>Description</Label>
+                        <Label>Price</Label>
                         <Input type="number" {...register('price')} />
                         {errors.price && (
                             <Label className="text-destructive">
@@ -218,7 +185,7 @@ export const WishForm = ({ onCancel }: Props) => {
                         )}
                     </div>
                 </div>
-                <div className="flex justify-center">
+                {/* <div className="flex justify-center">
                     <UploadSwitch
                         savedPicture={
                             dialogWish?.picture
@@ -251,7 +218,7 @@ export const WishForm = ({ onCancel }: Props) => {
                         }}
                         onUploading={() => setLoading(true)}
                     />
-                </div>
+                </div> */}
                 <div className="flex gap-4">
                     <Button
                         variant="outline"

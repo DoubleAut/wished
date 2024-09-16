@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { QueryProvider } from './QueryProvider';
 import { ThemeProvider } from './ThemeProvider';
 import { UserProvider } from './UserProvider';
 import { ViewerStoreProvider } from './ViewerProvider';
@@ -17,9 +18,11 @@ export const Providers = ({ children }: Props) => {
             enableSystem
             disableTransitionOnChange
         >
-            <ViewerStoreProvider>
-                <UserProvider>{children}</UserProvider>
-            </ViewerStoreProvider>
+            <QueryProvider>
+                <ViewerStoreProvider>
+                    <UserProvider>{children}</UserProvider>
+                </ViewerStoreProvider>
+            </QueryProvider>
         </ThemeProvider>
     );
 };
