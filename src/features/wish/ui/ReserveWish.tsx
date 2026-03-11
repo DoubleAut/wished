@@ -2,6 +2,8 @@
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { revalidateTagFromServer } from '@/shared/api/Fetch/revalidateTag';
+import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
+import { queryClient } from '@/shared/lib/constants/Query/QueryClient';
 import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { toast } from 'sonner';
@@ -41,7 +43,9 @@ export const ReserveWish = () => {
 
                         moveWishToViewerReservations(reservedWish);
 
-                        revalidateTagFromServer('wishes');
+                        queryClient.invalidateQueries({
+                            queryKey: [WISHES_TAG],
+                        });
 
                         toast.success('Wish successfully reserved');
                     })

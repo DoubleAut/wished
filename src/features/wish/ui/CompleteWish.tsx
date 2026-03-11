@@ -1,6 +1,8 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
+import { queryClient } from '@/shared/lib/constants/Query/QueryClient';
 import { Wish } from '@/shared/types/Wish';
 import {
     AlertDialog,
@@ -39,6 +41,8 @@ export const CompleteWish = () => {
             .then(newWish => {
                 removeWish(wish);
                 completeWish(newWish);
+
+                queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
 
                 toast.success('The wish successfully updated');
             })

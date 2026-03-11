@@ -1,5 +1,5 @@
-import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { Wish } from '@/shared/types/Wish';
+import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
+import { queryClient } from '@/shared/lib/constants/Query/QueryClient';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,7 +22,6 @@ export const DeleteWish = () => {
     const store = useStore(dialogStore);
     const dialogWish = store.dialogWish;
     const setOpen = store.setOpen;
-    const removeWish = useViewerStore(state => state.removeWish);
 
     const onClick = () => {
         if (!dialogWish) {
@@ -35,7 +34,7 @@ export const DeleteWish = () => {
 
         deleteWish(wishId)
             .then(() => {
-                removeWish(dialogWish as Wish);
+                queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
 
                 toast.success('Wish successfully deleted!');
             })

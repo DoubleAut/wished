@@ -1,5 +1,6 @@
 import { patch, post, remove } from '@/shared/api/Fetch';
 import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
+import { queryClient } from '@/shared/lib/constants/Query/QueryClient';
 import { Wish } from '@/shared/types/Wish';
 import { z } from 'zod';
 
@@ -49,6 +50,8 @@ export const createWish = async (
         { ...wish, userId },
         true,
     );
+
+    queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
 
     return response as Wish;
 };
