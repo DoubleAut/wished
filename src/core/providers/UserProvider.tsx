@@ -1,12 +1,12 @@
 'use client';
 
-import { getOwnFullUser } from '@/entities/user/lib/user';
+import { getUser } from '@/entities/user/lib/user';
 import { rotateTokens } from '@/shared/api/Fetch';
-import { isSessionExist } from '@/shared/api/Fetch/tokens';
-import { FullUser } from '@/shared/types/User';
+import { getAccessToken } from '@/shared/api/Fetch/accessToken';
+import { PlainUser } from '@/shared/types/User';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { HeaderWidget } from '@/widgets/header';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ReactNode, useCallback, useLayoutEffect, useState } from 'react';
 import { useViewerStore } from './ViewerProvider';
 
@@ -15,29 +15,28 @@ interface Props {
 }
 
 const revokeSession = async () => {
-    const isSession = isSessionExist();
+    const accessToken = getAccessToken();
 
-    if (!isSession) {
-        console.log('Saves session is not found. Redirecting to login page!!!');
-
-        redirect('/auth/login');
+    if (!accessToken) {
+        console.log('No access token found. Redirecting to login page!!!');
+        throw new Error('No access token');
     }
 
     const response = await rotateTokens();
 
-    return await getOwnFullUser(response.id);
+    return await getUser(response.id);
 };
 
 export function UserProvider({ children }: Props) {
     const [isLoading, setLoading] = useState(true);
-    const setFullUser = useViewerStore(state => state.setFullUser);
+    const setUser = useViewerStore(state => state.setUser);
     const router = useRouter();
 
     const setInitialUser = useCallback(
-        (user: FullUser) => {
-            setFullUser(user);
+        (user: PlainUser) => {
+            setUser(user);
         },
-        [setFullUser],
+        [setUser],
     );
 
     useLayoutEffect(() => {
