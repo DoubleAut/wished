@@ -25,7 +25,7 @@ import { login } from '../lib/login';
 export const LoginForm = () => {
     const [isLoading, setLoading] = useState(false);
     const router = useRouter();
-    const setFullUser = useViewerStore(state => state.setFullUser);
+    const setUser = useViewerStore(state => state.setUser);
 
     const {
         register,
@@ -65,7 +65,7 @@ export const LoginForm = () => {
 
         login(result)
             .then(user => {
-                setFullUser(user);
+                setUser(user);
 
                 router.push('/');
             })
