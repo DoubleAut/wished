@@ -1,6 +1,4 @@
-import { DeleteWish } from '@/features/wish/ui/DeleteWish';
-import { EditWish } from '@/features/wish/ui/EditWish';
-import { HideWish } from '@/features/wish/ui/HideWish';
+import { DeleteWish, EditWish, HideWish } from '@/features/wish/ui/Actions';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 
@@ -21,9 +19,9 @@ export const PersonalWishActionsSkeleton = () => (
 export const PersonalWishActions = () => {
     return (
         <div className="flex flex-col justify-end gap-2 sm:flex-row">
-            <EditWish />
-            <HideWish />
-            <DeleteWish />
+            <EditWish onAction={() => {}} />
+            <HideWish onAction={() => {}} />
+            <DeleteWish onAction={() => {}} />
         </div>
     );
 };
