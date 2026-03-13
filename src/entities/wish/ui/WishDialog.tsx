@@ -39,7 +39,7 @@ export const WishDialog = ({
     defaultMode = 'view',
 }: Props) => {
     const store = useStore(dialogStore);
-    const isStoreWishIsTheSame = store.dialogWish?.id === wish?.id ?? false;
+    const isStoreWishIsTheSame = store.dialogWish?.id === wish?.id;
     const isOpen = store.isOpen && isStoreWishIsTheSame;
     const setOpen = store.setOpen;
     const setDialogWish = store.setDialogWish;
