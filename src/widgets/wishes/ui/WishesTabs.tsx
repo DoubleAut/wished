@@ -1,9 +1,5 @@
-import {
-    useMyArchived,
-    useMyGifted,
-    useMyReservations,
-    useMyWishes,
-} from '@/entities/wish';
+'use client';
+
 import { WishDialog } from '@/entities/wish/ui/WishDialog';
 import { WishForm } from '@/entities/wish/ui/WishForm';
 import {
@@ -13,21 +9,12 @@ import {
     Wishes,
 } from '@/entities/wish/ui/Wishes';
 import { Button } from '@/shared/ui/button';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/shared/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { RiBardLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
-const MotionTabsContent = motion(TabsContent);
+export type WishesTypes = 'wishes' | 'reservations' | 'gifted' | 'archived';
 
 const container = {
     closed: { opacity: 0 },
@@ -39,31 +26,31 @@ const container = {
     },
 };
 
-interface Props {
-    userId: string;
-}
+const motionOptions = {
+    variants: container,
+    initial: 'closed',
+    animate: 'open',
+};
 
-type Tabs = 'wishes' | 'reservations' | 'gifted' | 'archived';
+const MotionTabsContent = motion(
+    ({ value, children }: { value: WishesTypes; children: ReactNode }) => (
+        <TabsContent value={value} {...motionOptions}>
+            {children}
+        </TabsContent>
+    ),
+);
 
 export const WishesTabs = () => {
-    const [activeTab, setActiveTab] = useState<Tabs>('wishes');
-    const {
-        pagination: wishesPagination,
-        wishes,
-        refetch: refetchWishes,
-    } = useMyWishes();
-    const { pagination: reservationsPagination, wishes: reservations } =
-        useMyReservations();
-    const { pagination: giftedPagination, wishes: gifted } = useMyGifted();
-    const { pagination: archivedPagination, wishes: archived } =
-        useMyArchived();
-    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+    const [activeTab, setActiveTab] = useState<WishesTypes>('wishes');
+
+    // TODO: Wishes don't appear on wishes tab, FIX IT!!!!
+    // After that can proceed to friends web!
 
     return (
         <Tabs
             defaultValue="wishes"
             className="w-full"
-            onValueChange={val => setActiveTab(val as Tabs)}
+            onValueChange={val => setActiveTab(val as WishesTypes)}
         >
             <div className="flex w-full items-center justify-between">
                 <TabsList className="w-fit">
@@ -80,10 +67,7 @@ export const WishesTabs = () => {
                         </Button>
                     }
                     content={
-                        <WishForm
-                            onCancel={() => {}}
-                            onSuccess={refetchWishes}
-                        />
+                        <WishForm onCancel={() => {}} onSuccess={() => {}} />
                     }
                     wish={null}
                     isButtonTrigger={true}
@@ -91,77 +75,23 @@ export const WishesTabs = () => {
                 />
             </div>
             {activeTab === 'wishes' && (
-                <div className="space-y-2">
-                    <MotionTabsContent
-                        value="wishes"
-                        className={className}
-                        variants={container}
-                        initial="closed"
-                        animate="open"
-                    >
-                        <Wishes wishes={wishes} />
-                    </MotionTabsContent>
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious href={'wishesPage'} />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href={'wishesPage'}>
-                                    1
-                                </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href={'wishesPage'} isActive>
-                                    2
-                                </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href={'wishesPage'}>
-                                    3
-                                </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationEllipsis />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationNext href={'wishesPage'} />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
+                <MotionTabsContent value="wishes">
+                    <Wishes />
+                </MotionTabsContent>
             )}
             {activeTab === 'reservations' && (
-                <MotionTabsContent
-                    value="reservations"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <ReservedWishes wishes={reservations} />
+                <MotionTabsContent value="reservations">
+                    <ReservedWishes />
                 </MotionTabsContent>
             )}
             {activeTab === 'gifted' && (
-                <MotionTabsContent
-                    value="gifted"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <GiftedWishes wishes={gifted} />
+                <MotionTabsContent value="gifted">
+                    <GiftedWishes />
                 </MotionTabsContent>
             )}
             {activeTab === 'archived' && (
-                <MotionTabsContent
-                    value="archived"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <ArchivedWishes wishes={archived} />
+                <MotionTabsContent value="archived">
+                    <ArchivedWishes />
                 </MotionTabsContent>
             )}
         </Tabs>
