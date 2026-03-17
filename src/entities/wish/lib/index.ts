@@ -1,4 +1,5 @@
 import { get, remove } from '@/shared/api/Fetch';
+import { WishesPagination } from '@/shared/hooks/usePagination';
 import {
     ARCHIVED_TAG,
     GIFTED_TAG,
@@ -7,19 +8,22 @@ import {
 } from '@/shared/lib/constants/FetchTags';
 import { Wish } from '@/shared/types/Wish';
 
-export interface WishesPagination {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
-
 export interface MyWishesPaginatedResponse {
     items: Wish[];
     pagination: WishesPagination;
 }
 
 const LIMIT = 9;
+
+export const getWishes = async (id: string, page: number, limit = LIMIT) => {
+    const response = await get<MyWishesPaginatedResponse>(
+        `/wishes/${id}?page=${page}&limit=${limit}`,
+        [WISHES_TAG],
+        true,
+    );
+
+    return response;
+};
 
 export const getMyWishesPaginated = async (page: number, limit = LIMIT) => {
     const response = await get<MyWishesPaginatedResponse>(

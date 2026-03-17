@@ -34,15 +34,11 @@ const queryFunctions: Record<WishesTypes, (page: number) => Promise<Wish[]>> = {
 };
 
 export const useWishes = (type: WishesTypes) => {
-    const [pagination, setPagination] = useState<WishesPagination>({
-        limit: 9,
-        page: 1,
-        total: 0,
-        totalPages: 0,
-    });
+    const { pagination, setPage } = usePagination();
     const { data: wishes, refetch } = useQuery({
         queryKey: [type, pagination.page],
         queryFn: async () => {
+            const query = queryFunctions[type];
             return queryFunctions[type](pagination.page);
         },
     });
@@ -51,6 +47,20 @@ export const useWishes = (type: WishesTypes) => {
         pagination,
         wishes: wishes ?? [],
         refetch,
+        setPage,
+    };
+};
+
+export const usePagination = () => {
+    const [pagination, setPagination] = useState<WishesPagination>({
+        limit: 9,
+        page: 1,
+        total: 0,
+        totalPages: 0,
+    });
+
+    return {
+        pagination,
         setPage: (val: number) => setPagination({ ...pagination, page: val }),
     };
 };

@@ -38,19 +38,6 @@ export const UserWishActions = () => (
 
 const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
-// const WishesContainer = ({
-//     pagination,
-//     children,
-// }: {
-//     children: ReactNode;
-//     pagination: WishesPagination;
-// }) => (
-//     <div>
-//         <div className={className}>{children}</div>
-//         <PaginatedWishes pagination={pagination} />
-//     </div>
-// );
-
 export const Wishes = () => {
     const store = useStore(dialogStore);
     const viewer = useViewerStore(state => state.user);

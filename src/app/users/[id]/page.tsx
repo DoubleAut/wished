@@ -1,11 +1,13 @@
-import { getUser } from '@/entities/user/lib/user';
+'use client';
+
 import { UserAvatar, UserInitials } from '@/entities/user/ui/User';
-import { getUserWishes } from '@/entities/wish/lib';
+import { useWishes } from '@/entities/wish';
 import { Wishes } from '@/entities/wish/ui/Wishes';
 import { FriendButton } from '@/features/user/ui/FriendButton';
 import { Button } from '@/shared/ui/button';
 import { UserWidget } from '@/widgets/user/ui';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 interface Props {
     params: {
         id: number;
@@ -13,8 +15,8 @@ interface Props {
 }
 
 const Home = async ({ params: { id } }: Props) => {
-    const user = await getUser(id);
-    const wishes = await getUserWishes(id);
+    const pathname = usePathname();
+    const { wishes } = useWishes('wishes');
 
     return (
         <div className="container flex flex-col space-y-4">
