@@ -6,6 +6,7 @@ export interface LoginSchema {
 }
 
 export const loginSchema = z.object({
+    username: z.string(),
     email: z.string().email('Email must be valid'),
     password: z.string().min(2, {
         message: 'Password must be atleast 8 characters long',

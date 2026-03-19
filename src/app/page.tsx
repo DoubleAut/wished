@@ -1,14 +1,12 @@
 'use client';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
-import { CategoryList } from '@/entities/category/ui/CategoryList';
 import { Typography } from '@/shared/ui/Text/typography';
 import { WishesTabs } from '@/widgets/wishes/ui/WishesTabs';
 import { motion } from 'framer-motion';
 
 const Home = () => {
     const user = useViewerStore(state => state.user);
-    const categories = useViewerStore(state => state.categories);
 
     if (!user) {
         return <div>Loading</div>;
@@ -21,9 +19,6 @@ const Home = () => {
             </div>
             <div className="rounded border p-2">
                 <WishesTabs />
-            </div>
-            <div className="rounded border p-2">
-                <CategoryList items={categories} />
             </div>
         </motion.div>
     );

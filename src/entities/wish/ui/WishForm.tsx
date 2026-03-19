@@ -2,8 +2,13 @@
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { CategorySelect } from '@/entities/category/ui/CategorySelect';
+import {
+    createWish,
+    getError,
+    updateWish,
+    wishSchema,
+} from '@/features/wish/lib';
 import { dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { DatePicker } from '@/shared/ui/date-picker';
 import { Input } from '@/shared/ui/input';
@@ -12,212 +17,178 @@ import { Switch } from '@/shared/ui/switch';
 import { UploadSwitch } from '@/shared/ui/uploadSwitch';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useStore } from 'zustand';
-import {
-    createWish,
-    getError,
-    updateWish,
-    wishSchema,
-} from '../../../features/wish/lib';
-import { deleteImage } from '../lib';
+import type { Wish } from '../../../../shared/types/Wish';
 import { getDefaultValues, getImageObject } from '../lib/helpers';
+
+type FieldErrorKey = 'title' | 'description' | 'price' | null;
+
+function toMessages(msg: string | string[] | undefined): string[] {
+    if (msg == null) return [];
+    return Array.isArray(msg) ? msg : [msg];
+}
+
+interface FieldGroupProps {
+    label: string;
+    error?: { message?: string };
+    children: ReactNode;
+    id?: string;
+    layout?: 'vertical' | 'horizontal';
+}
+
+const FieldGroup = ({
+    label,
+    error,
+    children,
+    id,
+    layout = 'vertical',
+}: FieldGroupProps) => {
+    const labelEl = <Label htmlFor={id}>{label}</Label>;
+    const errorEl = error?.message ? (
+        <Label className="text-destructive">{error.message}</Label>
+    ) : null;
+
+    if (layout === 'horizontal') {
+        return (
+            <div className="flex items-center gap-2">
+                {children}
+                {labelEl}
+                {errorEl}
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col items-start gap-2">
+            {labelEl}
+            {children}
+            {errorEl}
+        </div>
+    );
+};
 
 interface Props {
     onCancel: () => void;
+    onSuccess: () => void;
 }
 
-export const WishForm = ({ onCancel }: Props) => {
+export const WishForm = ({ onCancel, onSuccess }: Props) => {
     const user = useViewerStore(state => state.user);
-    const dialogWishStore = useStore(dialogStore);
-    const dialogWish = dialogWishStore.dialogWish;
-    const setDialogWish = dialogWishStore.setDialogWish;
-    const setOpen = dialogWishStore.setOpen;
-
-    const updateExistingWish = useViewerStore(state => state.updateWish);
-    const addWish = useViewerStore(state => state.addWish);
-
+    const { dialogWish, setDialogWish, setOpen } = useStore(dialogStore);
     const [isLoading, setLoading] = useState(false);
 
-    const {
-        register,
-        formState: { errors },
-        ...form
-    } = useForm<z.infer<typeof wishSchema>>({
+    const form = useForm<z.infer<typeof wishSchema>>({
         resolver: zodResolver(wishSchema),
         defaultValues: getDefaultValues(dialogWish),
     });
 
+    const {
+        register,
+        formState: { errors },
+        watch,
+        setValue,
+        setError,
+        handleSubmit,
+    } = form;
     const isWishUpdate = Boolean(dialogWish?.id);
 
-    const onSubmit = (result: z.infer<typeof wishSchema>) => {
-        setLoading(true);
-
-        if (!user) {
-            setLoading(false);
-
-            return;
-        }
-
-        const onSuccess = (newWish: Wish) => {
-            if (!user) {
-                return;
-            }
-
-            if (isWishUpdate) {
-                updateExistingWish(newWish);
-            }
-
-            if (!isWishUpdate) {
-                addWish(newWish);
-            }
-
-            const message = `${newWish.title} has been ${dialogWish?.id ? 'updated' : 'created'}.`;
-
-            toast.success(message);
-
-            setDialogWish(newWish, 'view');
-            setOpen(true);
-        };
-
-        const onFormError = (error: any) => {
-            for (let message of error.message) {
-                const err = getError(message) as
-                    | 'title'
-                    | 'description'
-                    | 'price'
-                    | null;
-
-                if (err) {
-                    form.setError(err, { message });
-                }
-            }
-        };
-
-        const onStatusError = (error: any) => {
-            const message = error.message;
-            const err = getError(message) as
-                | 'title'
-                | 'description'
-                | 'price'
-                | null;
-
-            if (err) {
-                form.setError(err, { message });
-            }
-
-            if (!err) {
-                toast.error(error.message);
-            }
-        };
-
-        const onError = (error: any) => {
-            Array.isArray(error.message)
-                ? onFormError(error)
-                : onStatusError(error);
-        };
-
-        if (!dialogWish?.id) {
-            createWish(result, user.id)
-                .then(onSuccess)
-                .catch(onError)
-                .finally(() => setLoading(false));
-
-            return;
-        }
-
-        if (dialogWish.id) {
-            updateWish(result, dialogWish.id)
-                .then(onSuccess)
-                .catch(onError)
-                .finally(() => setLoading(false));
-
-            return;
+    const setFieldErrorFromMessage = (message: string) => {
+        const field = getError(message) as FieldErrorKey;
+        if (field) {
+            setError(field, { message });
+        } else {
+            toast.error(message);
         }
     };
 
+    const handleSubmitError = (error: { message?: string | string[] }) => {
+        toMessages(error.message).forEach(setFieldErrorFromMessage);
+    };
+
+    const onWishSuccess = (newWish: Wish) => {
+        toast.success(
+            `${newWish.title} has been ${isWishUpdate ? 'updated' : 'created'}.`,
+        );
+        setDialogWish(newWish, 'view');
+        setOpen(true);
+
+        onSuccess();
+    };
+
+    const onSubmit = (result: z.infer<typeof wishSchema>) => {
+        if (!user) return;
+
+        setLoading(true);
+        const promise =
+            isWishUpdate && dialogWish?.id
+                ? updateWish(result, dialogWish.id)
+                : createWish(result, user.id);
+
+        promise
+            .then(onWishSuccess)
+            .catch(handleSubmitError)
+            .finally(() => setLoading(false));
+    };
+
+    const handleDeleteImage = (key: string) => {
+        setLoading(true);
+        // deleteImage(key)
+        //     .then(() => setValue('picture', null))
+        //     .catch((message: string) => setError('picture', { message }))
+        //     .finally(() => setLoading(false));
+    };
+
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
-                <div className="flex flex-col items-start gap-2">
-                    <Label>Title</Label>
+                <FieldGroup label="Title" error={errors.title}>
                     <Input {...register('title')} />
-                    {errors.title && (
-                        <Label className="text-destructive">
-                            {errors.title.message}
-                        </Label>
-                    )}
-                </div>
-                <div className="flex flex-col items-start gap-2">
-                    <Label>Description</Label>
+                </FieldGroup>
+
+                <FieldGroup label="Description" error={errors.description}>
                     <Input {...register('description')} />
-                    {errors.description && (
-                        <Label className="text-destructive">
-                            {errors.description.message}
-                        </Label>
-                    )}
-                </div>
+                </FieldGroup>
+
                 <div className="grid grid-cols-3 gap-2">
-                    <div className="flex flex-col items-start gap-2">
-                        <Label>Description</Label>
+                    <FieldGroup label="Price" error={errors.price}>
                         <Input type="number" {...register('price')} />
-                        {errors.price && (
-                            <Label className="text-destructive">
-                                {errors.price.message}
-                            </Label>
-                        )}
-                    </div>
-                    <div className="flex flex-col items-start gap-2">
-                        <Label>Gift day</Label>
+                    </FieldGroup>
+                    <FieldGroup label="Gift day" error={errors.giftDay}>
                         <DatePicker
-                            selected={form.watch('giftDay') ?? null}
-                            onSelect={date =>
-                                form.setValue('giftDay', date ?? null)
-                            }
+                            selected={watch('giftDay') ?? null}
+                            onSelect={date => setValue('giftDay', date ?? null)}
                         />
-                        {errors.giftDay && (
-                            <Label className="text-destructive">
-                                {errors.giftDay.message}
-                            </Label>
-                        )}
-                    </div>
-                    <div className="flex flex-col items-start gap-2">
-                        <Label>Category</Label>
+                    </FieldGroup>
+                    <FieldGroup label="Category" error={errors.categoryId}>
                         <CategorySelect
                             onChange={value =>
-                                form.setValue('categoryId', Number(value))
+                                setValue('categoryId', Number(value))
                             }
                         />
-                        {errors.categoryId && (
-                            <Label className="text-destructive">
-                                {errors.categoryId.message}
-                            </Label>
-                        )}
-                    </div>
+                    </FieldGroup>
                 </div>
+
                 <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-2">
+                    <FieldGroup
+                        label="Can be anonymous"
+                        error={errors.canBeAnon}
+                        layout="horizontal"
+                    >
                         <Switch id="canBeAnon" {...register('canBeAnon')} />
-                        <Label htmlFor="canBeAnon">Can be anonymous</Label>
-                        {errors.canBeAnon && (
-                            <Label className="text-destructive">
-                                {errors.canBeAnon.message}
-                            </Label>
-                        )}
-                    </div>
-                    <div className="flex items-center  gap-2">
+                    </FieldGroup>
+                    <FieldGroup
+                        label="Hide gift"
+                        error={errors.isHidden}
+                        layout="horizontal"
+                    >
                         <Switch id="isHidden" {...register('isHidden')} />
-                        <Label htmlFor="isHidden">Hide gift</Label>
-                        {errors.isHidden && (
-                            <Label className="text-destructive">
-                                {errors.isHidden.message}
-                            </Label>
-                        )}
-                    </div>
+                    </FieldGroup>
                 </div>
+
                 <div className="flex justify-center">
                     <UploadSwitch
                         savedPicture={
@@ -225,33 +196,16 @@ export const WishForm = ({ onCancel }: Props) => {
                                 ? getImageObject(dialogWish.picture)
                                 : undefined
                         }
-                        onDelete={(key: string) => {
-                            setLoading(true);
-
-                            deleteImage(key)
-                                .then(() => {
-                                    form.setValue('picture', null);
-                                })
-                                .catch(message =>
-                                    form.setError('picture', {
-                                        message,
-                                    }),
-                                )
-                                .finally(() => setLoading(false));
-                        }}
-                        onError={message =>
-                            form.setError('picture', {
-                                message,
-                            })
-                        }
+                        onDelete={handleDeleteImage}
+                        onError={message => setError('picture', { message })}
                         onUploadComplete={url => {
-                            form.setValue('picture', url);
-
+                            setValue('picture', url);
                             setLoading(false);
                         }}
                         onUploading={() => setLoading(true)}
                     />
                 </div>
+
                 <div className="flex gap-4">
                     <Button
                         variant="outline"
@@ -272,14 +226,8 @@ export const WishForm = ({ onCancel }: Props) => {
                                 Please wait
                             </>
                         )}
-
-                        {!isLoading && (
-                            <>
-                                {isWishUpdate
-                                    ? 'Update the wish'
-                                    : 'Make a wish'}
-                            </>
-                        )}
+                        {!isLoading &&
+                            (isWishUpdate ? 'Update the wish' : 'Make a wish')}
                     </Button>
                 </div>
             </div>

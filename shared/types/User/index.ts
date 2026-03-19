@@ -1,12 +1,13 @@
 import { Category } from '../Category';
 import { Wish } from '../Wish';
 export interface PlainUser {
-    id: number;
-    email: string;
-    name: string;
-    surname: string;
-    picture: string;
-    isActive: boolean;
+    id: string;
+    username: string;
+    email: string | null;
+    name: string | null;
+    surname: string | null;
+    picture: string | null;
+    isActive: boolean | null;
 }
 
 export interface UserWithFriends extends PlainUser {

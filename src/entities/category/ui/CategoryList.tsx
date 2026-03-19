@@ -1,8 +1,8 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { createCategory } from '@/features/category/lib';
-import { Category as ICategory } from '@/shared/types/Category';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Category as ICategory } from '../../../../shared/types/Category';
 import { Category } from './Category';
 import { CategoryForm } from './CategoryForm';
 

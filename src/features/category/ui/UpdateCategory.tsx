@@ -2,11 +2,11 @@
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { updateCategory } from '@/features/category/lib';
-import { Category } from '@/shared/types/Category';
 import { Button } from '@/shared/ui/button';
 import { RiEditLine } from '@remixicon/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Category } from '../../../../shared/types/Category';
 
 export const UpdateCategory = ({ category }: { category: Category }) => {
     const [isLoading, setIsLoading] = useState(false);

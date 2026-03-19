@@ -1,5 +1,6 @@
 import { DialogMode, dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
+import { DeleteWish } from '@/features/wish/ui/DeleteWish';
+import { EditWish } from '@/features/wish/ui/EditWish';
 import {
     Dialog,
     DialogContent,
@@ -9,6 +10,7 @@ import {
 } from '@/shared/ui/dialog';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 
 interface Props {
     content: ReactNode;
@@ -39,7 +41,7 @@ export const WishDialog = ({
     defaultMode = 'view',
 }: Props) => {
     const store = useStore(dialogStore);
-    const isStoreWishIsTheSame = store.dialogWish?.id === wish?.id ?? false;
+    const isStoreWishIsTheSame = store.dialogWish?.id === wish?.id;
     const isOpen = store.isOpen && isStoreWishIsTheSame;
     const setOpen = store.setOpen;
     const setDialogWish = store.setDialogWish;
@@ -55,9 +57,15 @@ export const WishDialog = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogTrigger asChild={isButtonTrigger}>{trigger}</DialogTrigger>
-            <DialogContent className="h-fit max-h-screen max-w-4xl overflow-auto p-6">
-                <DialogHeader>
-                    <DialogTitle>{store.dialogWish?.title}</DialogTitle>
+            <DialogContent className="max-w-xl overflow-auto p-6">
+                <DialogHeader className="relative flex flex-row items-center justify-between space-y-0">
+                    <DialogTitle className="text-2xl font-bold">
+                        {wish?.title}
+                    </DialogTitle>
+                    <div className="flex space-x-2">
+                        <EditWish />
+                        <DeleteWish />
+                    </div>
                 </DialogHeader>
                 {content}
             </DialogContent>

@@ -37,11 +37,9 @@ export const Navigation = ({ links }: Props) => {
                         onMouseOver={() => setHoveredNav(link.id)}
                         onMouseLeave={() => setHoveredNav(null)}
                     >
-                        <Link href={link.path} legacyBehavior passHref>
-                            <NavigationMenuLink className="z-20">
-                                {link.label}
-                            </NavigationMenuLink>
-                        </Link>
+                        <NavigationMenuLink className="z-20" asChild>
+                            <Link href={link.path}>{link.label}</Link>
+                        </NavigationMenuLink>
 
                         {hoveredNav === link.id && (
                             <motion.span

@@ -1,4 +1,6 @@
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+'use client';
+
+import { getWishes } from '@/entities/wish/lib';
 import { WishDialog } from '@/entities/wish/ui/WishDialog';
 import { WishForm } from '@/entities/wish/ui/WishForm';
 import {
@@ -10,12 +12,11 @@ import {
 import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { RiBardLine } from '@remixicon/react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-type TabsValues = 'wishes' | 'reservations' | 'gifted' | 'archived';
-
-const MotionTabsContent = motion(TabsContent);
+export type WishesTypes = 'wishes' | 'reservations' | 'gifted' | 'archived';
 
 const container = {
     closed: { opacity: 0 },
@@ -27,18 +28,66 @@ const container = {
     },
 };
 
-export const WishesTabs = () => {
-    const [state, setState] = useState<TabsValues>('wishes');
-    const wishes = useViewerStore(state => state.wishes);
-    const reservations = useViewerStore(state => state.reservations);
-    const gifted = useViewerStore(state => state.gifted);
-    const completed = useViewerStore(state => state.completed);
-    const className = 'grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+const motionOptions = {
+    variants: container,
+    initial: 'closed',
+    animate: 'open',
+};
 
-    const onChange = (value: string) => setState(value as TabsValues);
+const MotionTabsContent = motion(
+    ({ value, children }: { value: WishesTypes; children: ReactNode }) => (
+        <TabsContent value={value} {...motionOptions}>
+            {children}
+        </TabsContent>
+    ),
+);
+
+export const WishesTabs = () => {
+    const [activeTab, setActiveTab] = useState<WishesTypes>('wishes');
+
+    // TODO: Wishes don't appear on wishes tab, FIX IT!!!!
+    // After that can proceed to friends web!
+
+    const { data: ownWishes, status: ownWishesStatus } = useQuery({
+        queryKey: ['wishes'],
+        queryFn: () => {
+            if (!viewer) {
+                return [];
+            }
+
+            return getWishes(viewer.id);
+        },
+    });
+
+    const { data: reservedWishes, status: reservationWishesStatus } = useQuery({
+        queryKey: ['reservations'],
+        queryFn: () => {
+            if (!viewer) {
+                return [];
+            }
+
+            return getReservations(viewer.id);
+        },
+    });
+
+    useEffect(() => {
+        if (ownWishesStatus === 'success' && ownWishes) {
+            setWishes(ownWishes);
+        }
+    }, [ownWishes, ownWishesStatus]);
+
+    useEffect(() => {
+        if (reservationWishesStatus === 'success' && reservedWishes) {
+            setReservations(reservedWishes);
+        }
+    }, [reservedWishes, reservationWishesStatus]);
 
     return (
-        <Tabs defaultValue="wishes" className="w-full" onValueChange={onChange}>
+        <Tabs
+            defaultValue="wishes"
+            className="w-full"
+            onValueChange={val => setActiveTab(val as WishesTypes)}
+        >
             <div className="flex w-full items-center justify-between">
                 <TabsList className="w-fit">
                     <TabsTrigger value="wishes">Wishes</TabsTrigger>
@@ -53,54 +102,32 @@ export const WishesTabs = () => {
                             Make a wish
                         </Button>
                     }
-                    content={<WishForm onCancel={() => {}} />}
+                    content={
+                        <WishForm onCancel={() => {}} onSuccess={() => {}} />
+                    }
                     wish={null}
                     isButtonTrigger={true}
                     defaultMode={'edit'}
                 />
             </div>
-            {state === 'wishes' && (
-                <MotionTabsContent
-                    value="wishes"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <Wishes wishes={wishes} />
+            {activeTab === 'wishes' && (
+                <MotionTabsContent value="wishes">
+                    <Wishes />
                 </MotionTabsContent>
             )}
-            {state === 'reservations' && (
-                <MotionTabsContent
-                    value="reservations"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <ReservedWishes wishes={reservations} />
+            {activeTab === 'reservations' && (
+                <MotionTabsContent value="reservations">
+                    <ReservedWishes />
                 </MotionTabsContent>
             )}
-            {state === 'gifted' && (
-                <MotionTabsContent
-                    value="gifted"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <GiftedWishes wishes={gifted} />
+            {activeTab === 'gifted' && (
+                <MotionTabsContent value="gifted">
+                    <GiftedWishes />
                 </MotionTabsContent>
             )}
-            {state === 'archived' && (
-                <MotionTabsContent
-                    value="archived"
-                    className={className}
-                    variants={container}
-                    initial="closed"
-                    animate="open"
-                >
-                    <ArchivedWishes wishes={completed} />
+            {activeTab === 'archived' && (
+                <MotionTabsContent value="archived">
+                    <ArchivedWishes />
                 </MotionTabsContent>
             )}
         </Tabs>

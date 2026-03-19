@@ -1,5 +1,7 @@
 export const WISHES_TAG = 'wishes';
 export const RESERVATIONS_TAG = 'reservations';
+export const GIFTED_TAG = 'gifted';
+export const ARCHIVED_TAG = 'archived';
 export const FRIENDS_TAG = 'friends';
 export const FOLLOWERS_TAG = 'followers';
 export const FOLLOWING_TAG = 'followings';

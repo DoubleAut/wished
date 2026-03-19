@@ -2,4 +2,5 @@
 
 import { revalidateTag } from 'next/cache';
 
-export const revalidateTagFromServer = (tag: string) => revalidateTag(tag);
+export const revalidateTagFromServer = async (tag: string) =>
+    revalidateTag(tag, 'max');

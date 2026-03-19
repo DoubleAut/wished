@@ -20,16 +20,25 @@ export const UserAvatar = ({ href, className }: UserAvatarProps) => {
 };
 
 interface UserInitialsProps {
-    name: string;
-    surname: string;
+    username: string;
+    name?: string;
+    surname?: string;
 }
 
-export const UserInitials = ({ name, surname }: UserInitialsProps) => {
-    return (
-        <Header>
-            {name} {surname}
-        </Header>
-    );
+export const UserInitials = ({
+    username,
+    name,
+    surname,
+}: UserInitialsProps) => {
+    if (name && surname) {
+        return (
+            <Header>
+                {name} {surname}
+            </Header>
+        );
+    }
+
+    return <Header>{username}</Header>;
 };
 
 interface UserLinksProps {
