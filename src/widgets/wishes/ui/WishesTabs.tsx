@@ -1,5 +1,6 @@
 'use client';
 
+import { getWishes } from '@/entities/wish/lib';
 import { WishDialog } from '@/entities/wish/ui/WishDialog';
 import { WishForm } from '@/entities/wish/ui/WishForm';
 import {
@@ -11,8 +12,9 @@ import {
 import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { RiBardLine } from '@remixicon/react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 export type WishesTypes = 'wishes' | 'reservations' | 'gifted' | 'archived';
 
@@ -45,6 +47,40 @@ export const WishesTabs = () => {
 
     // TODO: Wishes don't appear on wishes tab, FIX IT!!!!
     // After that can proceed to friends web!
+
+    const { data: ownWishes, status: ownWishesStatus } = useQuery({
+        queryKey: ['wishes'],
+        queryFn: () => {
+            if (!viewer) {
+                return [];
+            }
+
+            return getWishes(viewer.id);
+        },
+    });
+
+    const { data: reservedWishes, status: reservationWishesStatus } = useQuery({
+        queryKey: ['reservations'],
+        queryFn: () => {
+            if (!viewer) {
+                return [];
+            }
+
+            return getReservations(viewer.id);
+        },
+    });
+
+    useEffect(() => {
+        if (ownWishesStatus === 'success' && ownWishes) {
+            setWishes(ownWishes);
+        }
+    }, [ownWishes, ownWishesStatus]);
+
+    useEffect(() => {
+        if (reservationWishesStatus === 'success' && reservedWishes) {
+            setReservations(reservedWishes);
+        }
+    }, [reservedWishes, reservationWishesStatus]);
 
     return (
         <Tabs

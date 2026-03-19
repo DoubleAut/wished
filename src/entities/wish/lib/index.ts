@@ -6,7 +6,7 @@ import {
     RESERVATIONS_TAG,
     WISHES_TAG,
 } from '@/shared/lib/constants/FetchTags';
-import { Wish } from '@/shared/types/Wish';
+import type { Wish } from '../../../../shared/types/Wish';
 
 export interface MyWishesPaginatedResponse {
     items: Wish[];
@@ -22,7 +22,7 @@ export const getWishes = async (id: string, page: number, limit = LIMIT) => {
         true,
     );
 
-    return response;
+    return response.items;
 };
 
 export const getMyWishesPaginated = async (page: number, limit = LIMIT) => {
@@ -31,8 +31,15 @@ export const getMyWishesPaginated = async (page: number, limit = LIMIT) => {
         [WISHES_TAG],
         true,
     );
+};
 
-    return response;
+export const getReservations = async (userId: string) => {
+    const response = await get<MyWishesPaginatedResponse>(
+        'wishes/reservations/' + userId,
+        [],
+    );
+
+    return response.items;
 };
 
 export const getMyReservationsPaginated = async (

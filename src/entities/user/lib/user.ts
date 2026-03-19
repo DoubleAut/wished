@@ -1,9 +1,7 @@
-import { getMyWishesPaginated } from '@/entities/wish/lib';
-import { getCategories } from '@/features/category/lib';
+import { USERS_ENDPOINT } from '@/features/auth/login/lib/api';
 import { get } from '@/shared/api/Fetch';
-import { FullUser, PlainUser } from '@/shared/types/User';
 import '@total-typescript/ts-reset';
-import { getUserWithFriends } from './friends';
+import type { FullUser, PlainUser } from '../../../../shared/types/User';
 
 export const getUsers = async () => {
     const response = await get<FullUser[]>('/users', ['users']);
@@ -11,20 +9,15 @@ export const getUsers = async () => {
     return response;
 };
 
-export const getUser = async (id: number) => {
-    const response = await get<PlainUser>(`/users/${id}`, ['user']);
+type GetUserResponse = { message: string; user: PlainUser };
 
-    return response;
-};
+export const getUser = async (id: string) => {
+    const response = await get<GetUserResponse>(`${USERS_ENDPOINT}/${id}`, [
+        'user',
+        'friends',
+    ]);
 
-export const getOwnFullUser = async (id: number) => {
-    const user = await getUserWithFriends(id);
-    const wishes = await getMyWishesPaginated(id);
-    const categories = await getCategories(id);
+    console.log('Response: ', response);
 
-    return {
-        ...user,
-        ...wishes,
-        categories,
-    };
+    return response.user;
 };

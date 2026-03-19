@@ -9,7 +9,6 @@ import {
     wishSchema,
 } from '@/features/wish/lib';
 import { dialogStore } from '@/features/wish/model/dialogView';
-import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { DatePicker } from '@/shared/ui/date-picker';
 import { Input } from '@/shared/ui/input';
@@ -23,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useStore } from 'zustand';
-import { deleteImage } from '../lib';
+import type { Wish } from '../../../../shared/types/Wish';
 import { getDefaultValues, getImageObject } from '../lib/helpers';
 
 type FieldErrorKey = 'title' | 'description' | 'price' | null;
@@ -137,10 +136,10 @@ export const WishForm = ({ onCancel, onSuccess }: Props) => {
 
     const handleDeleteImage = (key: string) => {
         setLoading(true);
-        deleteImage(key)
-            .then(() => setValue('picture', null))
-            .catch(message => setError('picture', { message }))
-            .finally(() => setLoading(false));
+        // deleteImage(key)
+        //     .then(() => setValue('picture', null))
+        //     .catch((message: string) => setError('picture', { message }))
+        //     .finally(() => setLoading(false));
     };
 
     return (

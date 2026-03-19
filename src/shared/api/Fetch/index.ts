@@ -1,11 +1,7 @@
 import { logout } from '@/features/auth/logout/lib';
 import { API_URL } from '@/shared/lib/constants/Config';
 import { redirect } from 'next/navigation';
-import {
-    getAccessToken,
-    getAuthorizationHeader,
-    setAccessToken,
-} from './accessToken';
+import { getAccessToken, setAccessToken } from './accessToken';
 
 /**
  * Small delay helper for retry backoff.
@@ -32,9 +28,6 @@ const handleUnauthorized = async () => {
     const response = await fetch(API_URL + '/auth/refresh', {
         method: 'GET',
         credentials: 'include',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
     });
 
     if (!response.ok) {
@@ -43,7 +36,7 @@ const handleUnauthorized = async () => {
         redirect('/auth/login');
     }
 
-    const data = (await response.json()) as { accessToken: string; id: number };
+    const data = (await response.json()) as { accessToken: string };
 
     setAccessToken(data.accessToken);
 
@@ -151,7 +144,7 @@ const request = async <R, B = unknown>(
  * Public helpers that match the previous API shape, implemented on top of `request`.
  */
 export const rotateTokens = async () => {
-    const response = (await handleUnauthorized()) as { id: number };
+    const response = await handleUnauthorized();
     return response;
 };
 

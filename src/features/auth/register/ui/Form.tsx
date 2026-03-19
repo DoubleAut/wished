@@ -17,6 +17,7 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { getError } from '../../lib';
 import { register as signUp } from '../lib/register';
@@ -32,11 +33,10 @@ export const RegistrationForm = () => {
     } = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
-            email: 'mail@mail.com',
-            password: '123Qweasd',
-            confirmPassword: '123Qweasd',
-            name: 'John',
-            surname: 'Doe',
+            email: 'drezzerock+1@gmail.com',
+            password: '123,.Qweasd',
+            confirmPassword: '123,.Qweasd',
+            username: 'richardpickman1',
         },
     });
 
@@ -64,12 +64,12 @@ export const RegistrationForm = () => {
 
         signUp(result)
             .then(() => {
-                router.push('/auth/login');
+                console.log('Success. Redirecting to confirmation page...');
+
+                router.push(`/auth/confirm?username=${result.username}`);
             })
             .catch((err: any) => {
-                Array.isArray(err.message)
-                    ? handleArrayError(err)
-                    : handleMessageError(err);
+                toast.error(err);
             })
             .finally(() => setLoading(false));
     };
@@ -85,6 +85,19 @@ export const RegistrationForm = () => {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="flex flex-col space-y-2">
+                        <Label htmlFor="username">Username</Label>
+                        <Input
+                            id="username"
+                            placeholder="JohnDoe"
+                            {...register('username')}
+                        />
+                        {errors.username && (
+                            <Label className="text-destructive">
+                                {errors.username?.message}
+                            </Label>
+                        )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
                             id="email"
@@ -98,56 +111,28 @@ export const RegistrationForm = () => {
                         )}
                     </div>
                     <div className="flex flex-col space-y-2">
-                        <Label htmlFor="email">Password</Label>
+                        <Label htmlFor="password">Email</Label>
                         <Input
                             id="password"
                             type="password"
                             {...register('password')}
                         />
-                        {errors.password && (
+                        {errors.email && (
                             <Label className="text-destructive">
-                                {errors.email?.message}
+                                {errors.password?.message}
                             </Label>
                         )}
                     </div>
                     <div className="flex flex-col space-y-2">
-                        <Label htmlFor="confirmPassword">
-                            Confirm password
-                        </Label>
+                        <Label htmlFor="email">Confirm password</Label>
                         <Input
-                            id="confirmPassword"
+                            id="password"
                             type="password"
                             {...register('confirmPassword')}
                         />
-                        {errors.confirmPassword && (
+                        {errors.email && (
                             <Label className="text-destructive">
                                 {errors.confirmPassword?.message}
-                            </Label>
-                        )}
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            placeholder="John"
-                            {...register('name')}
-                        />
-                        {errors.name && (
-                            <Label className="text-destructive">
-                                {errors.name?.message}
-                            </Label>
-                        )}
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                        <Label htmlFor="consurname">Surname</Label>
-                        <Input
-                            id="surname"
-                            placeholder="John"
-                            {...register('surname')}
-                        />
-                        {errors.surname && (
-                            <Label className="text-destructive">
-                                {errors.surname?.message}
                             </Label>
                         )}
                     </div>
