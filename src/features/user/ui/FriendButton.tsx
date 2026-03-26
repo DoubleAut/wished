@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { addFriend, removeFriend } from '../api/friendActions';
 
 interface Props {
-    friendId: number;
+    friendId: string;
     onAction?: () => void;
 }
 

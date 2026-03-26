@@ -2,7 +2,6 @@
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { removeCategory } from '@/features/category/lib';
-import { Category } from '@/shared/types/Category';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,6 +17,7 @@ import { Button } from '@/shared/ui/button';
 import { RiDeleteBinLine } from '@remixicon/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Category } from '../../../../shared/types/Category';
 
 export const DeleteCategory = ({ category }: { category: Category }) => {
     const [isLoading, setIsLoading] = useState(false);

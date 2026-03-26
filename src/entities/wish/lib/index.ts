@@ -1,28 +1,28 @@
+import { WISHES_ENDPOINT } from '@/features/wish/lib/api';
 import { get, remove } from '@/shared/api/Fetch';
 import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
-import { Wish } from '@/shared/types/Wish';
+import { Wish } from '../../../../shared/types/Wish';
 
-interface WishesAndReservations {
-    wishes: Wish[];
-    reservations: Wish[];
-    gifted: Wish[];
-    completed: Wish[];
-}
+type GetWishesResponse = { message: string; wishes: Wish[] };
 
-export const getOwnWishes = async (userId: number) => {
-    const response = await get<WishesAndReservations>(
-        `/wishes/own/${userId}`,
-        ['wishes', 'reservations'],
-        true,
+export const getWishes = async (userId: string) => {
+    const response = await get<GetWishesResponse>(
+        `${WISHES_ENDPOINT}/list/${userId}`,
+        [],
     );
 
-    return response;
+    return response.wishes;
 };
 
-export const getUserWishes = async (userId: number) => {
-    const response = await get<Wish[]>(`/wishes/${userId}`, ['wishes']);
+const reservationsEndpoint = `${WISHES_ENDPOINT}/reservations/`;
 
-    return response;
+export const getReservations = async (userId: string) => {
+    const response = await get<GetWishesResponse>(
+        reservationsEndpoint + userId,
+        [],
+    );
+
+    return response.wishes;
 };
 
 export const deleteImage = async (key: string) => {

@@ -1,5 +1,5 @@
-import { Wish } from '@/shared/types/Wish';
 import { create } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 
 export type DialogMode = 'edit' | 'view';
 

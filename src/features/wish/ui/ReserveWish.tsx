@@ -2,15 +2,16 @@
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { revalidateTagFromServer } from '@/shared/api/Fetch/revalidateTag';
-import { Wish } from '@/shared/types/Wish';
 import { Button } from '@/shared/ui/button';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
+import { Wish } from '../../../../shared/types/Wish';
 import { cancelReservedWish, reserveWish } from '../lib';
 import { dialogStore } from '../model/dialogView';
 
 export const ReserveWish = () => {
     const dialogWishStore = useStore(dialogStore);
+    const userStore = useViewerStore(state => state.user);
     const dialogWish = dialogWishStore.dialogWish;
     const setDialogWish = dialogWishStore.setDialogWish;
 
@@ -28,18 +29,25 @@ export const ReserveWish = () => {
     }
 
     const onClick = () => {
-        if (dialogWish && viewer) {
-            const isReserved = dialogWish.reservedBy;
+        console.log(dialogWish);
+
+        if (!userStore || !dialogWish) {
+            return;
+        }
+
+        if (viewer) {
+            const isReserved = dialogWish.reservedBy !== 'None';
             const wish = dialogWish as Wish;
 
             if (!isReserved) {
                 const id = wish.id;
 
-                reserveWish(id)
+                reserveWish(id, userStore.id)
                     .then(reservedWish => {
-                        setDialogWish(reservedWish, 'view');
+                        const newWish = { ...dialogWish, ...reservedWish };
+                        setDialogWish(newWish, 'view');
 
-                        moveWishToViewerReservations(reservedWish);
+                        moveWishToViewerReservations(newWish);
 
                         revalidateTagFromServer('wishes');
 
@@ -50,12 +58,17 @@ export const ReserveWish = () => {
                     });
             }
 
-            if (isReserved && dialogWish.reservedBy?.id === viewer.id) {
+            if (isReserved && dialogWish.reservedBy === viewer.id) {
                 const wish = dialogWish as Wish;
                 const id = wish.id;
 
                 cancelReservedWish(id)
-                    .then(reservedWish => {
+                    .then(result => {
+                        const reservedWish = {
+                            ...dialogWish,
+                            ...result,
+                        } as Wish;
+
                         setDialogWish(reservedWish, 'view');
 
                         removeWishFromViewerReservations(reservedWish);
@@ -73,7 +86,9 @@ export const ReserveWish = () => {
 
     return (
         <Button variant="outline" onClick={onClick}>
-            {dialogWish?.reservedBy ? 'Cancel reservation' : 'Reserve'}
+            {dialogWish?.reservedBy === 'None'
+                ? 'Reserve'
+                : 'Cancel reservation'}
         </Button>
     );
 };

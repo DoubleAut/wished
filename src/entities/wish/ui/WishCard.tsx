@@ -1,6 +1,5 @@
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { cn } from '@/shared/lib/classNames/cn';
-import { Wish } from '@/shared/types/Wish';
 import { Typography } from '@/shared/ui/Text/typography';
 import { AspectRatio } from '@/shared/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
@@ -9,13 +8,14 @@ import { RiEyeLine, RiEyeOffLine, RiGiftLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Wish } from '../../../../shared/types/Wish';
 
 export const Badges = ({ wish }: { wish: Wish }) => {
     const viewer = useViewerStore(state => state.user);
     const isReservedByViewer =
-        wish.reservedBy && wish.reservedBy?.id === viewer?.id;
-    const isHidden = viewer?.id === wish.owner.id && wish.isHidden;
-    const isOwnPresent = wish.owner.id === viewer?.id;
+        wish.reservedBy && wish.reservedBy === viewer?.id;
+    const isHidden = viewer?.id === wish.ownerId && wish.isHidden;
+    const isOwnPresent = wish.ownerId === viewer?.id;
 
     return (
         <div className="inherit">
@@ -69,8 +69,6 @@ const MotionImage = motion(Image);
 
 export const WishCard = ({ wish }: { wish: Wish }) => {
     const [isHover, setHover] = useState(false);
-    const date = new Date(wish.created_at);
-    const splitted = [date.getDay(), date.getMonth(), date.getFullYear()];
 
     return (
         <Ratio
@@ -105,15 +103,13 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                         <Avatar className="h-10 w-10">
                             <AvatarImage
                                 className="object-cover"
-                                src={
-                                    wish.owner.picture ?? 'avatar_not_found.png'
-                                }
+                                src="avatar_not_found.png"
                                 alt="@shadcn"
                             />
                             <AvatarFallback>Avatar</AvatarFallback>
                         </Avatar>
                         <Typography variant="lead">
-                            {wish.owner.name} {wish.owner.surname}
+                            Placeholder Name : Placeholder Surname
                         </Typography>
                     </div>
                     <div className="flex items-center justify-between">
@@ -132,9 +128,6 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                         className="truncate text-left"
                     >
                         {wish.description}
-                    </Typography>
-                    <Typography variant="small" className="w-fit text-end">
-                        {splitted.join('.')}
                     </Typography>
                 </div>
             </div>

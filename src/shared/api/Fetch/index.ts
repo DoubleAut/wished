@@ -1,9 +1,5 @@
-import { logout } from '@/features/auth/logout/lib';
-import { API_URL } from '@/shared/lib/constants/Config';
-import { redirect } from 'next/navigation';
 import {
-    getAccessToken,
-    getAuthorizationHeader,
+    getHeadersWithAuthorizationIfPresent,
     setAccessToken,
 } from './accessToken';
 
@@ -12,39 +8,24 @@ function wait(delay: number) {
 }
 
 export const rotateTokens = async () => {
-    const response = (await handleUnauthorized()) as { id: number };
+    const response = await handleUnauthorized();
 
-    return response;
-};
-
-const logOutAndRedirect = () => {
-    logout();
-
-    redirect('/auth/login');
+    return response as { accessToken: string };
 };
 
 const handleUnauthorized = async () => {
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-        console.log('No access token');
-        logOutAndRedirect();
-    }
-
-    const response = await fetch(API_URL + '/auth/refresh', {
-        method: 'GET',
+    const response = await fetch('/api/rotate', {
+        method: 'POST',
         credentials: 'include',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
     });
 
     if (!response.ok) {
-        console.log('response is not ok');
-        logOutAndRedirect();
+        const err = (await response.json()) as { message: string };
+
+        throw new Error(err.message);
     }
 
-    const data = (await response.json()) as { accessToken: string; id: number };
+    const data = (await response.json()) as { accessToken: string };
 
     setAccessToken(data.accessToken);
 
@@ -58,15 +39,12 @@ export const post = async <B, R>(
     withBearer: boolean = false,
     retriesLeft = 3,
 ): Promise<R> => {
-    const response = await fetch(`${API_URL}${url}`, {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
+
+    const response = await fetch(url, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
-        next: {
-            tags,
-        },
+        headers: headers,
+        next: { tags },
         credentials: withBearer ? 'include' : 'omit',
         body: JSON.stringify(data),
     });
@@ -99,14 +77,12 @@ export const patch = async <B, R>(
     withBearer: boolean = false,
     retriesLeft: number = 3,
 ): Promise<R> => {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
     const body = JSON.stringify(data);
 
-    const response = await fetch(API_URL + url, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: headers,
         next: {
             tags,
         },
@@ -141,12 +117,10 @@ export const remove = async <Body>(
     withBearer: boolean = false,
     retriesLeft = 3,
 ): Promise<Body> => {
-    const response = await fetch(API_URL + url, {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
+    const response = await fetch(url, {
         method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
+        headers: headers,
         next: {
             tags,
         },
@@ -180,15 +154,10 @@ export const get = async <R>(
     withBearer: boolean = false,
     retriesLeft: number = 3,
 ): Promise<R> => {
-    const response = await fetch(API_URL + url, {
+    const headers = getHeadersWithAuthorizationIfPresent(withBearer);
+    const response = await fetch(url, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(withBearer && getAuthorizationHeader()),
-        },
-        next: {
-            tags,
-        },
+        headers: headers,
     });
 
     if (response.status === 401 && retriesLeft > 0) {

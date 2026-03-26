@@ -1,4 +1,3 @@
-import { Category } from '@/shared/types/Category';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
@@ -7,6 +6,7 @@ import { RiAddLine } from '@remixicon/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Category } from '../../../../shared/types/Category';
 
 interface Props {
     onAction: (item: Partial<Category> & { name: string }) => void;

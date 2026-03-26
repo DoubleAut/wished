@@ -10,8 +10,8 @@ import { UserSmallWidget, UserSmallWidgetSkeleton } from '.';
 
 import { useViewerStore } from '@/core/providers/ViewerProvider';
 import { FriendButton } from '@/features/user/ui/FriendButton';
-import { PlainUser, UserWithFriends } from '@/shared/types/User';
 import { RiEmotionUnhappyLine } from '@remixicon/react';
+import { PlainUser, UserWithFriends } from '../../../../shared/types/User';
 
 export const FriendsNavigation = ({
     currentPath,
