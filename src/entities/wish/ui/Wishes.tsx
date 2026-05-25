@@ -5,6 +5,7 @@ import { dialogStore } from '@/features/wish/model/dialogView';
 import { Button } from '@/shared/ui/button';
 import { WishContent } from '@/widgets/wishes/ui/WishContent';
 import { RiAddLine } from '@remixicon/react';
+import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { useWishes } from '../model/useWishes';
@@ -224,7 +225,7 @@ const WishesList = ({ type }: WishesListProps) => {
         store.setOpen(true);
     };
 
-    if (isLoading) {
+    if (isLoading && wishes.length === 0) {
         return <WishesSkeleton />;
     }
 
@@ -275,7 +276,12 @@ const WishesList = ({ type }: WishesListProps) => {
     }
 
     return (
-        <div className="space-y-2">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+            className="space-y-2"
+        >
             <div className={className}>
                 {wishes.map(wish => (
                     <WishDialog
@@ -307,7 +313,7 @@ const WishesList = ({ type }: WishesListProps) => {
                 ))}
             </div>
             <PaginatedWishes pagination={pagination} onPageChange={setPage} />
-        </div>
+        </motion.div>
     );
 };
 

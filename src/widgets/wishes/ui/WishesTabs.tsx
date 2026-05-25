@@ -8,7 +8,6 @@ import {
     ReservedWishes,
     Wishes,
 } from '@/entities/wish/ui/Wishes';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import {
     RiAddLine,
     RiArchiveLine,
@@ -16,6 +15,7 @@ import {
     RiHandbagLine,
     RiStarLine,
 } from '@remixicon/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState, type ReactNode } from 'react';
 
 export type WishesTypes = 'wishes' | 'reservations' | 'gifted' | 'archived';
@@ -54,28 +54,46 @@ const tabs: TabConfig[] = [
     },
 ];
 
+const tabVariants = {
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -8 },
+};
+
+const tabContent: Record<WishesTypes, ReactNode> = {
+    wishes: <Wishes />,
+    reservations: <ReservedWishes />,
+    gifted: <GiftedWishes />,
+    archived: <ArchivedWishes />,
+};
+
 export const WishesTabs = () => {
     const [activeTab, setActiveTab] = useState<WishesTypes>('wishes');
 
     return (
-        <Tabs
-            defaultValue="wishes"
-            className="flex w-full flex-col gap-4"
-            onValueChange={val => setActiveTab(val as WishesTypes)}
-        >
-            <div className="flex flex-row items-center justify-between">
-                <TabsList className="w-full sm:w-auto" variant="line">
+        <div className="flex w-full flex-col gap-4">
+            {/* Segmented tab bar + Add wish button */}
+            <div className="flex flex-row items-center justify-between gap-3">
+                <div className="bg-muted/50 flex flex-1 rounded-xl p-1 sm:flex-initial">
                     {tabs.map(tab => (
-                        <TabsTrigger
+                        <button
                             key={tab.value}
-                            value={tab.value}
-                            className="flex items-center gap-1.5 whitespace-nowrap"
+                            type="button"
+                            onClick={() => setActiveTab(tab.value)}
+                            className={`
+                                relative flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
+                                ${
+                                    activeTab === tab.value
+                                        ? 'bg-card text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }
+                            `}
                         >
                             {tab.icon}
                             <span>{tab.label}</span>
-                        </TabsTrigger>
+                        </button>
                     ))}
-                </TabsList>
+                </div>
                 <WishDialog
                     trigger={
                         <>
@@ -91,18 +109,23 @@ export const WishesTabs = () => {
                     defaultMode={'edit'}
                 />
             </div>
-            <TabsContent value="wishes">
-                <Wishes />
-            </TabsContent>
-            <TabsContent value="reservations">
-                <ReservedWishes />
-            </TabsContent>
-            <TabsContent value="gifted">
-                <GiftedWishes />
-            </TabsContent>
-            <TabsContent value="archived">
-                <ArchivedWishes />
-            </TabsContent>
-        </Tabs>
+
+            {/* Animated tab content */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeTab}
+                    variants={tabVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={{
+                        duration: 0.1,
+                        ease: [0.25, 0.1, 0.25, 1],
+                    }}
+                >
+                    {tabContent[activeTab]}
+                </motion.div>
+            </AnimatePresence>
+        </div>
     );
 };

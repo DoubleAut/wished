@@ -5,18 +5,40 @@ import { FriendsWidget } from '@/widgets/user/ui/Friends';
 import { motion } from 'framer-motion';
 
 const FriendsPageSkeleton = () => (
-    <div className="mx-auto flex max-w-lg items-center justify-center px-4 py-24">
-        <div className="w-full space-y-4">
-            <div className="h-8 w-32 animate-pulse rounded-lg bg-muted" />
-            <div className="h-4 w-48 animate-pulse rounded-lg bg-muted" />
-            <div className="h-10 w-full animate-pulse rounded-xl bg-muted" />
-            <div className="h-10 w-full animate-pulse rounded-xl bg-muted" />
+    <div className="mx-auto flex max-w-xl items-center justify-center px-4 py-6 sm:px-0">
+        <div className="w-full space-y-5">
+            {/* Header skeleton */}
+            <div className="space-y-2">
+                <div className="bg-muted relative h-8 w-32 overflow-hidden rounded-lg">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                </div>
+                <div className="bg-muted relative h-4 w-48 overflow-hidden rounded-lg">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite_0.1s] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                </div>
+            </div>
+
+            {/* Tab skeleton */}
+            <div className="bg-muted relative h-10 w-full overflow-hidden rounded-xl">
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite_0.2s] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </div>
+
+            {/* Search skeleton */}
+            <div className="bg-muted relative h-10 w-full overflow-hidden rounded-xl">
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite_0.3s] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </div>
+
+            {/* Cards skeleton */}
             <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                     <div
                         key={i}
-                        className="h-16 w-full animate-pulse rounded-xl bg-muted"
-                    />
+                        className="bg-muted relative h-16 w-full overflow-hidden rounded-xl"
+                    >
+                        <div
+                            className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                            style={{ animationDelay: `${0.4 + i * 0.1}s` }}
+                        />
+                    </div>
                 ))}
             </div>
         </div>

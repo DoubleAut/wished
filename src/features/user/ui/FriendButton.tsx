@@ -5,7 +5,8 @@ import { revalidateTagFromServer } from '@/shared/api/Fetch/revalidateTag';
 import { FRIENDS_TAG, USERS_TAG } from '@/shared/lib/constants/FetchTags';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2Icon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -24,9 +25,6 @@ export const FriendButton = ({ friendId, onAction }: Props) => {
 
     // Check if the friend is in the followings list
     const isIncluded = followings.some(user => user.id === friendId);
-
-    // If followings list is empty but we know we follow someone, we need to handle this
-    // The backend will tell us if friendship already exists
 
     const onFollow = useCallback(() => {
         if (!viewer || isProcessing) {
@@ -49,8 +47,6 @@ export const FriendButton = ({ friendId, onAction }: Props) => {
 
                 // If friendship already exists, treat it as success and update local state
                 if (errorMsg.includes('Friendship already exist')) {
-                    // Add the friend to followings list optimistically
-                    // We need to fetch the user data to add them
                     toast.success('Already following this user');
                 } else {
                     toast.error(
@@ -113,25 +109,42 @@ export const FriendButton = ({ friendId, onAction }: Props) => {
             onClick={isIncluded ? onUnfollow : onFollow}
             disabled={isProcessing}
             className={`
-                relative overflow-hidden rounded-lg px-3 py-1.5 text-xs font-medium
+                relative min-w-[80px] overflow-hidden rounded-lg px-3 py-1.5 text-xs font-medium
                 transition-all duration-200
                 ${
                     isIncluded
-                        ? 'border-border text-muted-foreground hover:border-destructive/50 hover:text-destructive'
+                        ? 'border-border text-muted-foreground hover:border-destructive/50 hover:bg-destructive/5 hover:text-destructive'
                         : 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm'
                 }
             `}
         >
-            <div className="inline-block overflow-hidden">
-                <motion.span
-                    className="flex flex-col"
-                    animate={{ y: isIncluded ? 0 : -22 }}
-                    transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-                >
-                    <span>Unfollow</span>
-                    <span>Follow</span>
-                </motion.span>
-            </div>
+            <AnimatePresence mode="wait">
+                {isProcessing ? (
+                    <motion.span
+                        key="loading"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.15 }}
+                        className="flex items-center justify-center"
+                    >
+                        <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
+                    </motion.span>
+                ) : (
+                    <motion.span
+                        key={isIncluded ? 'unfollow' : 'follow'}
+                        initial={{ opacity: 0, scale: 0.85, y: 4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.85, y: -4 }}
+                        transition={{
+                            duration: 0.18,
+                            ease: [0.25, 0.1, 0.25, 1],
+                        }}
+                    >
+                        {isIncluded ? 'Unfollow' : 'Follow'}
+                    </motion.span>
+                )}
+            </AnimatePresence>
         </Button>
     );
 };
