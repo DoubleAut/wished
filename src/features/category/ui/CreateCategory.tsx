@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { createCategory } from '@/features/category/lib';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';

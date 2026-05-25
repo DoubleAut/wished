@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { Button } from '@/shared/ui/button';
 import {
     Card,
@@ -20,7 +20,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { getError } from '../../lib';
-import { getUser } from '../lib/getUser';
 import { login } from '../lib/login';
 
 export const LoginForm = () => {
@@ -35,9 +34,9 @@ export const LoginForm = () => {
     } = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            username: 'richardpickman32',
-            email: 'drezzerock+32@gmail.com',
-            password: '123,.Qweasd',
+            username: '',
+            email: '',
+            password: '',
         },
     });
 
@@ -45,23 +44,9 @@ export const LoginForm = () => {
         const message = err.message;
         const error = getError(message) as 'email' | 'password' | null;
 
-        console.log('this is handle message error', err, error);
-
         if (error) {
             form.setError(error, { message });
         }
-    };
-
-    const onSuccess = async (accessToken: string) => {
-        const user = await getUser(accessToken);
-
-        console.log('Log in successfuly. User: ', user);
-
-        localStorage.setItem('accessToken', accessToken);
-
-        setUser(user);
-
-        router.push('/');
     };
 
     const onSubmit = (result: z.infer<typeof loginSchema>) => {
@@ -73,11 +58,7 @@ export const LoginForm = () => {
 
                 router.push('/');
             })
-            .catch(err =>
-                Array.isArray(err.message)
-                    ? handleArrayError(err)
-                    : handleMessageError(err),
-            )
+            .catch(onFailure)
             .finally(() => setLoading(false));
     };
 
@@ -85,13 +66,15 @@ export const LoginForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
             <Card>
                 <CardHeader>
-                    <CardTitle>Login</CardTitle>
+                    <CardTitle className="font-heading text-xl">
+                        Login
+                    </CardTitle>
                     <CardDescription>
-                        Please enter your details.
+                        Welcome back! Sign in to your account.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                    <div className="flex flex-col space-y-2">
+                <CardContent className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="username">Username</Label>
                         <Input
                             placeholder="johndoe"
@@ -104,7 +87,7 @@ export const LoginForm = () => {
                             </Label>
                         )}
                     </div>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
                             placeholder="mail@mail.com"
@@ -117,14 +100,14 @@ export const LoginForm = () => {
                             </Label>
                         )}
                     </div>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="password">Password</Label>
                         <Input
                             id="password"
                             type="password"
                             {...register('password')}
                         />
-                        {errors.email && (
+                        {errors.password && (
                             <Label className="text-destructive">
                                 {errors.password?.message}
                             </Label>

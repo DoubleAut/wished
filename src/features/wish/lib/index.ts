@@ -1,13 +1,9 @@
 import { patch, post, remove } from '@/shared/api/Fetch';
-<<<<<<< HEAD
+import { WISHES_ENDPOINT } from '@/shared/lib/constants/Config';
 import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
 import { queryClient } from '@/shared/lib/constants/Query/QueryClient';
 import { Wish } from '@/shared/types/Wish';
-=======
->>>>>>> feature/microservice-introduction
 import { z } from 'zod';
-import { Wish } from '../../../../shared/types/Wish';
-import { WISHES_ENDPOINT } from './api';
 
 export const wishSchema = z.object({
     title: z.string().min(2, {
@@ -59,7 +55,7 @@ export const createWish = async (
 
     queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
 
-    return response as Wish;
+    return response.wish;
 };
 
 export const updateWish = async (
@@ -82,11 +78,11 @@ export const deleteWish = async (id: string) => {
     return response;
 };
 
-export const reserveWish = async (id: string, reserverId: string) => {
+export const reserveWish = async (id: string, reservedBy: string) => {
     const response = await patch<{}, WishResponse>(
         `${WISHES_ENDPOINT}/${id}`,
         [],
-        { reservedBy: reserverId },
+        { reservedBy },
         true,
     );
 

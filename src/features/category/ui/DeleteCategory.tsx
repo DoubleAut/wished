@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { removeCategory } from '@/features/category/lib';
 import {
     AlertDialog,

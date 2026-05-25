@@ -19,7 +19,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { getError } from '../../lib';
 import { register as signUp } from '../lib/register';
 
 export const RegistrationForm = () => {
@@ -33,39 +32,18 @@ export const RegistrationForm = () => {
     } = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
-            email: 'drezzerock+1@gmail.com',
-            password: '123,.Qweasd',
-            confirmPassword: '123,.Qweasd',
-            username: 'richardpickman1',
+            email: '',
+            password: '',
+            confirmPassword: '',
+            username: '',
         },
     });
-
-    const handleArrayError = (err: any) => {
-        for (let message of err.message) {
-            const error = getError(message) as 'email' | 'password' | null;
-
-            if (error) {
-                form.setError(error, { message });
-            }
-        }
-    };
-
-    const handleMessageError = (err: any) => {
-        const message = err.message;
-        const error = getError(message) as 'email' | 'password' | null;
-
-        if (error) {
-            form.setError(error, { message });
-        }
-    };
 
     const onSubmit = (result: RegisterSchema) => {
         setLoading(true);
 
         signUp(result)
             .then(() => {
-                console.log('Success. Redirecting to confirmation page...');
-
                 router.push(`/auth/confirm?username=${result.username}`);
             })
             .catch((err: any) => {
@@ -78,13 +56,15 @@ export const RegistrationForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
             <Card>
                 <CardHeader>
-                    <CardTitle>Register</CardTitle>
+                    <CardTitle className="font-heading text-xl">
+                        Register
+                    </CardTitle>
                     <CardDescription>
-                        Please enter your details.
+                        Create your account and start wishing!
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                    <div className="flex flex-col space-y-2">
+                <CardContent className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="username">Username</Label>
                         <Input
                             id="username"
@@ -97,7 +77,7 @@ export const RegistrationForm = () => {
                             </Label>
                         )}
                     </div>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
                             id="email"
@@ -110,27 +90,29 @@ export const RegistrationForm = () => {
                             </Label>
                         )}
                     </div>
-                    <div className="flex flex-col space-y-2">
-                        <Label htmlFor="password">Email</Label>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="password">Password</Label>
                         <Input
                             id="password"
                             type="password"
                             {...register('password')}
                         />
-                        {errors.email && (
+                        {errors.password && (
                             <Label className="text-destructive">
                                 {errors.password?.message}
                             </Label>
                         )}
                     </div>
                     <div className="flex flex-col space-y-2">
-                        <Label htmlFor="email">Confirm password</Label>
+                        <Label htmlFor="confirmPassword">
+                            Confirm password
+                        </Label>
                         <Input
-                            id="password"
+                            id="confirmPassword"
                             type="password"
                             {...register('confirmPassword')}
                         />
-                        {errors.email && (
+                        {errors.confirmPassword && (
                             <Label className="text-destructive">
                                 {errors.confirmPassword?.message}
                             </Label>

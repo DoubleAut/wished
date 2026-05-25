@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { removeAccessToken } from '@/shared/api/Fetch/accessToken';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent } from '@/shared/ui/card';
@@ -31,7 +31,7 @@ export const Form = () => {
         <div className="flex h-[100dvh] items-center justify-center">
             <Card className="w-full max-w-md">
                 <CardContent className="space-y-6 p-6 text-center">
-                    <RiLogoutBoxLine className="mx-auto h-12 w-12 text-red-500" />
+                    <RiLogoutBoxLine className="text-destructive mx-auto h-12 w-12" />
                     <div className="space-y-2">
                         <h3 className="text-2xl font-bold">Logout</h3>
                         <p className="text-gray-500 dark:text-gray-400">

@@ -59,9 +59,11 @@ export const ConfirmationForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px]">
             <Card>
                 <CardHeader>
-                    <CardTitle>Confirmation</CardTitle>
+                    <CardTitle className="font-heading text-xl">
+                        Confirmation
+                    </CardTitle>
                     <CardDescription>
-                        Confirmation code sent to {username} email.
+                        We've sent a confirmation code to your email.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="mx-auto space-y-2">

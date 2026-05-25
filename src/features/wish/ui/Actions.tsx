@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { revalidateTagFromServer } from '@/shared/api/Fetch/revalidateTag';
 import { WISHES_TAG } from '@/shared/lib/constants/FetchTags';
 import { queryClient } from '@/shared/lib/constants/Query/QueryClient';
@@ -18,6 +18,15 @@ import {
 } from '@/shared/ui/alert-dialog';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
+import {
+    RiCheckLine,
+    RiCloseLine,
+    RiDeleteBin6Line,
+    RiEditLine,
+    RiEyeLine,
+    RiEyeOffLine,
+    RiGiftLine,
+} from '@remixicon/react';
 import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import {
@@ -75,7 +84,10 @@ export const CompleteWish = ({ onAction }: Props) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="outline">Complete</Button>
+                <Button variant="outline">
+                    <RiCheckLine className="mr-1.5 h-4 w-4" />
+                    Complete
+                </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -87,9 +99,13 @@ export const CompleteWish = ({ onAction }: Props) => {
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>
+                        <RiCloseLine className="mr-1.5 h-4 w-4" />
+                        Cancel
+                    </AlertDialogCancel>
                     <AlertDialogAction asChild>
                         <Button variant="outline" onClick={onClick}>
+                            <RiCheckLine className="mr-1.5 h-4 w-4" />
                             Complete wish
                         </Button>
                     </AlertDialogAction>
@@ -109,7 +125,11 @@ export const DeleteWish = ({ onAction }: Props) => {
             return;
         }
 
-        const wishId = dialogWish.id as number;
+        const wishId = dialogWish.id;
+
+        if (!wishId) {
+            return;
+        }
 
         setOpen(false);
 
@@ -138,7 +158,13 @@ export const DeleteWish = ({ onAction }: Props) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">Delete wish</Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive"
+                >
+                    <RiDeleteBin6Line className="h-4 w-4" />
+                </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -151,9 +177,13 @@ export const DeleteWish = ({ onAction }: Props) => {
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>
+                        <RiCloseLine className="mr-1.5 h-4 w-4" />
+                        Cancel
+                    </AlertDialogCancel>
                     <AlertDialogAction asChild>
-                        <Button variant="outline" onClick={onClick}>
+                        <Button variant="destructive" onClick={onClick}>
+                            <RiDeleteBin6Line className="mr-1.5 h-4 w-4" />
                             Delete wish
                         </Button>
                     </AlertDialogAction>
@@ -171,8 +201,13 @@ export const EditWish = ({ onAction }: Props) => {
     const onClick = () => setDialogWish(dialogWish, 'edit');
 
     return (
-        <Button variant="outline" onClick={onClick}>
-            Edit
+        <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            onClick={onClick}
+        >
+            <RiEditLine className="h-4 w-4" />
         </Button>
     );
 };
@@ -219,8 +254,18 @@ export const HideWish = ({ onAction }: Props) => {
     }
 
     return (
-        <Button variant="outline" onClick={onClick}>
-            {dialogWish?.isHidden ? 'Reveal gift' : 'Hide gift'}
+        <Button variant="outline" onClick={onClick} className="gap-1.5">
+            {dialogWish?.isHidden ? (
+                <>
+                    <RiEyeLine className="h-4 w-4" />
+                    Reveal gift
+                </>
+            ) : (
+                <>
+                    <RiEyeOffLine className="h-4 w-4" />
+                    Hide gift
+                </>
+            )}
         </Button>
     );
 };
@@ -251,7 +296,7 @@ export const ReserveWish = ({ onAction }: Props) => {
             if (!isReserved) {
                 const id = wish.id;
 
-                reserveWish(id)
+                reserveWish(id, viewer.id)
                     .then(reservedWish => {
                         setDialogWish(reservedWish, 'view');
 
@@ -261,14 +306,19 @@ export const ReserveWish = ({ onAction }: Props) => {
                             queryKey: [WISHES_TAG],
                         });
 
-                        toast.success('Wish successfully reserved');
+                        toast.success('You found the perfect gift!', {
+                            description: `"${reservedWish.title}" is now reserved. Time to wrap it up!`,
+                            icon: (
+                                <RiGiftLine className="h-5 w-5 text-accent" />
+                            ),
+                        });
                     })
                     .catch(err => {
                         toast.error(err.message);
                     });
             }
 
-            if (isReserved && dialogWish.reservedBy?.id === viewer.id) {
+            if (isReserved && dialogWish.reservedBy === viewer.id) {
                 const wish = dialogWish as Wish;
                 const id = wish.id;
 
@@ -280,7 +330,9 @@ export const ReserveWish = ({ onAction }: Props) => {
 
                         revalidateTagFromServer('wishes');
 
-                        toast.success('Successfully canceled the reservation');
+                        toast.success('Reservation canceled', {
+                            description: `"${reservedWish.title}" is available for someone else.`,
+                        });
                     })
                     .catch(err => {
                         toast.error(err.message);
@@ -290,8 +342,23 @@ export const ReserveWish = ({ onAction }: Props) => {
     };
 
     return (
-        <Button variant="outline" onClick={onClick}>
-            {dialogWish?.reservedBy ? 'Cancel reservation' : 'Reserve'}
+        <Button
+            variant={dialogWish?.reservedBy ? 'outline' : 'default'}
+            size="lg"
+            className="w-full gap-2"
+            onClick={onClick}
+        >
+            {dialogWish?.reservedBy ? (
+                <>
+                    <RiCloseLine className="h-5 w-5" />
+                    Cancel reservation
+                </>
+            ) : (
+                <>
+                    <RiGiftLine className="h-5 w-5" />
+                    Reserve this gift
+                </>
+            )}
         </Button>
     );
 };

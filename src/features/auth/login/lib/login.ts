@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
-import { authenticateUser } from './authenticateUser';
+import { setAccessToken } from '@/shared/api/Fetch/accessToken';
+import { getUser } from './getUser';
 
 export interface LoginSchema {
     username: string;
@@ -8,11 +8,23 @@ export interface LoginSchema {
 }
 
 export const login = async (data: LoginSchema) => {
-    const response = await authenticateUser(data);
+    // Native fetch is used, due to post method being fetched with default API at the start
+    // TODO: pick out default API, to use whole address, not specificly user
 
-    if (!response.accessToken) {
-        throw new Error('Authentication failed');
+    const response = await fetch('/api/authorize', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        throw new Error('Autorize failed.');
     }
 
-    redirect('/');
+    const result = (await response.json()) as { accessToken: string };
+
+    setAccessToken(result.accessToken);
+
+    const user = await getUser(result.accessToken);
+
+    return user;
 };

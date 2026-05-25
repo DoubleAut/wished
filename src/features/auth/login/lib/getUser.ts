@@ -1,5 +1,5 @@
+import { USERS_ENDPOINT } from '@/shared/lib/constants/Config';
 import { PlainUser } from '../../../../../shared/types/User';
-import { USERS_ENDPOINT } from './api';
 
 export const getUser = async (accessToken: string): Promise<PlainUser> => {
     const response = await fetch(USERS_ENDPOINT, {
