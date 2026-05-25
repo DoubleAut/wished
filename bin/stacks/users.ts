@@ -12,7 +12,13 @@ import {
     TokenAuthorizer,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
+import {
+    Effect,
+    PolicyStatement,
+    Role,
+    ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import path from 'path';
@@ -142,18 +148,64 @@ export class UsersStack extends Stack {
             },
         );
 
+        const friendsTable = new Table(this, 'FriendsTable', {
+            partitionKey: {
+                name: 'userId',
+                type: AttributeType.STRING,
+            },
+            sortKey: {
+                name: 'friendId',
+                type: AttributeType.STRING,
+            },
+            removalPolicy: RemovalPolicy.DESTROY,
+        });
+
+        const addFriendHandler = new NodejsFunction(this, 'AddFriendHandler', {
+            ...commonLambdaProps,
+            environment: {
+                COGNITO_REGION: this.region,
+                COGNITO_USER_POOL_ID: userPool.userPoolId,
+                FRIENDS_TABLE_NAME: friendsTable.tableName,
+            },
+            functionName: 'AddFriendHandler',
+            entry: path.join(lambdaPath, 'friends', 'addFriend.ts'),
+        });
+
+        const removeFriendHandler = new NodejsFunction(
+            this,
+            'RemoveFriendHandler',
+            {
+                ...commonLambdaProps,
+                environment: {
+                    COGNITO_REGION: this.region,
+                    COGNITO_USER_POOL_ID: userPool.userPoolId,
+                    FRIENDS_TABLE_NAME: friendsTable.tableName,
+                },
+                functionName: 'RemoveFriendHandler',
+                entry: path.join(lambdaPath, 'friends', 'removeFriend.ts'),
+            },
+        );
+
+        const listFriendsHandler = new NodejsFunction(
+            this,
+            'ListFriendsHandler',
+            {
+                ...commonLambdaProps,
+                environment: {
+                    COGNITO_REGION: this.region,
+                    COGNITO_USER_POOL_ID: userPool.userPoolId,
+                    FRIENDS_TABLE_NAME: friendsTable.tableName,
+                },
+                functionName: 'ListFriendsHandler',
+                entry: path.join(lambdaPath, 'friends', 'listFriends.ts'),
+            },
+        );
+
         const integrationRole = new Role(this, 'authExecutionRole', {
             assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
         });
 
         TokenAuthorizerHandler.grantInvoke(integrationRole);
-
-        const authorizer = new TokenAuthorizer(this, 'TokenAuthorizer', {
-            handler: TokenAuthorizerHandler,
-            authorizerName: 'TokenAuthorizer',
-            assumeRole: integrationRole,
-            resultsCacheTtl: Duration.minutes(0),
-        });
 
         const registerPolicy = new PolicyStatement({
             actions: ['cognito-idp:SignUp'],
@@ -171,7 +223,11 @@ export class UsersStack extends Stack {
             actions: ['cognito-idp:AdminGetUser'],
             resources: [userPool.userPoolArn],
         });
+
         getPublicUserHandler.addToRolePolicy(adminGetUserPolicy);
+        listFriendsHandler.addToRolePolicy(adminGetUserPolicy);
+        addFriendHandler.addToRolePolicy(adminGetUserPolicy);
+        removeFriendHandler.addToRolePolicy(adminGetUserPolicy);
 
         const confirmPolicy = new PolicyStatement({
             actions: ['cognito-idp:ConfirmSignUp'],
@@ -185,6 +241,33 @@ export class UsersStack extends Stack {
         });
         loginHandler.addToRolePolicy(authenticationPolicy);
         rotateTokensHandler.addToRolePolicy(authenticationPolicy);
+
+        // Friends table permissions
+        const friendsTableWritePolicy = new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ['dynamodb:PutItem', 'dynamodb:DeleteItem'],
+            resources: [friendsTable.tableArn],
+        });
+        addFriendHandler.addToRolePolicy(friendsTableWritePolicy);
+        removeFriendHandler.addToRolePolicy(friendsTableWritePolicy);
+
+        const friendsTableReadPolicy = new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ['dynamodb:Query'],
+            resources: [friendsTable.tableArn],
+        });
+        addFriendHandler.addToRolePolicy(friendsTableReadPolicy);
+        removeFriendHandler.addToRolePolicy(friendsTableReadPolicy);
+        listFriendsHandler.addToRolePolicy(friendsTableReadPolicy);
+
+        const authorizer = new TokenAuthorizer(this, 'TokenAuthorizer', {
+            handler: TokenAuthorizerHandler,
+            authorizerName: 'TokenAuthorizer',
+            assumeRole: integrationRole,
+            resultsCacheTtl: Duration.minutes(0),
+        });
+
+        // ─── API Gateway ──────────────────────────────────────────────────────────
 
         const restApi = new RestApi(this, 'UsersApi', {
             restApiName: 'UsersApi',
@@ -216,7 +299,22 @@ export class UsersStack extends Stack {
                 allowCredentials: true,
             },
         });
-        const getPublicUserEndpoint = apiEndpoint.addResource('{username}');
+        const getPublicUserEndpoint = apiEndpoint.addResource('{username}', {
+            defaultCorsPreflightOptions: {
+                allowOrigins: ['http://localhost:3000'],
+                allowMethods: Cors.ALL_METHODS,
+                allowCredentials: true,
+            },
+        });
+
+        const friendsEndpoint = getPublicUserEndpoint.addResource('friends', {
+            defaultCorsPreflightOptions: {
+                allowOrigins: ['http://localhost:3000'],
+                allowMethods: Cors.ALL_METHODS,
+                allowCredentials: true,
+            },
+        });
+        const friendEndpoint = friendsEndpoint.addResource('{friendId}');
 
         registerEndpoint.addMethod(
             'POST',
@@ -237,6 +335,20 @@ export class UsersStack extends Stack {
         getPublicUserEndpoint.addMethod(
             'GET',
             new LambdaIntegration(getPublicUserHandler),
+        );
+
+        // Friend endpoints
+        friendsEndpoint.addMethod(
+            'GET',
+            new LambdaIntegration(listFriendsHandler),
+        );
+        friendEndpoint.addMethod(
+            'POST',
+            new LambdaIntegration(addFriendHandler),
+        );
+        friendEndpoint.addMethod(
+            'DELETE',
+            new LambdaIntegration(removeFriendHandler),
         );
 
         new CfnOutput(this, 'ApiEndpoint', {
@@ -262,6 +374,11 @@ export class UsersStack extends Stack {
         new CfnOutput(this, 'TokenAuthorizerHandlerArn', {
             value: TokenAuthorizerHandler.functionArn,
             exportName: 'TokenAuthorizerHandlerArn',
+        });
+
+        new CfnOutput(this, 'FriendsTableName', {
+            value: friendsTable.tableName,
+            exportName: 'FriendsTableName',
         });
     }
 }

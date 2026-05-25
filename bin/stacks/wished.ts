@@ -1,18 +1,25 @@
 import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
-import { Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as path from 'path';
 import { commonLambdaProps } from './helpers';
 
 const rootDir = path.join(__dirname, '../../');
-const lambdaPath = path.join(rootDir, 'services', 'wishes');
+const lambdaPath = path.join(rootDir, 'services', 'wishes', 'handlers');
+
+interface WishesStackProps extends StackProps {
+    uploadBucket: Bucket;
+}
 
 export class WishesStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
+    constructor(scope: Construct, id: string, props: WishesStackProps) {
         super(scope, id, props);
+
+        const { uploadBucket } = props;
 
         const wishesTable = new Table(this, 'WishesTable', {
             partitionKey: {
@@ -38,6 +45,18 @@ export class WishesStack extends Stack {
             indexName: 'reservedBy',
             partitionKey: {
                 name: 'reservedBy',
+                type: AttributeType.STRING,
+            },
+            sortKey: {
+                name: 'id',
+                type: AttributeType.STRING,
+            },
+        });
+
+        wishesTable.addGlobalSecondaryIndex({
+            indexName: 'status',
+            partitionKey: {
+                name: 'status',
                 type: AttributeType.STRING,
             },
             sortKey: {
@@ -127,6 +146,7 @@ export class WishesStack extends Stack {
                 wishesTable.tableArn,
                 `${wishesTable.tableArn}/index/ownerId`,
                 `${wishesTable.tableArn}/index/reservedBy`,
+                `${wishesTable.tableArn}/index/status`,
             ],
         });
         getListedWishHandler.addToRolePolicy(queryPolicy);
@@ -147,6 +167,19 @@ export class WishesStack extends Stack {
         });
         deleteWishHandler.addToRolePolicy(deleteWishPolicy);
 
+        // S3 permissions for cascade delete on wish deletion
+        const s3DeletePolicy = new PolicyStatement({
+            actions: ['s3:DeleteObject'],
+            resources: [uploadBucket.arnForObjects('*')],
+        });
+        deleteWishHandler.addToRolePolicy(s3DeletePolicy);
+
+        // Add bucket name to delete handler environment
+        deleteWishHandler.addEnvironment(
+            'UPLOAD_BUCKET_NAME',
+            uploadBucket.bucketName,
+        );
+
         const api = new RestApi(this, 'WishesApi', {
             restApiName: 'WishesApi',
             description: 'Wishes API',
@@ -156,14 +189,15 @@ export class WishesStack extends Stack {
             defaultCorsPreflightOptions: {
                 allowOrigins: ['http://localhost:3000'],
                 allowCredentials: true,
-                allowMethods: Cors.ALL_METHODS,
+                allowMethods: ['GET', 'PUT', 'DELETE', 'OPTIONS', 'POST'],
             },
         });
+
         const wishEndpoint = rootEndpoint.addResource('{id}', {
             defaultCorsPreflightOptions: {
                 allowOrigins: ['http://localhost:3000'],
                 allowCredentials: true,
-                allowMethods: Cors.ALL_METHODS,
+                allowMethods: ['GET', 'PUT', 'DELETE', 'OPTIONS'],
             },
         });
 
