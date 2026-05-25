@@ -1,8 +1,8 @@
-import { USERS_ENDPOINT } from '@/features/auth/login/lib/api';
+import { USERS_ENDPOINT } from '@/shared/lib/constants/Config';
 import { cookies } from 'next/headers';
 
 const handler = async () => {
-    const cookiesStore = cookies();
+    const cookiesStore = await cookies();
 
     const refreshToken = cookiesStore.get('refreshToken');
     const username = cookiesStore.get('username');

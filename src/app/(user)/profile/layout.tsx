@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
     title: 'Profile | Wished',
-    description: 'Your profile page',
+    description:
+        'Your personal profile — manage your wishlist, see your stats, and keep track of gifts.',
 };
 
-async function Layout({ children }: { children: ReactNode }) {
-    return children;
-}
+export const ProfileLayout = ({ children }: { children: ReactNode }) => (
+    <>{children}</>
+);
 
-export default Layout;
+export default ProfileLayout;

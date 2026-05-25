@@ -1,6 +1,13 @@
-import { USERS_ENDPOINT } from '@/features/auth/login/lib/api';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+
+const RAW_USERS_ENDPOINT = process.env.NEXT_PUBLIC_USERS_ENDPOINT;
+
+if (!RAW_USERS_ENDPOINT) {
+    throw new Error('NEXT_PUBLIC_USERS_ENDPOINT is not set');
+}
+
+const USERS_ENDPOINT = RAW_USERS_ENDPOINT!;
 
 const handler = async (req: NextRequest) => {
     const body = (await req.json()) as {
@@ -23,6 +30,7 @@ const handler = async (req: NextRequest) => {
 
     if (response.status !== 200) {
         const err = (await response.json()) as { message: string };
+        console.log(response);
 
         return new Response(JSON.stringify({ message: err.message }), {
             status: 400,
@@ -50,7 +58,7 @@ const handler = async (req: NextRequest) => {
 
     const refreshTokenValue = refreshToken.split('=')[1]!;
 
-    const cookiesStore = cookies();
+    const cookiesStore = await cookies();
 
     const expires = new Date();
 

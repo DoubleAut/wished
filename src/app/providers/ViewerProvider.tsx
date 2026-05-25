@@ -1,7 +1,7 @@
 'use client';
 
 import { useBoundGlobalUserStore } from '@/entities/viewer/model/viewerStore';
-import { GlobalStore } from '@/shared/types/GlobalStore';
+import { GlobalStore } from '@/entities/viewer/model/globalStore';
 import { createContext, useContext, useRef, type ReactNode } from 'react';
 import { useStore, type StoreApi } from 'zustand';
 

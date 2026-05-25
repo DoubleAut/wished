@@ -1,0 +1,154 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent-subtle: var(--accent-subtle);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --radius: 1rem;
+    --font-heading: var(--font-heading);
+    --font-sans: var(--font-sans);
+}
+
+:root {
+    /* Warm cream / kraft paper background */
+    --background: oklch(0.93 0.02 70);
+    /* Deep warm brown-black text */
+    --foreground: oklch(0.2 0.03 30);
+    /* Slightly lighter cream for card surfaces — layered paper effect */
+    --card: oklch(0.96 0.015 70);
+    --card-foreground: oklch(0.2 0.03 30);
+    --popover: oklch(0.96 0.015 70);
+    --popover-foreground: oklch(0.2 0.03 30);
+    /* Warm terracotta / brick red — main action color */
+    --primary: oklch(0.55 0.14 30);
+    --primary-foreground: oklch(0.96 0.015 70);
+    --secondary: oklch(0.88 0.03 70);
+    --secondary-foreground: oklch(0.2 0.03 30);
+    --muted: oklch(0.9 0.02 70);
+    --muted-foreground: oklch(0.5 0.03 40);
+    /* Warm terracotta accent */
+    --accent: oklch(0.55 0.14 30);
+    --accent-foreground: oklch(0.96 0.015 70);
+    --accent-subtle: oklch(0.85 0.05 30);
+    --destructive: oklch(0.55 0.18 25);
+    --destructive-foreground: oklch(0.96 0.015 70);
+    /* Subtle warm terracotta border — like a gift tag edge */
+    --border: oklch(0.75 0.06 35);
+    --input: oklch(0.78 0.05 35);
+    --ring: oklch(0.55 0.14 30);
+    /* Warm sage / olive green */
+    --success: oklch(0.55 0.1 140);
+    --success-foreground: oklch(0.96 0.015 70);
+    /* Muted gold / ochre — celebratory */
+    --warning: oklch(0.7 0.12 75);
+    --warning-foreground: oklch(0.2 0.03 30);
+    --chart-1: oklch(0.55 0.14 30);
+    --chart-2: oklch(0.55 0.1 140);
+    --chart-3: oklch(0.7 0.12 75);
+    --chart-4: oklch(0.75 0.06 35);
+    --chart-5: oklch(0.2 0.03 30);
+    --sidebar: oklch(0.96 0.015 70);
+    --sidebar-foreground: oklch(0.2 0.03 30);
+    --sidebar-primary: oklch(0.55 0.14 30);
+    --sidebar-primary-foreground: oklch(0.96 0.015 70);
+    --sidebar-accent: oklch(0.88 0.03 70);
+    --sidebar-accent-foreground: oklch(0.2 0.03 30);
+    --sidebar-border: oklch(0.75 0.06 35);
+    --sidebar-ring: oklch(0.55 0.14 30);
+}
+
+.dark {
+    /* Very dark terracotta — like dark wrapping paper */
+    --background: oklch(0.15 0.03 30);
+    /* Warm cream text */
+    --foreground: oklch(0.93 0.02 70);
+    /* Warm rich cream — like a gift tag on dark paper */
+    --card: oklch(0.22 0.03 35);
+    --card-foreground: oklch(0.93 0.02 70);
+    --popover: oklch(0.22 0.03 35);
+    --popover-foreground: oklch(0.93 0.02 70);
+    /* Brighter terracotta against dark bg */
+    --primary: oklch(0.65 0.14 30);
+    --primary-foreground: oklch(0.15 0.03 30);
+    --secondary: oklch(0.28 0.03 35);
+    --secondary-foreground: oklch(0.93 0.02 70);
+    --muted: oklch(0.28 0.03 35);
+    --muted-foreground: oklch(0.65 0.03 40);
+    --accent: oklch(0.65 0.14 30);
+    --accent-foreground: oklch(0.15 0.03 30);
+    --accent-subtle: oklch(0.25 0.03 30);
+    --destructive: oklch(0.65 0.18 25);
+    --destructive-foreground: oklch(0.93 0.02 70);
+    --border: oklch(0.35 0.04 35);
+    --input: oklch(0.35 0.04 35);
+    --ring: oklch(0.65 0.14 30);
+    /* Brighter sage green */
+    --success: oklch(0.6 0.1 140);
+    --success-foreground: oklch(0.15 0.03 30);
+    /* Brighter gold/ochre */
+    --warning: oklch(0.75 0.12 75);
+    --warning-foreground: oklch(0.15 0.03 30);
+    --chart-1: oklch(0.65 0.14 30);
+    --chart-2: oklch(0.6 0.1 140);
+    --chart-3: oklch(0.75 0.12 75);
+    --chart-4: oklch(0.35 0.04 35);
+    --chart-5: oklch(0.93 0.02 70);
+    --sidebar: oklch(0.22 0.03 35);
+    --sidebar-foreground: oklch(0.93 0.02 70);
+    --sidebar-primary: oklch(0.65 0.14 30);
+    --sidebar-primary-foreground: oklch(0.15 0.03 30);
+    --sidebar-accent: oklch(0.28 0.03 35);
+    --sidebar-accent-foreground: oklch(0.93 0.02 70);
+    --sidebar-border: oklch(0.35 0.04 35);
+    --sidebar-ring: oklch(0.65 0.14 30);
+}
+
+@layer base {
+    * {
+        border-color: var(--border);
+        outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+    }
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+    }
+    html {
+        font-family: var(--font-sans);
+    }
+}

@@ -11,7 +11,7 @@ const Home = async ({ params: { id } }: Props) => {
     const user = await getUserWithFriends(id);
 
     return (
-        <div className="container flex flex-col items-center">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center px-4 sm:px-6">
             <FriendsWidget user={user} />
         </div>
     );
