@@ -1,1 +1,18 @@
-export const API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+const RAW_API_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+const RAW_USERS_ENDPOINT = process.env.NEXT_PUBLIC_USERS_ENDPOINT;
+const RAW_WISHES_ENDPOINT = process.env.NEXT_PUBLIC_WISHES_ENDPOINT;
+const RAW_UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_UPLOAD_ENDPOINT;
+
+if (
+    !RAW_API_URL ||
+    !RAW_USERS_ENDPOINT ||
+    !RAW_WISHES_ENDPOINT ||
+    !RAW_UPLOAD_ENDPOINT
+) {
+    throw new Error('Missing environment variables');
+}
+
+export const API_URL = RAW_API_URL!;
+export const USERS_ENDPOINT = RAW_USERS_ENDPOINT!;
+export const WISHES_ENDPOINT = RAW_WISHES_ENDPOINT!;
+export const UPLOAD_ENDPOINT = RAW_UPLOAD_ENDPOINT!;

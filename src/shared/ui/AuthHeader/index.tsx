@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { AUTH_LINKS } from '@/shared/lib/constants/Links';
 import {
     RiLogoutBoxLine,
@@ -16,6 +16,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '../dropdown-menu';
 
@@ -41,29 +42,47 @@ export const UserHeaderAvatar = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger className="cursor-pointer" asChild>
-                <Avatar className="h-10 w-10">
+                <Avatar className="ring-accent/20 hover:ring-accent/30 h-9 w-9 rounded-lg ring-2 transition-shadow">
                     <AvatarImage src={user.picture ?? 'avatar_not_found.png'} />
                 </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem className="cursor-pointer space-x-2" asChild>
+            <DropdownMenuContent align="end" className="bg-card w-48">
+                <div className="flex items-center gap-3 px-2 py-1.5">
+                    <Avatar className="h-8 w-8 rounded-md">
+                        <AvatarImage
+                            src={user.picture ?? 'avatar_not_found.png'}
+                        />
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <span className="text-foreground text-sm font-medium leading-none">
+                            {user.name ?? user.username}
+                        </span>
+                        <span className="text-muted-foreground mt-0.5 text-xs">
+                            {user.email ?? ''}
+                        </span>
+                    </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer gap-2" asChild>
                     <Link href="/profile">
-                        <RiProfileLine />
-                        <p>Profile</p>
+                        <RiProfileLine className="h-4 w-4" />
+                        <span>Profile</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer space-x-2" asChild>
+                <DropdownMenuItem className="cursor-pointer gap-2" asChild>
                     <Link href="/settings">
-                        <RiSettings2Line />
-                        <p>Settings</p>
+                        <RiSettings2Line className="h-4 w-4" />
+                        <span>Settings</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer space-x-2" asChild>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer gap-2" asChild>
                     <Link
                         href={`auth/logout?${createQueryString('returnUrl', pathname)}`}
+                        className="text-destructive"
                     >
-                        <RiLogoutBoxLine />
-                        <p>Logout</p>
+                        <RiLogoutBoxLine className="h-4 w-4" />
+                        <span>Logout</span>
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>

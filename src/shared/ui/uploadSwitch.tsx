@@ -1,8 +1,8 @@
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { UploadZone } from '../lib/fileUploader';
 import { Button } from './button';
+import { S3UploadZone } from './s3UploadZone';
 
 interface Props {
     savedPicture?: Picture;
@@ -58,23 +58,17 @@ export const UploadSwitch = ({
     }
 
     return (
-        <UploadZone
-            endpoint="wishedUploader"
-            className="max-w-xs ut-button:bg-accent ut-allowed-content:text-foreground ut-label:text-primary"
-            onClientUploadComplete={(res: Picture[]) => {
-                const file = res[0] as Picture;
+        <S3UploadZone
+            onUploadComplete={(url: string) => {
+                setPicture({ key: url, url });
 
-                setPicture(file);
-
-                onUploadComplete(file.url);
+                onUploadComplete(url);
             }}
-            onBeforeUploadBegin={files => {
+            onUploadError={(message: string) => {
+                onError(message);
+            }}
+            onUploadStart={() => {
                 onUploading();
-
-                return files;
-            }}
-            onUploadError={error => {
-                onError(error.message);
             }}
         />
     );

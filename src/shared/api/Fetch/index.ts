@@ -1,5 +1,4 @@
-import { logout } from '@/features/auth/logout/lib';
-import { API_URL } from '@/shared/lib/constants/Config';
+import { logout } from '@/shared/auth/logout';
 import { redirect } from 'next/navigation';
 import { getAccessToken, setAccessToken } from './accessToken';
 
@@ -22,18 +21,18 @@ const handleUnauthorized = async () => {
     if (!accessToken) {
         // No access token available -> force logout + redirect
         logout();
-        redirect('/auth/login');
+        redirect('/login');
     }
 
-    const response = await fetch(API_URL + '/auth/refresh', {
-        method: 'GET',
+    const response = await fetch('/api/rotate', {
+        method: 'POST',
         credentials: 'include',
     });
 
     if (!response.ok) {
         // Refresh failed -> force logout + redirect
         logout();
-        redirect('/auth/login');
+        redirect('/login');
     }
 
     const data = (await response.json()) as { accessToken: string };
@@ -51,7 +50,7 @@ const handleUnauthorized = async () => {
  * - Consistent error shaping when non-2xx responses occur
  */
 const request = async <R, B = unknown>(
-    method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     url: string,
     tags: string[],
     body?: B,
@@ -60,7 +59,7 @@ const request = async <R, B = unknown>(
 ): Promise<R> => {
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...(withBearer ? getAuthorizationHeader() : {}),
+        Authorization: withBearer ? `Bearer ${getAccessToken()}` : '',
     };
 
     const shouldAddBody =
@@ -76,7 +75,7 @@ const request = async <R, B = unknown>(
         body: shouldAddBody ? JSON.stringify(body) : undefined,
     };
 
-    const response = await fetch(API_URL + url, fetchOptions);
+    const response = await fetch(url, fetchOptions);
 
     // Handle unauthorized: try refresh and retry once (as long as retriesLeft > 0)
     if (response.status === 401 && retriesLeft > 0) {
@@ -165,7 +164,7 @@ export const patch = async <B, R>(
     withBearer: boolean = false,
     retriesLeft: number = 3,
 ): Promise<R> => {
-    return request<R, B>('PATCH', url, tags, data, withBearer, retriesLeft);
+    return request<R, B>('PUT', url, tags, data, withBearer, retriesLeft);
 };
 
 export const remove = async <Body>(

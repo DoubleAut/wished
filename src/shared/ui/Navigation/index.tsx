@@ -29,45 +29,57 @@ export const Navigation = ({ links }: Props) => {
 
     return (
         <NavigationMenu>
-            <NavigationMenuList className="space-x-0">
-                {links.map(link => (
-                    <NavigationMenuItem
-                        key={link.path}
-                        className="relative h-10 px-4 py-2"
-                        onMouseOver={() => setHoveredNav(link.id)}
-                        onMouseLeave={() => setHoveredNav(null)}
-                    >
-                        <NavigationMenuLink className="z-20" asChild>
-                            <Link href={link.path}>{link.label}</Link>
-                        </NavigationMenuLink>
+            <NavigationMenuList className="gap-1">
+                {links.map(link => {
+                    const isActive = pathname === link.path;
 
-                        {hoveredNav === link.id && (
-                            <motion.span
-                                layoutId="hover"
-                                className="absolute inset-0 -z-10 rounded bg-accent"
-                                transition={{
-                                    stiffness: 200,
-                                    damping: 15,
-                                    mass: 0.2,
-                                    duration: 0.2,
-                                }}
-                            />
-                        )}
+                    return (
+                        <NavigationMenuItem
+                            key={link.path}
+                            className="relative"
+                            onMouseOver={() => setHoveredNav(link.id)}
+                            onMouseLeave={() => setHoveredNav(null)}
+                        >
+                            <NavigationMenuLink asChild>
+                                <Link
+                                    href={link.path}
+                                    className={cn(
+                                        'relative z-10 inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium transition-colors',
+                                        isActive
+                                            ? 'text-foreground'
+                                            : 'text-muted-foreground hover:text-foreground',
+                                    )}
+                                >
+                                    {link.label}
+                                </Link>
+                            </NavigationMenuLink>
 
-                        {pathname === link.path && (
-                            <motion.span
-                                layoutId="active"
-                                className="absolute -bottom-1 left-0 h-[2px] w-full rounded bg-accent-foreground"
-                                transition={{
-                                    stiffness: 200,
-                                    damping: 15,
-                                    mass: 0.1,
-                                    duration: 0.2,
-                                }}
-                            />
-                        )}
-                    </NavigationMenuItem>
-                ))}
+                            {isActive && (
+                                <motion.span
+                                    layoutId="nav-active"
+                                    className="bg-accent/15 absolute inset-0 rounded-lg"
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 380,
+                                        damping: 30,
+                                    }}
+                                />
+                            )}
+
+                            {hoveredNav === link.id && !isActive && (
+                                <motion.span
+                                    layoutId="nav-hover"
+                                    className="bg-secondary absolute inset-0 -z-0 rounded-lg"
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 380,
+                                        damping: 30,
+                                    }}
+                                />
+                            )}
+                        </NavigationMenuItem>
+                    );
+                })}
             </NavigationMenuList>
         </NavigationMenu>
     );
@@ -83,7 +95,7 @@ const ListItem = React.forwardRef<
                 <a
                     ref={ref}
                     className={cn(
-                        'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+                        'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
                         className,
                     )}
                     {...props}
@@ -91,7 +103,7 @@ const ListItem = React.forwardRef<
                     <div className="text-sm font-medium leading-none">
                         {title}
                     </div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                    <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                         {children}
                     </p>
                 </a>

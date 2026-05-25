@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 
-import { cn } from '../lib/classNames/cn';
+import { cn } from '@/shared/lib/classNames/cn';
 import { Button } from './button';
 import { Calendar } from './calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
@@ -28,7 +28,7 @@ export const DatePicker = ({ selected, onSelect }: Props) => {
                     {selected ? (
                         format(selected, 'PPP')
                     ) : (
-                        <span>Pick a data</span>
+                        <span>Pick a date</span>
                     )}
                 </Button>
             </PopoverTrigger>
@@ -37,7 +37,6 @@ export const DatePicker = ({ selected, onSelect }: Props) => {
                     mode="single"
                     selected={selected ?? undefined}
                     onSelect={onSelect}
-                    initialFocus
                 />
             </PopoverContent>
         </Popover>
