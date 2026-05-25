@@ -1,4 +1,4 @@
-import { GlobalStore } from '@/shared/types/GlobalStore';
+import { GlobalStore } from '@/entities/viewer/model/globalStore';
 import { StateCreator } from 'zustand';
 import { PlainUser } from '../../../../shared/types/User';
 export interface UserInformationSlice {

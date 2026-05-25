@@ -1,5 +1,5 @@
-import { USERS_ENDPOINT } from '@/features/auth/login/lib/api';
 import { get } from '@/shared/api/Fetch';
+import { USERS_ENDPOINT } from '@/shared/lib/constants/Config';
 import '@total-typescript/ts-reset';
 import type { FullUser, PlainUser } from '../../../../shared/types/User';
 

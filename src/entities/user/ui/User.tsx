@@ -107,12 +107,12 @@ export const UserLinksHorizontal = ({
             </Button>
             <Button>
                 <Link href="/wishes">
-                    <p>{reservations} wishes</p>
+                    <p>{wishes} wishes</p>
                 </Link>
             </Button>
             <Button>
                 <Link href="/reservations">
-                    <p>{wishes} reserved</p>
+                    <p>{reservations} reserved</p>
                 </Link>
             </Button>
         </div>

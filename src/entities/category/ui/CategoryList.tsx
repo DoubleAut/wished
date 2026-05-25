@@ -1,4 +1,4 @@
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { createCategory } from '@/features/category/lib';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,7 +13,7 @@ export const CategoryList = ({ items }: { items: ICategory[] }) => {
     const addCategory = useViewerStore(state => state.addCategory);
 
     const onAction = (data: TempCategory) => {
-        if (Boolean(data.name)) {
+        if (data.name.trim().length > 0) {
             createCategory({ ...data })
                 .then(item => {
                     addCategory(item);

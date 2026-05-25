@@ -1,3 +1,4 @@
+import { WishesPagination } from '@/shared/hooks/usePagination';
 import {
     Pagination,
     PaginationContent,
@@ -6,25 +7,31 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from '@/shared/ui/pagination';
-import { WishesPagination } from '../lib';
+
+interface PaginatedWishesProps {
+    pagination: WishesPagination;
+    onPageChange: (val: number) => void;
+}
 
 export const PaginatedWishes = ({
     pagination,
-}: {
-    pagination: WishesPagination;
-    onPageChange: (val: number) => void;
-}) => {
+    onPageChange,
+}: PaginatedWishesProps) => {
     return (
         <Pagination>
             <PaginationContent>
                 {pagination.page > 1 && (
                     <PaginationItem>
-                        <PaginationPrevious />
+                        <PaginationPrevious
+                            onClick={() => onPageChange(pagination.page - 1)}
+                        />
                     </PaginationItem>
                 )}
                 {pagination.page > 1 && (
                     <PaginationItem>
-                        <PaginationLink>1</PaginationLink>
+                        <PaginationLink onClick={() => onPageChange(1)}>
+                            1
+                        </PaginationLink>
                     </PaginationItem>
                 )}
                 <PaginationItem>
@@ -32,14 +39,18 @@ export const PaginatedWishes = ({
                 </PaginationItem>
                 {pagination.page + 1 <= pagination.totalPages && (
                     <PaginationItem>
-                        <PaginationLink href={'wishesPage'}>
+                        <PaginationLink
+                            onClick={() => onPageChange(pagination.page + 1)}
+                        >
                             {pagination.page + 1}
                         </PaginationLink>
                     </PaginationItem>
                 )}
                 {pagination.totalPages > 1 && (
                     <PaginationItem>
-                        <PaginationNext href={'wishesPage'} />
+                        <PaginationNext
+                            onClick={() => onPageChange(pagination.page + 1)}
+                        />
                     </PaginationItem>
                 )}
             </PaginationContent>

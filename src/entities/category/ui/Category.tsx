@@ -1,4 +1,4 @@
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { Toggle } from '@/shared/ui/toggle';
 import { Category as ICategory } from '../../../../shared/types/Category';
 

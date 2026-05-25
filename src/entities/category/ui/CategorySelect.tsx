@@ -1,4 +1,4 @@
-import { useViewerStore } from '@/core/providers/ViewerProvider';
+import { useViewerStore } from '@/app/providers/ViewerProvider';
 import {
     Select,
     SelectContent,

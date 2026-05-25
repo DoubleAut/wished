@@ -1,5 +1,5 @@
 import { createWishesSlice } from '@/entities/wish/model/wishesStore';
-import { GlobalStore } from '@/shared/types/GlobalStore';
+import { GlobalStore } from '@/entities/viewer/model/globalStore';
 import { createStore } from 'zustand';
 import { createCategorySlice } from '../../category/model/categorySlice';
 import { createFriendsSlice } from '../../user/model/friendsStore';

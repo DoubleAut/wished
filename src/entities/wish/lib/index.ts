@@ -1,5 +1,5 @@
 import { get, remove } from '@/shared/api/Fetch';
-import { WishesPagination } from '@/shared/hooks/usePagination';
+import { WISHES_ENDPOINT } from '@/shared/lib/constants/Config';
 import {
     ARCHIVED_TAG,
     GIFTED_TAG,
@@ -8,71 +8,95 @@ import {
 } from '@/shared/lib/constants/FetchTags';
 import type { Wish } from '../../../../shared/types/Wish';
 
-export interface MyWishesPaginatedResponse {
-    items: Wish[];
-    pagination: WishesPagination;
+interface WishesListResponse {
+    message: string;
+    wishes: Wish[];
 }
 
 const LIMIT = 9;
 
-export const getWishes = async (id: string, page: number, limit = LIMIT) => {
-    const response = await get<MyWishesPaginatedResponse>(
-        `/wishes/${id}?page=${page}&limit=${limit}`,
-        [WISHES_TAG],
-        true,
-    );
+const paginate = (items: Wish[], page: number, limit: number) => {
+    const start = (page - 1) * limit;
+    const end = start + limit;
 
-    return response.items;
+    return {
+        items: items.slice(start, end),
+        pagination: {
+            page,
+            limit,
+            total: items.length,
+            totalPages: Math.ceil(items.length / limit),
+        },
+    };
 };
 
-export const getMyWishesPaginated = async (page: number, limit = LIMIT) => {
-    const response = await get<MyWishesPaginatedResponse>(
-        `/wishes/me?page=${page}&limit=${limit}`,
-        [WISHES_TAG],
-        true,
-    );
-};
-
-export const getReservations = async (userId: string) => {
-    const response = await get<MyWishesPaginatedResponse>(
-        'wishes/reservations/' + userId,
-        [],
-    );
-
-    return response.items;
-};
-
-export const getMyReservationsPaginated = async (
+export const getMyWishesPaginated = async (
+    ownerId: string,
     page: number,
     limit = LIMIT,
 ) => {
-    const response = await get<MyWishesPaginatedResponse>(
-        `/wishes/me/reservations?page=${page}&limit=${limit}`,
+    const response = await get<WishesListResponse>(
+        `${WISHES_ENDPOINT}/list/${ownerId}`,
+        [WISHES_TAG],
+        true,
+    );
+
+    return paginate(response.wishes, page, limit);
+};
+
+export const getReservations = async (userId: string) => {
+    const response = await get<WishesListResponse>(
+        `${WISHES_ENDPOINT}/reservations/${userId}`,
+        [],
+    );
+
+    return response.wishes;
+};
+
+export const getMyReservationsPaginated = async (
+    userId: string,
+    page: number,
+    limit = LIMIT,
+) => {
+    const response = await get<WishesListResponse>(
+        `${WISHES_ENDPOINT}/reservations/${userId}`,
         [RESERVATIONS_TAG],
         true,
     );
 
-    return response;
+    return paginate(response.wishes, page, limit);
 };
 
-export const getMyGiftedPaginated = async (page: number, limit = LIMIT) => {
-    const response = await get<MyWishesPaginatedResponse>(
-        `/wishes/me/gifted?page=${page}&limit=${limit}`,
+export const getMyGiftedPaginated = async (
+    ownerId: string,
+    page: number,
+    limit = LIMIT,
+) => {
+    const response = await get<WishesListResponse>(
+        `${WISHES_ENDPOINT}/list/${ownerId}`,
         [GIFTED_TAG],
         true,
     );
 
-    return response;
+    const gifted = response.wishes.filter(wish => wish.status === 'gifted');
+
+    return paginate(gifted, page, limit);
 };
 
-export const getMyArchivedPaginated = async (page: number, limit = LIMIT) => {
-    const response = await get<MyWishesPaginatedResponse>(
-        `/wishes/me/archived?page=${page}&limit=${limit}`,
+export const getMyArchivedPaginated = async (
+    ownerId: string,
+    page: number,
+    limit = LIMIT,
+) => {
+    const response = await get<WishesListResponse>(
+        `${WISHES_ENDPOINT}/list/${ownerId}`,
         [ARCHIVED_TAG],
         true,
     );
 
-    return response;
+    const archived = response.wishes.filter(wish => wish.status === 'archived');
+
+    return paginate(archived, page, limit);
 };
 
 // interface WishesAndReservations {
@@ -84,7 +108,7 @@ export const getMyArchivedPaginated = async (page: number, limit = LIMIT) => {
 
 // export const getOwnWishes = async (userId: number) => {
 //     const response = await get<WishesAndReservations>(
-//         `/wishes/own/${userId}`,
+//         `${WISHES_ENDPOINT}/own/${userId}`,
 //         ['wishes', 'reservations'],
 //         true,
 //     );
@@ -93,7 +117,7 @@ export const getMyArchivedPaginated = async (page: number, limit = LIMIT) => {
 // };
 
 // export const getUserWishes = async (userId: number) => {
-//     const response = await get<Wish[]>(`/wishes/${userId}`, ['wishes']);
+//     const response = await get<Wish[]>(`${WISHES_ENDPOINT}/${userId}`, ['wishes']);
 
 //     return response;
 // };

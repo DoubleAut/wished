@@ -1,8 +1,5 @@
-import { CategorySlice } from '@/entities/category/model/categorySlice';
 import { StateCreator } from 'zustand';
 import { Wish } from '../../../../shared/types/Wish';
-import { FriendsSlice } from '../../user/model/friendsStore';
-import { UserInformationSlice } from '../../user/model/user';
 
 export interface WishesSlice {
     isLoading: boolean;
@@ -21,7 +18,7 @@ export interface WishesSlice {
 }
 
 export const createWishesSlice: StateCreator<
-    UserInformationSlice & WishesSlice & FriendsSlice & CategorySlice,
+    WishesSlice,
     [],
     [],
     WishesSlice
@@ -31,7 +28,6 @@ export const createWishesSlice: StateCreator<
     reservations: [],
     gifted: [],
     completed: [],
-    categories: [],
     setWishes: data => {
         const wishes = data.filter(wish => !Boolean(wish.isCompleted));
 
