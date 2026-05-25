@@ -1,8 +1,8 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { Wish } from '../../shared/types/Wish';
-import { getTypesafeBodyOrNull } from '../helpers';
+import { Wish } from '../../../shared/types/Wish';
+import { getTypesafeBodyOrNull } from './helpers';
 
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);

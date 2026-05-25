@@ -1,4 +1,4 @@
-export type WishStatus = 'active' | 'reserved' | 'gifted' | 'archived';
+export type WishStatuses = 'active' | 'reserved' | 'gifted' | 'archived';
 
 export interface Wish {
     id: string;
@@ -9,9 +9,8 @@ export interface Wish {
     isHidden: boolean;
     ownerId: string;
     picture: string | null;
-    reservedBy: string | null;
-    categoryId: number | null;
+    reservedBy: string | 'None';
     giftDay: string | null;
-    isCompleted: boolean;
-    status: WishStatus;
+    categoryId: string | null;
+    status: WishStatuses;
 }

@@ -2,9 +2,9 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { randomUUID } from 'crypto';
-import { MISSING_FIELDS } from '../../shared/errors/messages';
-import { Wish } from '../../shared/types/Wish';
-import { getTypesafeBodyOrNull } from '../helpers';
+import { MISSING_FIELDS } from '../../../shared/errors/messages';
+import { Wish } from '../../../shared/types/Wish';
+import { getTypesafeBodyOrNull } from './helpers';
 
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
@@ -59,10 +59,10 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             price,
             giftDay,
             ownerId,
+            status: 'active',
             canBeAnon: body.canBeAnon ?? false,
             isHidden: body.isHidden ?? false,
             picture: body.picture ?? null,
-            isCompleted: false,
             reservedBy: 'None',
         },
     });

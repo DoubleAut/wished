@@ -38,8 +38,9 @@ export const handler = async (event: any) => {
                 'Access-Control-Allow-Methods': 'POST',
                 'Access-Control-Allow-Headers': '*',
             },
-            message: JSON.stringify({
-                NO_CREDENTIALS_ERROR,
+            body: JSON.stringify({
+                message:
+                    'Missing credentials. Please provide username, password, and email.',
             }),
         };
     }

@@ -2,7 +2,7 @@ import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { MISSING_FIELDS } from '../../shared/errors/messages';
+import { MISSING_FIELDS } from '../../../shared/errors/messages';
 
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
