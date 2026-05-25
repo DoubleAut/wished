@@ -46,3 +46,7 @@ next-env.d.ts
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# AI Related
+.continue/
+.agents/
