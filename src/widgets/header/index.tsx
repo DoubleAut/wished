@@ -8,15 +8,19 @@ interface Props {
 
 export const HeaderWidget = ({ logo, links, profile }: Props) => {
     return (
-        <header className="sticky top-0 z-50 w-full border-b backdrop-blur-xl">
-            <div className="container flex h-14 w-full max-w-screen-2xl items-center">
-                <div className="mr-4 md:flex md:items-center">
+        <header className="border-accent/10 bg-card/80 sticky top-0 z-50 w-full border-b backdrop-blur-xl">
+            <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center px-4 sm:px-6 lg:px-8">
+                {/* Logo + Navigation together */}
+                <div className="mr-4 flex items-center md:flex">
                     <div className="mr-6">{logo}</div>
                     {links}
                 </div>
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    {profile}
-                </div>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Profile & Theme */}
+                <div className="flex items-center gap-1.5">{profile}</div>
             </div>
         </header>
     );

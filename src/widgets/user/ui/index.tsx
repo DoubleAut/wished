@@ -67,7 +67,7 @@ export const UserWidgetSkeleton = () => (
         avatar={<Skeleton className="h-full w-full" />}
         initials={<Skeleton className="h-full w-full" />}
         links={
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
                 <Skeleton className="h-full w-full" />
                 <Skeleton className="h-full w-full" />
                 <Skeleton className="h-full w-full" />
@@ -86,10 +86,10 @@ export const UserWidget = ({
     more,
 }: UserProps) => {
     return (
-        <div className="flex w-full flex-col space-y-4">
-            <div className="flex w-full space-x-2">
+        <div className="flex w-full flex-col gap-4">
+            <div className="flex w-full gap-2">
                 <Avatar className="aspect-square w-28">{avatar}</Avatar>
-                <div className="flex w-full justify-end space-x-2">
+                <div className="flex w-full justify-end gap-2">
                     <Button
                         variant="outline"
                         className="rounded-full"
@@ -100,7 +100,7 @@ export const UserWidget = ({
                     {follow}
                 </div>
             </div>
-            <div className="flex w-full flex-col space-y-2">
+            <div className="flex w-full flex-col gap-2">
                 {initials}
                 {links}
                 {action}
@@ -126,7 +126,7 @@ export const UserSmallWidget = ({
     return (
         <div className="flex items-center gap-5">
             <Avatar className="aspect-square w-28">{avatar}</Avatar>
-            <div className="flex w-full flex-col space-y-2">
+            <div className="flex w-full flex-col gap-2">
                 {header}
                 {links}
             </div>
@@ -141,7 +141,7 @@ export const UserSmallWidgetSkeleton = () => {
             <Avatar className="aspect-square w-28">
                 <Skeleton />
             </Avatar>
-            <div className="flex w-full flex-col space-y-2">
+            <div className="flex w-full flex-col gap-2">
                 <Skeleton />
                 <div>
                     <Skeleton />

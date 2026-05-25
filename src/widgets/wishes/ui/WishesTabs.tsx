@@ -1,6 +1,5 @@
 'use client';
 
-import { getWishes } from '@/entities/wish/lib';
 import { WishDialog } from '@/entities/wish/ui/WishDialog';
 import { WishForm } from '@/entities/wish/ui/WishForm';
 import {
@@ -9,98 +8,80 @@ import {
     ReservedWishes,
     Wishes,
 } from '@/entities/wish/ui/Wishes';
-import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
-import { RiBardLine } from '@remixicon/react';
-import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { useEffect, useState, type ReactNode } from 'react';
+import {
+    RiAddLine,
+    RiArchiveLine,
+    RiGiftLine,
+    RiHandbagLine,
+    RiStarLine,
+} from '@remixicon/react';
+import { useState, type ReactNode } from 'react';
 
 export type WishesTypes = 'wishes' | 'reservations' | 'gifted' | 'archived';
 
-const container = {
-    closed: { opacity: 0 },
-    open: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.05,
-        },
+interface TabConfig {
+    value: WishesTypes;
+    label: string;
+    icon: ReactNode;
+    description: string;
+}
+
+const tabs: TabConfig[] = [
+    {
+        value: 'wishes',
+        label: 'Wishes',
+        icon: <RiStarLine className="h-4 w-4" />,
+        description: 'Your active wishlist',
     },
-};
-
-const motionOptions = {
-    variants: container,
-    initial: 'closed',
-    animate: 'open',
-};
-
-const MotionTabsContent = motion(
-    ({ value, children }: { value: WishesTypes; children: ReactNode }) => (
-        <TabsContent value={value} {...motionOptions}>
-            {children}
-        </TabsContent>
-    ),
-);
+    {
+        value: 'reservations',
+        label: 'Reserved',
+        icon: <RiHandbagLine className="h-4 w-4" />,
+        description: 'Gifts you have claimed',
+    },
+    {
+        value: 'gifted',
+        label: 'Gifted',
+        icon: <RiGiftLine className="h-4 w-4" />,
+        description: 'Gifts you have given',
+    },
+    {
+        value: 'archived',
+        label: 'Archived',
+        icon: <RiArchiveLine className="h-4 w-4" />,
+        description: 'Past wishes',
+    },
+];
 
 export const WishesTabs = () => {
     const [activeTab, setActiveTab] = useState<WishesTypes>('wishes');
 
-    // TODO: Wishes don't appear on wishes tab, FIX IT!!!!
-    // After that can proceed to friends web!
-
-    const { data: ownWishes, status: ownWishesStatus } = useQuery({
-        queryKey: ['wishes'],
-        queryFn: () => {
-            if (!viewer) {
-                return [];
-            }
-
-            return getWishes(viewer.id);
-        },
-    });
-
-    const { data: reservedWishes, status: reservationWishesStatus } = useQuery({
-        queryKey: ['reservations'],
-        queryFn: () => {
-            if (!viewer) {
-                return [];
-            }
-
-            return getReservations(viewer.id);
-        },
-    });
-
-    useEffect(() => {
-        if (ownWishesStatus === 'success' && ownWishes) {
-            setWishes(ownWishes);
-        }
-    }, [ownWishes, ownWishesStatus]);
-
-    useEffect(() => {
-        if (reservationWishesStatus === 'success' && reservedWishes) {
-            setReservations(reservedWishes);
-        }
-    }, [reservedWishes, reservationWishesStatus]);
-
     return (
         <Tabs
             defaultValue="wishes"
-            className="w-full"
+            className="flex w-full flex-col gap-4"
             onValueChange={val => setActiveTab(val as WishesTypes)}
         >
-            <div className="flex w-full items-center justify-between">
-                <TabsList className="w-fit">
-                    <TabsTrigger value="wishes">Wishes</TabsTrigger>
-                    <TabsTrigger value="reservations">Reservations</TabsTrigger>
-                    <TabsTrigger value="gifted">Gifted</TabsTrigger>
-                    <TabsTrigger value="archived">Archived</TabsTrigger>
+            <div className="flex flex-row items-center justify-between">
+                <TabsList className="w-full sm:w-auto" variant="line">
+                    {tabs.map(tab => (
+                        <TabsTrigger
+                            key={tab.value}
+                            value={tab.value}
+                            className="flex items-center gap-1.5 whitespace-nowrap"
+                        >
+                            {tab.icon}
+                            <span>{tab.label}</span>
+                        </TabsTrigger>
+                    ))}
                 </TabsList>
                 <WishDialog
                     trigger={
-                        <Button variant="outline">
-                            <RiBardLine className="mr-3 h-4 w-4" />
+                        <>
+                            <RiAddLine className="h-4 w-4" />
                             Make a wish
-                        </Button>
+                        </>
                     }
                     content={
                         <WishForm onCancel={() => {}} onSuccess={() => {}} />
@@ -110,26 +91,26 @@ export const WishesTabs = () => {
                     defaultMode={'edit'}
                 />
             </div>
-            {activeTab === 'wishes' && (
-                <MotionTabsContent value="wishes">
-                    <Wishes />
-                </MotionTabsContent>
-            )}
-            {activeTab === 'reservations' && (
-                <MotionTabsContent value="reservations">
-                    <ReservedWishes />
-                </MotionTabsContent>
-            )}
-            {activeTab === 'gifted' && (
-                <MotionTabsContent value="gifted">
-                    <GiftedWishes />
-                </MotionTabsContent>
-            )}
-            {activeTab === 'archived' && (
-                <MotionTabsContent value="archived">
-                    <ArchivedWishes />
-                </MotionTabsContent>
-            )}
+            {/* <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+                
+            </motion.div> */}
+            <TabsContent value="wishes">
+                <Wishes />
+            </TabsContent>
+            <TabsContent value="reservations">
+                <ReservedWishes />
+            </TabsContent>
+            <TabsContent value="gifted">
+                <GiftedWishes />
+            </TabsContent>
+            <TabsContent value="archived">
+                <ArchivedWishes />
+            </TabsContent>
         </Tabs>
     );
 };
