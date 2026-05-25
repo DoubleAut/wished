@@ -69,11 +69,15 @@ export const updateWish = async (
         true,
     );
 
+    queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
+
     return response.wish;
 };
 
 export const deleteWish = async (id: string) => {
     const response = await remove(`${WISHES_ENDPOINT}/${id}`, [], true);
+
+    queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
 
     return response;
 };
@@ -86,6 +90,8 @@ export const reserveWish = async (id: string, reservedBy: string) => {
         true,
     );
 
+    queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
+
     return response.wish;
 };
 
@@ -96,6 +102,8 @@ export const cancelReservedWish = async (id: string) => {
         { reservedBy: 'None' },
         true,
     );
+
+    queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
 
     return response.wish;
 };

@@ -1,6 +1,9 @@
 import { logout } from '@/shared/auth/logout';
-import { redirect } from 'next/navigation';
-import { getAccessToken, setAccessToken } from './accessToken';
+import {
+    getAccessToken,
+    removeAccessToken,
+    setAccessToken,
+} from './accessToken';
 
 /**
  * Small delay helper for retry backoff.
@@ -8,6 +11,15 @@ import { getAccessToken, setAccessToken } from './accessToken';
 function wait(delay: number) {
     return new Promise(resolve => setTimeout(resolve, delay));
 }
+
+/**
+ * Redirect to login page from the client side.
+ * Used instead of next/navigation redirect() which throws and breaks promise chains.
+ */
+const redirectToLogin = () => {
+    removeAccessToken();
+    window.location.href = '/auth/login';
+};
 
 /**
  * Try to refresh the access token using the refresh endpoint.
@@ -21,7 +33,9 @@ const handleUnauthorized = async () => {
     if (!accessToken) {
         // No access token available -> force logout + redirect
         logout();
-        redirect('/login');
+        redirectToLogin();
+
+        return;
     }
 
     const response = await fetch('/api/rotate', {
@@ -32,7 +46,9 @@ const handleUnauthorized = async () => {
     if (!response.ok) {
         // Refresh failed -> force logout + redirect
         logout();
-        redirect('/login');
+        redirectToLogin();
+
+        return;
     }
 
     const data = (await response.json()) as { accessToken: string };

@@ -2,7 +2,9 @@
 
 import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { dialogStore } from '@/features/wish/model/dialogView';
+import { Button } from '@/shared/ui/button';
 import { WishContent } from '@/widgets/wishes/ui/WishContent';
+import { RiAddLine } from '@remixicon/react';
 import type { ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { useWishes } from '../model/useWishes';
@@ -206,7 +208,21 @@ const WishesList = ({ type }: WishesListProps) => {
     const store = useStore(dialogStore);
     const viewer = useViewerStore(state => state.user);
     const isView = store.dialogMode === 'view';
-    const { wishes, pagination, setPage, isLoading } = useWishes(type);
+    const { wishes, pagination, setPage, isLoading, refetch } = useWishes(type);
+
+    const handleFormSuccess = () => {
+        store.setOpen(false);
+        refetch();
+    };
+
+    const handleFormCancel = () => {
+        store.setOpen(false);
+    };
+
+    const handleOpenNewWish = () => {
+        store.setDialogWish(null, 'edit');
+        store.setOpen(true);
+    };
 
     if (isLoading) {
         return <WishesSkeleton />;
@@ -220,6 +236,15 @@ const WishesList = ({ type }: WishesListProps) => {
                         type="wishes"
                         title="Your wishlist is waiting"
                         description="Add something you'd love to receive. A wishlist is the best way to give gift ideas to friends and family."
+                        action={
+                            <Button
+                                onClick={handleOpenNewWish}
+                                className="gap-1.5"
+                            >
+                                <RiAddLine className="h-4 w-4" />
+                                Add your first wish
+                            </Button>
+                        }
                     />
                 );
             case 'reservations':
@@ -273,8 +298,8 @@ const WishesList = ({ type }: WishesListProps) => {
                                 />
                             ) : (
                                 <WishForm
-                                    onCancel={() => {}}
-                                    onSuccess={() => {}}
+                                    onCancel={handleFormCancel}
+                                    onSuccess={handleFormSuccess}
                                 />
                             )
                         }

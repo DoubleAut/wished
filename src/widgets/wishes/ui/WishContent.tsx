@@ -1,21 +1,14 @@
 'use client';
 
 import { useViewerStore } from '@/app/providers/ViewerProvider';
+import { statusConfig } from '@/entities/wish/lib/statusConfig';
 import { Background } from '@/entities/wish/ui/WishCard';
 import { dialogStore } from '@/features/wish/model/dialogView';
 import { cn } from '@/shared/lib/classNames/cn';
 import { Typography } from '@/shared/ui/Text/typography';
 import { Badge } from '@/shared/ui/badge';
 import { Skeleton } from '@/shared/ui/skeleton';
-import {
-    RiArchiveLine,
-    RiCalendarLine,
-    RiGiftLine,
-    RiHandbagLine,
-    RiPriceTag3Line,
-    RiStarSFill,
-    RiUserLine,
-} from '@remixicon/react';
+import { RiCalendarLine, RiPriceTag3Line } from '@remixicon/react';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { useStore } from 'zustand';
@@ -42,32 +35,6 @@ export const WishContentSkeleton = () => (
     </div>
 );
 
-const statusMeta: Record<
-    Wish['status'],
-    { icon: typeof RiStarSFill; label: string; className: string }
-> = {
-    active: {
-        icon: RiStarSFill,
-        label: 'Active',
-        className: 'text-accent bg-accent/10',
-    },
-    reserved: {
-        icon: RiGiftLine,
-        label: 'Reserved',
-        className: 'text-warning bg-warning/10',
-    },
-    gifted: {
-        icon: RiHandbagLine,
-        label: 'Gifted',
-        className: 'text-success bg-success/10',
-    },
-    archived: {
-        icon: RiArchiveLine,
-        label: 'Archived',
-        className: 'text-muted-foreground bg-muted',
-    },
-};
-
 export const WishContent = ({
     wish,
     actions,
@@ -75,13 +42,18 @@ export const WishContent = ({
     wish: Wish;
     actions: ReactNode;
 }) => {
+    const categories = useViewerStore(state => state.categories);
+
     if (!wish) {
         return <WishContentSkeleton />;
     }
 
     const status = wish.status ?? 'active';
-    const meta = statusMeta[status] ?? statusMeta.active;
+    const meta = statusConfig[status] ?? statusConfig.active;
     const StatusIcon = meta.icon;
+    const categoryName = wish.categoryId
+        ? categories.find(c => c.id === wish.categoryId)?.name
+        : null;
 
     return (
         <div className="flex flex-col">
@@ -129,7 +101,12 @@ export const WishContent = ({
                         <div className="flex items-center gap-1.5">
                             <RiPriceTag3Line className="h-4 w-4" />
                             <span className="text-foreground font-semibold">
-                                ${wish.price}
+                                {new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 2,
+                                }).format(wish.price)}
                             </span>
                         </div>
                         {wish.giftDay && (
@@ -147,10 +124,10 @@ export const WishContent = ({
                                 </span>
                             </div>
                         )}
-                        {wish.categoryId && (
+                        {categoryName && (
                             <div className="flex items-center gap-1.5">
-                                <RiUserLine className="h-4 w-4" />
-                                <span>Category #{wish.categoryId}</span>
+                                <RiPriceTag3Line className="h-4 w-4" />
+                                <span>{categoryName}</span>
                             </div>
                         )}
                     </div>

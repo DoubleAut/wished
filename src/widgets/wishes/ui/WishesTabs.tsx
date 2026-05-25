@@ -80,7 +80,7 @@ export const WishesTabs = () => {
                     trigger={
                         <>
                             <RiAddLine className="h-4 w-4" />
-                            Make a wish
+                            Add a wish
                         </>
                     }
                     content={
@@ -91,14 +91,6 @@ export const WishesTabs = () => {
                     defaultMode={'edit'}
                 />
             </div>
-            {/* <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            >
-                
-            </motion.div> */}
             <TabsContent value="wishes">
                 <Wishes />
             </TabsContent>

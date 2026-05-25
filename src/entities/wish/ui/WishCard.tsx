@@ -1,52 +1,15 @@
 'use client';
 
 import { useViewerStore } from '@/app/providers/ViewerProvider';
+import { statusConfig } from '@/entities/wish/lib/statusConfig';
 import { cn } from '@/shared/lib/classNames/cn';
 import { Typography } from '@/shared/ui/Text/typography';
 import { Badge } from '@/shared/ui/badge';
-import {
-    RiArchiveLine,
-    RiEyeLine,
-    RiEyeOffLine,
-    RiGiftLine,
-    RiHandbagLine,
-    RiStarLine,
-    RiStarSFill,
-} from '@remixicon/react';
+import { RiEyeLine, RiEyeOffLine, RiGiftLine } from '@remixicon/react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Wish } from '../../../../shared/types/Wish';
-
-const statusConfig: Record<
-    Wish['status'],
-    { icon: typeof RiStarLine; label: string; className: string }
-> = {
-    active: {
-        icon: RiStarSFill,
-        label: 'Active',
-        className:
-            'bg-accent/15 text-accent dark:bg-accent/20 dark:text-accent',
-    },
-    reserved: {
-        icon: RiGiftLine,
-        label: 'Reserved',
-        className:
-            'bg-warning/15 text-warning dark:bg-warning/20 dark:text-warning',
-    },
-    gifted: {
-        icon: RiHandbagLine,
-        label: 'Gifted',
-        className:
-            'bg-success/15 text-success dark:bg-success/20 dark:text-success',
-    },
-    archived: {
-        icon: RiArchiveLine,
-        label: 'Archived',
-        className:
-            'bg-muted text-muted-foreground dark:bg-muted/50 dark:text-muted-foreground',
-    },
-};
 
 export const Badges = ({ wish }: { wish: Wish }) => {
     const viewer = useViewerStore(state => state.user);
@@ -164,7 +127,12 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                 {/* Price pill - bottom left */}
                 <div className="absolute bottom-3 left-3">
                     <div className="bg-background/80 text-foreground inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold backdrop-blur-sm">
-                        ${wish.price}
+                        {new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                        }).format(wish.price)}
                     </div>
                 </div>
 
@@ -211,27 +179,6 @@ export const WishCard = ({ wish }: { wish: Wish }) => {
                         </span>
                     </div>
                 )}
-            </div>
-
-            {/* Hover action hint */}
-            <div
-                className={cn(
-                    'bg-foreground/5 absolute inset-0 flex items-center justify-center rounded-xl opacity-0 backdrop-blur-[1px] transition-opacity duration-300',
-                    isHover && 'opacity-100',
-                )}
-            >
-                <div className="flex flex-col items-center gap-1.5">
-                    <div className="bg-background/80 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-sm">
-                        {isOwn ? (
-                            <RiStarLine className="text-foreground/70 h-5 w-5" />
-                        ) : (
-                            <RiGiftLine className="text-accent h-5 w-5" />
-                        )}
-                    </div>
-                    <span className="text-foreground/70 text-xs font-medium">
-                        {isOwn ? 'View details' : 'See gift'}
-                    </span>
-                </div>
             </div>
         </motion.div>
     );

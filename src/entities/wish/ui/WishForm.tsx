@@ -195,8 +195,8 @@ export const WishForm = ({ onCancel, onSuccess }: Props) => {
         toast.success(
             `${newWish.title} has been ${isWishUpdate ? 'updated' : 'created'}.`,
         );
-        setDialogWish(newWish, 'view');
-        setOpen(true);
+
+        setOpen(false);
 
         onSuccess();
     };

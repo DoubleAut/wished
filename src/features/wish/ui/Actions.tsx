@@ -19,7 +19,6 @@ import {
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import {
-    RiCheckLine,
     RiCloseLine,
     RiDeleteBin6Line,
     RiEditLine,
@@ -40,80 +39,6 @@ import { dialogStore } from '../model/dialogView';
 interface Props {
     onAction: () => void;
 }
-
-export const CompleteWish = ({ onAction }: Props) => {
-    const completeWish = useViewerStore(state => state.completeWish);
-    const removeWish = useViewerStore(state => state.removeWish);
-    const store = useStore(dialogStore);
-    const dialogWish = store.dialogWish;
-    const setOpen = store.setOpen;
-
-    const onClick = () => {
-        if (!dialogWish) {
-            return;
-        }
-
-        const wish = dialogWish as Wish;
-        setOpen(false);
-
-        updateWish({ isCompleted: true }, wish.id)
-            .then(newWish => {
-                removeWish(wish);
-                completeWish(newWish);
-
-                queryClient.invalidateQueries({ queryKey: [WISHES_TAG] });
-
-                toast.success('The wish successfully updated');
-            })
-            .catch(err => {
-                toast.error(err.message);
-            })
-            .finally(() => {
-                onAction();
-            });
-    };
-
-    if (!dialogWish) {
-        return (
-            <Button asChild>
-                <Skeleton className="w-fit" />
-            </Button>
-        );
-    }
-
-    return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="outline">
-                    <RiCheckLine className="mr-1.5 h-4 w-4" />
-                    Complete
-                </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>
-                        Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This action cannot be undone. The gift will be archived.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>
-                        <RiCloseLine className="mr-1.5 h-4 w-4" />
-                        Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction asChild>
-                        <Button variant="outline" onClick={onClick}>
-                            <RiCheckLine className="mr-1.5 h-4 w-4" />
-                            Complete wish
-                        </Button>
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-    );
-};
 
 export const DeleteWish = ({ onAction }: Props) => {
     const store = useStore(dialogStore);
@@ -161,7 +86,7 @@ export const DeleteWish = ({ onAction }: Props) => {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive"
+                    className="text-muted-foreground hover:text-destructive h-8 w-8 rounded-full"
                 >
                     <RiDeleteBin6Line className="h-4 w-4" />
                 </Button>
@@ -204,7 +129,7 @@ export const EditWish = ({ onAction }: Props) => {
         <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground h-8 w-8 rounded-full"
             onClick={onClick}
         >
             <RiEditLine className="h-4 w-4" />
@@ -288,55 +213,89 @@ export const ReserveWish = ({ onAction }: Props) => {
         return null;
     }
 
+    const doReserve = () => {
+        if (!dialogWish || !viewer) {
+            return;
+        }
+
+        const wish = dialogWish as Wish;
+        const id = wish.id;
+
+        reserveWish(id, viewer.id)
+            .then(reservedWish => {
+                setDialogWish(reservedWish, 'view');
+
+                moveWishToViewerReservations(reservedWish);
+
+                queryClient.invalidateQueries({
+                    queryKey: [WISHES_TAG],
+                });
+
+                toast.success('You found the perfect gift!', {
+                    description: `"${reservedWish.title}" is now reserved. Time to wrap it up!`,
+                    icon: <RiGiftLine className="text-accent h-5 w-5" />,
+                });
+            })
+            .catch(err => {
+                toast.error(err.message);
+            })
+            .finally(() => {
+                onAction();
+            });
+    };
+
+    const doCancelReservation = () => {
+        if (!dialogWish || !viewer) {
+            return;
+        }
+
+        const wish = dialogWish as Wish;
+        const id = wish.id;
+
+        cancelReservedWish(id)
+            .then(reservedWish => {
+                setDialogWish(reservedWish, 'view');
+
+                removeWishFromViewerReservations(reservedWish);
+
+                revalidateTagFromServer('wishes');
+
+                toast.success('Reservation canceled', {
+                    description: `"${reservedWish.title}" is available for someone else.`,
+                });
+            })
+            .catch(err => {
+                toast.error(err.message);
+            })
+            .finally(() => {
+                onAction();
+            });
+    };
+
     const onClick = () => {
         if (dialogWish && viewer) {
             const isReserved = dialogWish.reservedBy;
-            const wish = dialogWish as Wish;
 
             if (!isReserved) {
-                const id = wish.id;
+                // Lightweight confirmation via toast with undo
+                const wish = dialogWish as Wish;
 
-                reserveWish(id, viewer.id)
-                    .then(reservedWish => {
-                        setDialogWish(reservedWish, 'view');
-
-                        moveWishToViewerReservations(reservedWish);
-
-                        queryClient.invalidateQueries({
-                            queryKey: [WISHES_TAG],
-                        });
-
-                        toast.success('You found the perfect gift!', {
-                            description: `"${reservedWish.title}" is now reserved. Time to wrap it up!`,
-                            icon: (
-                                <RiGiftLine className="h-5 w-5 text-accent" />
-                            ),
-                        });
-                    })
-                    .catch(err => {
-                        toast.error(err.message);
-                    });
+                toast('Reserve this gift?', {
+                    description: `"${wish.title}" will be marked as reserved.`,
+                    duration: 6000,
+                    action: {
+                        label: 'Yes, reserve it',
+                        onClick: doReserve,
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        onClick: () => {},
+                    },
+                });
             }
 
             if (isReserved && dialogWish.reservedBy === viewer.id) {
-                const wish = dialogWish as Wish;
-                const id = wish.id;
-
-                cancelReservedWish(id)
-                    .then(reservedWish => {
-                        setDialogWish(reservedWish, 'view');
-
-                        removeWishFromViewerReservations(reservedWish);
-
-                        revalidateTagFromServer('wishes');
-
-                        toast.success('Reservation canceled', {
-                            description: `"${reservedWish.title}" is available for someone else.`,
-                        });
-                    })
-                    .catch(err => {
-                        toast.error(err.message);
-                    });
+                doCancelReservation();
             }
         }
     };
