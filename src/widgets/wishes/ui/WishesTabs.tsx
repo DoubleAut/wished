@@ -81,7 +81,7 @@ export const WishesTabs = () => {
                             type="button"
                             onClick={() => setActiveTab(tab.value)}
                             className={`
-                                relative flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
+                                relative flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
                                 ${
                                     activeTab === tab.value
                                         ? 'bg-card text-foreground shadow-sm'
@@ -90,7 +90,9 @@ export const WishesTabs = () => {
                             `}
                         >
                             {tab.icon}
-                            <span>{tab.label}</span>
+                            <span className="hidden sm:inline">
+                                {tab.label}
+                            </span>
                         </button>
                     ))}
                 </div>

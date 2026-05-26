@@ -9,9 +9,8 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
 } from '@/shared/ui/navigation-menu';
-import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 
 type Link = {
     id: string;
@@ -25,11 +24,10 @@ interface Props {
 
 export const Navigation = ({ links }: Props) => {
     const pathname = usePathname();
-    const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
     return (
         <NavigationMenu>
-            <NavigationMenuList className="gap-1">
+            <NavigationMenuList className="gap-1" defaultValue="/">
                 {links.map(link => {
                     const isActive = pathname === link.path;
 
@@ -37,8 +35,6 @@ export const Navigation = ({ links }: Props) => {
                         <NavigationMenuItem
                             key={link.path}
                             className="relative"
-                            onMouseOver={() => setHoveredNav(link.id)}
-                            onMouseLeave={() => setHoveredNav(null)}
                         >
                             <NavigationMenuLink asChild>
                                 <Link
@@ -53,30 +49,6 @@ export const Navigation = ({ links }: Props) => {
                                     {link.label}
                                 </Link>
                             </NavigationMenuLink>
-
-                            {isActive && (
-                                <motion.span
-                                    layoutId="nav-active"
-                                    className="bg-accent/15 absolute inset-0 rounded-lg"
-                                    transition={{
-                                        type: 'spring',
-                                        stiffness: 380,
-                                        damping: 30,
-                                    }}
-                                />
-                            )}
-
-                            {hoveredNav === link.id && !isActive && (
-                                <motion.span
-                                    layoutId="nav-hover"
-                                    className="bg-secondary absolute inset-0 -z-0 rounded-lg"
-                                    transition={{
-                                        type: 'spring',
-                                        stiffness: 380,
-                                        damping: 30,
-                                    }}
-                                />
-                            )}
                         </NavigationMenuItem>
                     );
                 })}

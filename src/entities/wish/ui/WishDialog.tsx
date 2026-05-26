@@ -64,7 +64,7 @@ export const WishDialog = ({
             {isButtonTrigger ? (
                 <Button
                     variant="default"
-                    className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center gap-2 rounded-lg shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
+                    className="bg-accent text-accent-foreground hover:bg-accent/90 flex cursor-pointer items-center gap-2 rounded-lg shadow-sm transition-all"
                     onClick={() => onOpenChange(true)}
                 >
                     {trigger}

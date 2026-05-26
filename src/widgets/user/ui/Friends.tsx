@@ -386,7 +386,7 @@ export const FriendsWidget = ({ user }: FriendsWidgetProps) => {
                     type="button"
                     onClick={() => updateCurrentList('followers')}
                     className={`
-                        relative flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
+                        relative flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
                         ${
                             currentPath === 'followers'
                                 ? 'bg-card text-foreground shadow-sm'
@@ -413,7 +413,7 @@ export const FriendsWidget = ({ user }: FriendsWidgetProps) => {
                     type="button"
                     onClick={() => updateCurrentList('followings')}
                     className={`
-                        relative flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
+                        relative flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
                         ${
                             currentPath === 'followings'
                                 ? 'bg-card text-foreground shadow-sm'

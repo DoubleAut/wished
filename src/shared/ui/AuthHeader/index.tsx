@@ -2,11 +2,7 @@
 
 import { useViewerStore } from '@/app/providers/ViewerProvider';
 import { AUTH_LINKS } from '@/shared/lib/constants/Links';
-import {
-    RiLogoutBoxLine,
-    RiProfileLine,
-    RiSettings2Line,
-} from '@remixicon/react';
+import { RiLogoutBoxLine } from '@remixicon/react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
@@ -42,7 +38,7 @@ export const UserHeaderAvatar = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger className="cursor-pointer" asChild>
-                <Avatar className="ring-accent/20 hover:ring-accent/30 h-9 w-9 rounded-lg ring-2 transition-shadow">
+                <Avatar className="ring-accent/20 hover:ring-accent/30 h-9 w-9 rounded-full ring-2 transition-shadow">
                     <AvatarImage src={user.picture ?? 'avatar_not_found.png'} />
                 </Avatar>
             </DropdownMenuTrigger>
@@ -62,19 +58,6 @@ export const UserHeaderAvatar = () => {
                         </span>
                     </div>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer gap-2" asChild>
-                    <Link href="/profile">
-                        <RiProfileLine className="h-4 w-4" />
-                        <span>Profile</span>
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer gap-2" asChild>
-                    <Link href="/settings">
-                        <RiSettings2Line className="h-4 w-4" />
-                        <span>Settings</span>
-                    </Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer gap-2" asChild>
                     <Link

@@ -1,5 +1,5 @@
 export const NAVIGATION_LINKS = [
-    { label: 'My wishes', id: 'wishes', path: '/' },
+    { label: 'Wishes', id: 'wishes', path: '/' },
     { label: 'Friends', id: 'friends', path: '/friends' },
     { label: 'Profile', id: 'profile', path: '/profile' },
     // {
