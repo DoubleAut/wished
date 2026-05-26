@@ -7,9 +7,6 @@ const handler = async () => {
     const refreshToken = cookiesStore.get('refreshToken');
     const username = cookiesStore.get('username');
 
-    console.log('Refresh token: ', refreshToken);
-    console.log('Username: ', username);
-
     if (!refreshToken || !username) {
         return new Response(JSON.stringify({ message: 'No cookies found' }), {
             status: 400,
